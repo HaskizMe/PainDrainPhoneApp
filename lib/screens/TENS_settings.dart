@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pain_drain_mobile_app/global_slider_values.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
+
+
+
 
 class TENSSettings extends StatefulWidget {
   const TENSSettings({Key? key}) : super(key: key);
@@ -9,24 +13,22 @@ class TENSSettings extends StatefulWidget {
 }
 
 class _TENSSettingsState extends State<TENSSettings> {
-  double _sliderValue = 0;
-  final double min = 0;
-  final double max = 10;
-
+  final sliderValuesSingleton = SliderValuesSingleton();
   @override
   Widget build(BuildContext context) {
-    RangeLabels labels = RangeLabels(min.toString(), max.toString());
-
+    double sliderValue = sliderValuesSingleton.getSliderValue('tens');
     return Scaffold(
+      backgroundColor: Colors.grey[800],
       appBar: AppBar(
         title: const Text(
           'TENS',
           style: TextStyle(
+            color: Colors.white,
             fontSize: 50,
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.orangeRed,
+        backgroundColor: Colors.grey[900],
         centerTitle: true,
         toolbarHeight: 90,
       ),
@@ -37,17 +39,17 @@ class _TENSSettingsState extends State<TENSSettings> {
               .size
               .width * 0.70,
           child: SliderTheme(
-            data: const SliderThemeData(
+            data: SliderThemeData(
               trackHeight: 15,
-              activeTrackColor: AppColors.orangeRed, // Color of the active portion of the track
-              inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
-              thumbColor: AppColors.greyGreen, // Color of the thumb
+              activeTrackColor: AppColors.blue, // Color of the active portion of the track
+              inactiveTrackColor: Colors.white, // Color of the inactive portion of the track
+              thumbColor: Colors.blue[600], // Color of the thumb
               overlayColor: AppColors.lightGreen, // Color of the overlay when pressed
               valueIndicatorColor: AppColors.navyBlue, // Color of the value indicator
-              tickMarkShape: RoundSliderTickMarkShape(
+              tickMarkShape: const RoundSliderTickMarkShape(
                   tickMarkRadius: 0
               ),
-              thumbShape: RoundSliderThumbShape(
+              thumbShape: const RoundSliderThumbShape(
                 enabledThumbRadius: 15.0, // Adjust the radius as needed
               ),// Make ticks invisible
             ),
@@ -55,22 +57,23 @@ class _TENSSettingsState extends State<TENSSettings> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Slider(
-                  value: _sliderValue,
+                  value: sliderValue,
                   min: 0,
                   max: 10,
                   onChanged: (newValue) {
                     setState(() {
-                      _sliderValue = newValue;
+                      sliderValuesSingleton.setSliderValue('tens', newValue);
                     });
                     print('Slider value: $newValue');
                   },
-                  label: _sliderValue.round().toString(),
+                  label: sliderValue.round().toString(),
                   divisions: 10,
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                    'Adjust TENS setting',
+                  'Adjust TENS setting',
                   style: TextStyle(
+                    color: Colors.white70,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
 
@@ -82,8 +85,7 @@ class _TENSSettingsState extends State<TENSSettings> {
           ),
 
         ),
-      ),
-      backgroundColor: AppColors.yellow,
+      )
     );
   }
 }

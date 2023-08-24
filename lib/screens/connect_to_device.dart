@@ -10,6 +10,7 @@ class ConnectDevice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       backgroundColor: AppColors.yellow,
       body: Center(
         child: Container(
@@ -38,7 +39,7 @@ class ConnectDevice extends StatelessWidget {
                   'assets/PainDrainDeviceWithoutBackground.png',
                   width: MediaQuery.of(context).size.width * 0.65,
                   height: MediaQuery.of(context).size.height * 0.30,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 10),
