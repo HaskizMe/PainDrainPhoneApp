@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
+import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/global_slider_values.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 
@@ -13,6 +14,7 @@ class VibrationSettings extends StatefulWidget {
 
 class _VibrationSettingsState extends State<VibrationSettings> {
   final sliderValuesSingleton = SliderValuesSingleton();
+  final BluetoothController bluetoothController = Get.find<BluetoothController>();
 
   String _selectedItem = 'Sine';
 
@@ -70,15 +72,19 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                   Slider(
                     value: sliderValueAmplitude,
                     min: 0,
-                    max: 10,
+                    max: 100,
                     onChanged: (newValue) {
                       setState(() {
                         sliderValuesSingleton.setSliderValue('amplitude', newValue);
                       });
-                      print(sliderValueAmplitude.round());
+                      // Makes a command string for the vibration
+                      String stringCommand = "v ${_selectedItem.toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
+                      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                      print(stringCommand);
+                      bluetoothController.writeToDevice("vibration", hexValue);
                     },
                     label: sliderValueAmplitude.round().abs().toString(),
-                    divisions: 10,
+                    divisions: 20,
 
                   ),
                   const SizedBox(height: 10),
@@ -94,15 +100,19 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                   Slider(
                     value: sliderValueFrequency,
                     min: 0,
-                    max: 10,
+                    max: 100,
                     onChanged: (newValue) {
                       setState(() {
                         sliderValuesSingleton.setSliderValue('frequency', newValue);
                       });
-                      print(sliderValueFrequency.round());
-                    },
+                      // Makes a command string for the vibration
+                      String stringCommand = "v ${_selectedItem.toLowerCase()} ${sliderValueAmplitude.toInt()} ${newValue.round()} ${sliderValueWaveform.toInt()}";
+                      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                      print(stringCommand);
+                      bluetoothController.writeToDevice("vibration", hexValue);
+                      },
                     label: sliderValueFrequency.round().abs().toString(),
-                    divisions: 10,
+                    divisions: 20,
 
                   ),
                   const SizedBox(height: 10),
@@ -118,15 +128,20 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                   Slider(
                     value: sliderValueWaveform,
                     min: 0,
-                    max: 10,
+                    max: 100,
                     onChanged: (newValue) {
                       setState(() {
                         sliderValuesSingleton.setSliderValue('waveform', newValue);
                       });
-                      print(sliderValueWaveform.round());
+
+                      // Makes a command string for the vibration
+                      String stringCommand = "v ${_selectedItem.toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${newValue.round()}";
+                      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                      print(stringCommand);
+                      bluetoothController.writeToDevice("vibration", hexValue);
                     },
                     label: sliderValueWaveform.round().abs().toString(),
-                    divisions: 10,
+                    divisions: 20,
 
                   ),
                   const SizedBox(height: 10),

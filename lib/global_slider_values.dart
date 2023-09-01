@@ -5,7 +5,6 @@ without resetting them after changing to different pages
 */
 class SliderValuesSingleton {
   static final SliderValuesSingleton _instance = SliderValuesSingleton._internal();
-
   final Map<String, double> _sliderValues = {};
 
   factory SliderValuesSingleton() {

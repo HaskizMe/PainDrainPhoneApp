@@ -92,17 +92,12 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                       sliderValuesSingleton.setSliderValue('tens', newValue);
                     });
                     print('Slider value: ${newValue.round()}');
-                    //newValue.round();
-                    String stringCommand = "t ${newValue.round()}";
-                    // print(test);
+                    String stringCommand = "T ${newValue.round()}";
                     List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                    // print(hexValue);
-                    //print(bluetoothController.stringToHexList(test));
                     bluetoothController.writeToDevice("tens", hexValue);
-                    //writeToDevice();
                   },
                   label: sliderValue.round().toString(),
-                  divisions: 100,
+                  divisions: 20,
                 ),
                 const SizedBox(height: 10),
                 const Text(

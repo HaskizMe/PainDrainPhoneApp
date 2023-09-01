@@ -144,15 +144,14 @@ class BluetoothController extends GetxController {
     switch (stimulus){
       case "tens":
         await customCharacteristic.write(hexValues);
-        //await customCharacteristic.write([116, 32, 49, 48, 48]);
-        //await customCharacteristic.write([0x74, 0x20, 0x31, 0x30, 0x30]);
-
         print("tens");
         break;
       case "temperature":
+        await customCharacteristic.write(hexValues);
         print("temperature");
         break;
       case "vibration":
+        await customCharacteristic.write(hexValues);
         print("vibration");
         break;
       default:
@@ -169,17 +168,6 @@ class BluetoothController extends GetxController {
       //print(value);
     }
   }
-  // List<int> convertToHex(String value) {
-  //   List<int> hexList = [];
-  //
-  //   for (int i = 0; i < value.length; i++) {
-  //     final char = value.codeUnitAt(i);
-  //     final hexString = char.toRadixString(16).padLeft(2, '0');
-  //     hexList.add(int.parse(hexString, radix: 16));
-  //   }
-  //
-  //   return hexList;
-  // }
   List<int> stringToHexList(String input) {
     List<int> hexList = [];
 
@@ -192,19 +180,4 @@ class BluetoothController extends GetxController {
     return hexList;
   }
 }
-// Future<bool> getConnectionState() async {
-//   Completer<bool> completer = Completer<bool>();
-//
-//   luna3.connectionState.listen((state) async {
-//     if (state == BluetoothConnectionState.connected) {
-//       completer.complete(true);
-//       print("isConnected");
-//     } else if (state == BluetoothConnectionState.disconnected) {
-//       completer.complete(false);
-//       print("isNotConnected");
-//     }
-//   });
-//
-//   return completer.future;
-// }
 
