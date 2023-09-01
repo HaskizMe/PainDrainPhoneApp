@@ -1,66 +1,114 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'dart:developer';
+import 'package:get/get.dart';
+import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
+import '../main.dart';
+import 'package:pain_drain_mobile_app/screens/TENS_settings.dart';
 
-class BleScan extends StatefulWidget {
-  const BleScan({Key? key}) : super(key: key);
 
-  @override
-  State<BleScan> createState() => _BleScanState();
-}
+class BleConnect extends StatelessWidget {
+  BluetoothController bluetoothController = Get.find<BluetoothController>();
+  //final BluetoothController bluetoothController2 = Get.lazyPut(() => null)
 
-class _BleScanState extends State<BleScan> {
+  BleConnect({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "test"
+      appBar: AppBar(title: const Text('Bluetooth Devices')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                bluetoothController.startScanning();
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(350, 55),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20))
+                  )
+              ),
+              child: const Center(
+                child: Text(
+                    'Scan for Devices'
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Connect',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Obx(() => ListView.builder(
+                itemCount: bluetoothController.notConnectedDevices.length,
+                itemBuilder: (context, index) {
+                  final result = bluetoothController.notConnectedDevices[index];
+
+                  // Filtering devices by name
+                  if (result.device.localName == 'PainDrain' || result.device.localName == 'Luna3') {
+                    return GestureDetector(
+                      onTap: () async {
+                          bluetoothController.connectToDevice(result.device);
+                      },
+                      child: Card(
+                        elevation: 4,
+                        child: ListTile(
+                          title: Text(result.device.localName),
+                          subtitle: Text(result.device.remoteId.toString()),
+                          trailing: Text(result.rssi.toString()),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return const SizedBox.shrink(); // Empty space for devices not matching the filter
+                },
+              )),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Connected Devices',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Obx(() => ListView.builder(
+                itemCount: bluetoothController.connectedDevices.length,
+                itemBuilder: (context, index) {
+                  final device = bluetoothController.connectedDevices[index];
+
+                  // Filtering devices by name
+                  if (device.localName == 'PainDrain' || device.localName == 'Luna3') {
+                    return GestureDetector(
+                      onTap: () async {
+                        bluetoothController.connectToDevice(device);
+                        //bool isConnected = await getConnectionState();
+                        // if(isConnected){
+                        //   Get.to(() => const PageNavigation());
+                        // }
+                      },
+                      child: Card(
+                        elevation: 4,
+                        child: ListTile(
+                          title: Text(device.localName),
+                          subtitle: Text(device.remoteId.toString()),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return const SizedBox.shrink(); // Empty space for devices not matching the filter
+                },
+              )),
+            ),
+          ],
         ),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            debugPrint("object");
-            //bleScanAndConnect();
-            scanning();
-
-          },
-          child: const Text("Scan"),
-        ),
-      )
     );
   }
 }
-
-void scanning() async{
-  // check adapter availability
-  if (await FlutterBluePlus.isAvailable == false) {
-    print("Bluetooth not supported by this device");
-    return;
-  }
-
-// turn on bluetooth ourself if we can
-// for iOS, the user controls bluetooth enable/disable
-  if (Platform.isAndroid) {
-    var status = Permission.bluetooth.status;
-    print(status.toString());
-    await FlutterBluePlus.turnOn();
-  }
-
-// wait bluetooth to be on & print states
-// note: for iOS the initial state is typically BluetoothAdapterState.unknown
-// note: if you have permissions issues you will get stuck at BluetoothAdapterState.unauthorized
-  await FlutterBluePlus.adapterState
-      .map((s){print(s);return s;})
-      .where((s) => s == BluetoothAdapterState.on)
-      .first;
-
-}
-
-// void bleScanAndConnect() async{
-//   var status = await scanning();
-//
-// }

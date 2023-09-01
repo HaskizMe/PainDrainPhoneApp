@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:pain_drain_mobile_app/main.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
+import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
 
 class ConnectDevice extends StatelessWidget {
   const ConnectDevice({Key? key}) : super(key: key);
@@ -55,7 +56,7 @@ class ConnectDevice extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PageNavigation()),
+                    MaterialPageRoute(builder: (context) => BleConnect()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

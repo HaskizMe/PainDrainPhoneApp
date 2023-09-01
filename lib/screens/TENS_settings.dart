@@ -1,19 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:pain_drain_mobile_app/global_slider_values.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
+import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
+import 'package:get/get.dart';
 
 
 
-
-class TENSSettings extends StatefulWidget {
+class TENSSettings extends StatefulWidget with WidgetsBindingObserver {
   const TENSSettings({Key? key}) : super(key: key);
 
   @override
   State<TENSSettings> createState() => _TENSSettingsState();
 }
 
-class _TENSSettingsState extends State<TENSSettings> {
+class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver {
   final sliderValuesSingleton = SliderValuesSingleton();
+
+  final BluetoothController bluetoothController = Get.find<BluetoothController>();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance?.addObserver(this);
+  //   startCheckingConnection();
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   stopCheckingConnection();
+  //   WidgetsBinding.instance?.removeObserver(this);
+  //   super.dispose();
+  // }
+  //
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed) {
+  //     startCheckingConnection();
+  //   } else {
+  //     stopCheckingConnection();
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     double sliderValue = sliderValuesSingleton.getSliderValue('tens');
@@ -59,15 +86,23 @@ class _TENSSettingsState extends State<TENSSettings> {
                 Slider(
                   value: sliderValue,
                   min: 0,
-                  max: 10,
+                  max: 100,
                   onChanged: (newValue) {
                     setState(() {
                       sliderValuesSingleton.setSliderValue('tens', newValue);
                     });
-                    print('Slider value: $newValue');
+                    print('Slider value: ${newValue.round()}');
+                    //newValue.round();
+                    String stringCommand = "t ${newValue.round()}";
+                    // print(test);
+                    List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                    // print(hexValue);
+                    //print(bluetoothController.stringToHexList(test));
+                    bluetoothController.writeToDevice("tens", hexValue);
+                    //writeToDevice();
                   },
                   label: sliderValue.round().toString(),
-                  divisions: 10,
+                  divisions: 100,
                 ),
                 const SizedBox(height: 10),
                 const Text(
