@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
-
+import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
+import 'package:get/get.dart';
 import '../global_slider_values.dart';
 
 class TempSettings extends StatefulWidget {
@@ -12,9 +13,10 @@ class TempSettings extends StatefulWidget {
 
 class _TempSettingsState extends State<TempSettings> {
   final sliderValuesSingleton = SliderValuesSingleton();
+  final BluetoothController bluetoothController = Get.find<BluetoothController>();
 
-  final double _min = -10;
-  final double _max = 10;
+  final double _min = -100;
+  final double _max = 100;
 
   @override
   Widget build(BuildContext context) {
@@ -102,13 +104,17 @@ class _TempSettingsState extends State<TempSettings> {
                           : Colors.blue,
                       min: _min,
                       max: _max,
-                      divisions: (_min.abs() + _max.abs()).round(),
-                      label: temperatureSliderValue.abs().toString(),
+                      divisions: ((_min.abs() + _max.abs())/5).round(),
+                      label: temperatureSliderValue.round().toString(),
                       onChanged: (double newValue) {
                         setState(() {
-                          sliderValuesSingleton.setSliderValue(
-                              'temperature', newValue);
+                          sliderValuesSingleton.setSliderValue('temperature', newValue);
                         });
+                        print('Slider value: ${newValue.round()}');
+                        String stringCommand = "t ${newValue.round()}";
+                        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                        print(hexValue);
+                        bluetoothController.writeToDevice("temperature", hexValue);
                       },
                     ),
                   ),
