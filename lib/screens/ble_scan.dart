@@ -1,46 +1,108 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
-import '../main.dart';
-import 'package:pain_drain_mobile_app/screens/TENS_settings.dart';
 
 
-class BleConnect extends StatelessWidget {
+class BleConnect extends StatefulWidget {
+  const BleConnect({Key? key}) : super(key: key);
+
+  @override
+  State<BleConnect> createState() => _BleConnectState();
+}
+
+class _BleConnectState extends State<BleConnect> {
   BluetoothController bluetoothController = Get.find<BluetoothController>();
-  //final BluetoothController bluetoothController2 = Get.lazyPut(() => null)
+  bool isScanning = false;
+  bool isSnackBarVisible = false;
 
-  BleConnect({super.key});
+  // Callback function to show the SnackBar when disconnected
+  void showDisconnectedSnackBar() {
+    // Only show the SnackBar if it's not already displayed
+    if (!isSnackBarVisible) {
+      isSnackBarVisible = true; // Set a flag to indicate that the SnackBar is displayed
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.yellow),
+              SizedBox(width: 8),
+              Text('Device disconnected! Please reconnect.'),
+            ],
+          ),
+          duration: Duration(seconds: 5),
+        ),
+      ).closed.then((reason) {
+        // Reset the flag when the SnackBar is closed
+        setState(() {
+          isSnackBarVisible = false;
+        });
+      });
+    }
+  }
+  void startScanning() {
+    setState(() {
+      isScanning = true;
+    });
+
+    bluetoothController.startScanning();
+
+    // Set a delay to return to the button state after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        isScanning = false;
+      });
+    });
+  }
+  @override
+  void initState(){
+    super.initState();
+    bluetoothController.onDisconnectedCallback = showDisconnectedSnackBar;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Bluetooth Devices')),
+      backgroundColor: Colors.grey[800],
+      appBar: AppBar(
+          title: const Text('Bluetooth Devices'),
+              backgroundColor: Colors.grey[900],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ElevatedButton(
-              onPressed: () {
-                bluetoothController.startScanning();
-              },
+              onPressed: isScanning ? null : () => startScanning(),
               style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[900],
                 minimumSize: const Size(350, 55),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20))
-                  )
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
               ),
-              child: const Center(
+              child: isScanning
+                  ? const Center(
+                child: CircularProgressIndicator(),
+              )
+                  : const Center(
                 child: Text(
-                    'Scan for Devices'
+                    'Scan for Devices',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
             const Text(
               'Connect',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+              ),
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -73,7 +135,11 @@ class BleConnect extends StatelessWidget {
             const SizedBox(height: 20),
             const Text(
               'Connected Devices',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+              ),
             ),
             const SizedBox(height: 10),
             Expanded(

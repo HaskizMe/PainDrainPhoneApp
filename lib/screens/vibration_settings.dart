@@ -25,6 +25,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
     double sliderValueFrequency = sliderValuesSingleton.getSliderValue('frequency');
     double sliderValueWaveform = sliderValuesSingleton.getSliderValue('waveform');
     return Scaffold(
+      backgroundColor: Colors.grey[800],
       appBar: AppBar(
         title: const Text(
           'Vibration',
@@ -33,19 +34,12 @@ class _VibrationSettingsState extends State<VibrationSettings> {
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.grey,
+        backgroundColor: Colors.grey[900],
         centerTitle: true,
         toolbarHeight: 90,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.darkGrey, AppColors.offWhite],
-          ),
-        ),
-        child: Center(
+      body: Center(
+
           child: SizedBox(
             width: MediaQuery
                 .of(context)
@@ -54,11 +48,9 @@ class _VibrationSettingsState extends State<VibrationSettings> {
             child: SliderTheme(
               data: const SliderThemeData(
                 trackHeight: 15,
-                activeTrackColor: AppColors.orangeRed, // Color of the active portion of the track
-                inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
-                thumbColor: AppColors.greyGreen, // Color of the thumb
-                overlayColor: AppColors.lightGreen, // Color of the overlay when pressed
-                valueIndicatorColor: AppColors.navyBlue, // Color of the value indicator
+                activeTrackColor: Colors.blue, // Color of the active portion of the track
+                inactiveTrackColor: Colors.white, // Color of the inactive portion of the track
+                thumbColor: AppColors.blue, // Color of the thumb
                 tickMarkShape: RoundSliderTickMarkShape(
                     tickMarkRadius: 0
                 ),
@@ -93,6 +85,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
+                      color: Colors.white,
 
                     ),
                   ),
@@ -121,7 +114,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -150,7 +143,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-
+                      color: Colors.white,
                     ),
                   ),
                   Align(
@@ -159,11 +152,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       margin: const EdgeInsets.fromLTRB(0, 25, 20, 0),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [AppColors.orangeRed, AppColors.orange],
-                        ),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child:
@@ -192,7 +181,6 @@ class _VibrationSettingsState extends State<VibrationSettings> {
 
           ),
         ),
-      )
     );
   }
 }

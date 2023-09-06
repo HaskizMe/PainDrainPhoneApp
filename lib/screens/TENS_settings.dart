@@ -71,8 +71,6 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
               activeTrackColor: AppColors.blue, // Color of the active portion of the track
               inactiveTrackColor: Colors.white, // Color of the inactive portion of the track
               thumbColor: Colors.blue[600], // Color of the thumb
-              overlayColor: AppColors.lightGreen, // Color of the overlay when pressed
-              valueIndicatorColor: AppColors.navyBlue, // Color of the value indicator
               tickMarkShape: const RoundSliderTickMarkShape(
                   tickMarkRadius: 0
               ),
@@ -103,7 +101,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                 const Text(
                   'Adjust TENS setting',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
 

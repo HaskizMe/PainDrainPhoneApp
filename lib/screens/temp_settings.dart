@@ -59,7 +59,7 @@ class _TempSettingsState extends State<TempSettings> {
                               height: 15,
                               child: LinearProgressIndicator(
                                 value: 1 - temperatureSliderValue / _min,
-                                color: Colors.grey,
+                                color: Colors.white,
                                 backgroundColor: Colors.blue,
                               ),
                             ),
@@ -77,7 +77,7 @@ class _TempSettingsState extends State<TempSettings> {
                               child: LinearProgressIndicator(
                                 value: temperatureSliderValue / _max,
                                 color: Colors.red,
-                                backgroundColor: Colors.grey,
+                                backgroundColor: Colors.white,
                               ),
                             ),
                           ),
@@ -98,7 +98,7 @@ class _TempSettingsState extends State<TempSettings> {
                       activeColor: Colors.transparent,
                       inactiveColor: Colors.transparent,
                       thumbColor: temperatureSliderValue == 0
-                          ? Colors.grey
+                          ? Colors.blue
                           : temperatureSliderValue > 0
                           ? Colors.red
                           : Colors.blue,
@@ -124,7 +124,7 @@ class _TempSettingsState extends State<TempSettings> {
               const Text(
                 'Adjust Temperature setting',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),

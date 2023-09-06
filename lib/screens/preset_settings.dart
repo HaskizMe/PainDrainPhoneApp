@@ -16,7 +16,7 @@ class _PresetSettingsState extends State<PresetSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.yellow,
+      backgroundColor: Colors.grey[800],
       appBar: AppBar(
         title: const Text(
           'Presets',
@@ -25,7 +25,7 @@ class _PresetSettingsState extends State<PresetSettings> {
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.grey,
+        backgroundColor: Colors.grey[900],
         centerTitle: true,
         toolbarHeight: 90,
 
@@ -35,21 +35,29 @@ class _PresetSettingsState extends State<PresetSettings> {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            DropdownButton(
-              value: _selectedSetting,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedSetting = newValue!;
-                });
-              },
-              items: <String>['Option 1']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              underline: Container(),
+            Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            margin: const EdgeInsets.fromLTRB(0, 25, 20, 0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+              child: DropdownButton(
+                value: _selectedSetting,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedSetting = newValue!;
+                  });
+                },
+                items: <String>['Option 1']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                underline: Container(),
+              ),
             ),
           ],
         ),

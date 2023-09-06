@@ -12,20 +12,20 @@ class ConnectDevice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      backgroundColor: AppColors.yellow,
+      backgroundColor: Colors.black,
       body: Center(
         child: Container(
           width: MediaQuery.of(context).size.width * 0.80,
           height: MediaQuery.of(context).size.height * 0.5,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.orangeRed,
+            color: Colors.grey[900],
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.5),
                 spreadRadius: 2,
-                blurRadius: 5,
+                blurRadius: 3,
                 offset: const Offset(0, 3),
               ),
             ],
@@ -60,7 +60,7 @@ class ConnectDevice extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.navyBlue,
+                  backgroundColor: Colors.grey[800],
                 ),
                 child: const Text('CONNECT'),
               ),

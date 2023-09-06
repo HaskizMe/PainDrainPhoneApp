@@ -20,6 +20,7 @@ BluetoothDevice painDrain = BluetoothDevice(
 );
 
 class BluetoothController extends GetxController {
+  Function? onDisconnectedCallback;
   String customServiceUUID = "3bf00c21-d291-4688-b8e9-5a379e3d9874";
   String customCharacteristicUUID = "93c836a2-695a-42cc-95ac-1afa0eef6b0a";
   late BluetoothService customService;
@@ -65,6 +66,7 @@ class BluetoothController extends GetxController {
       timeout: const Duration(seconds: 5),
       androidUsesFineLocation: false,
     );
+    //FlutterBluePlus.stopScan();
   }
 
   void startScanning() {
@@ -74,7 +76,7 @@ class BluetoothController extends GetxController {
   Future<void> connectToDevice(BluetoothDevice device) async {
     try {
       // This connects to the device and then navigates to the other pages
-      await device.disconnect();
+      //await device.disconnect();
       await device.connect();
       connectedDevice = device;
       services = await connectedDevice.discoverServices();
@@ -97,10 +99,12 @@ class BluetoothController extends GetxController {
       // This listens to the device and if it gets connected it will return back
       // to the connection page also, if its already connected it will navigate
       // to the other pages.
-      connectedDevice.connectionState.listen((state) async {
+      device.connectionState.listen((state) async {
         if (state == BluetoothConnectionState.disconnected) {
           print("Disconnected");
-          Get.to(() => BleConnect());
+          Get.to(() => const BleConnect());
+          onDisconnectedCallback!();
+
         } else if (state == BluetoothConnectionState.connected) {
           print("already connected");
           //connectedDevice = device;
