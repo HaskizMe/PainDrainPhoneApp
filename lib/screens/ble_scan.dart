@@ -25,9 +25,9 @@ class _BleConnectState extends State<BleConnect> {
         const SnackBar(
           content: Row(
             children: [
-              Icon(Icons.warning, color: Colors.yellow),
+              Icon(Icons.bluetooth_connected_rounded, color: Colors.blue),
               SizedBox(width: 8),
-              Text('Device disconnected! Please reconnect.'),
+              Text('Device reconnecting'),
             ],
           ),
           duration: Duration(seconds: 5),

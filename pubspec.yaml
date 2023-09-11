@@ -36,6 +36,7 @@ dependencies:
   flutter_blue_plus: ^1.14.11
   get: ^4.6.5
   async: ^2.11.0
+  shared_preferences: ^2.2.1
 
 
 dev_dependencies:

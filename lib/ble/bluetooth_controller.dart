@@ -76,7 +76,6 @@ class BluetoothController extends GetxController {
   Future<void> connectToDevice(BluetoothDevice device) async {
     try {
       // This connects to the device and then navigates to the other pages
-      //await device.disconnect();
       await device.connect();
       connectedDevice = device;
       services = await connectedDevice.discoverServices();
@@ -104,6 +103,8 @@ class BluetoothController extends GetxController {
           print("Disconnected");
           Get.to(() => const BleConnect());
           onDisconnectedCallback!();
+          await device.disconnect();
+          await device.connect();
 
         } else if (state == BluetoothConnectionState.connected) {
           print("already connected");
@@ -126,22 +127,6 @@ class BluetoothController extends GetxController {
     super.onClose();
   }
 
-// Future<bool> getConnectionState() async {
-//   Completer<bool> completer = Completer<bool>();
-//
-//   luna3.connectionState.listen((state) async {
-//     if (state == BluetoothConnectionState.connected) {
-//       completer.complete(true);
-//       print("isConnected");
-//     } else if (state == BluetoothConnectionState.disconnected) {
-//       completer.complete(false);
-//       print("isNotConnected");
-//     }
-//   });
-//
-//   return completer.future;
-// }
-
   Future writeToDevice(String stimulus, List<int> hexValues) async {
     //List<BluetoothService> services = await connectedDevice.discoverServices();
     //await customCharacteristic.write(hexValues);
@@ -162,8 +147,6 @@ class BluetoothController extends GetxController {
         print("error");
         break;
     }
-    //print(connectedDevice);
-    //print("hi");
   }
 
   Future readFromDevice(characteristics) async {

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:get/get.dart';
-import '../global_slider_values.dart';
+import '../global_values.dart';
+import '../main.dart';
 
 class TempSettings extends StatefulWidget {
   const TempSettings({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class TempSettings extends StatefulWidget {
 }
 
 class _TempSettingsState extends State<TempSettings> {
-  final sliderValuesSingleton = SliderValuesSingleton();
+  // final sliderValuesSingleton = SliderValuesSingleton();
   final BluetoothController bluetoothController = Get.find<BluetoothController>();
 
   final double _min = -100;
@@ -20,7 +21,7 @@ class _TempSettingsState extends State<TempSettings> {
 
   @override
   Widget build(BuildContext context) {
-    double temperatureSliderValue = sliderValuesSingleton.getSliderValue('temperature');
+    double temperatureSliderValue = globalValues.getSliderValue('temperature');
     return Scaffold(
       backgroundColor: Colors.grey[800],
       appBar: AppBar(
@@ -36,100 +37,104 @@ class _TempSettingsState extends State<TempSettings> {
         toolbarHeight: 90,
       ),
       body: Center(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.80,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Stack(
-                alignment: AlignmentDirectional.center,
+        child: Scrollbar(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.80,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: _min.abs().round(),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(100.0),
-                              bottomLeft: Radius.circular(100.0)
-                            ),
-                            child: SizedBox(
-                              height: 15,
-                              child: LinearProgressIndicator(
-                                value: 1 - temperatureSliderValue / _min,
-                                color: Colors.white,
-                                backgroundColor: Colors.blue,
+                  Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: _min.abs().round(),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(100.0),
+                                  bottomLeft: Radius.circular(100.0)
+                                ),
+                                child: SizedBox(
+                                  height: 15,
+                                  child: LinearProgressIndicator(
+                                    value: 1 - temperatureSliderValue / _min,
+                                    color: Colors.white,
+                                    backgroundColor: Colors.blue,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: _max.abs().round(),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(100.0),
-                                bottomRight: Radius.circular(100.0)
-                            ),
-                            child: SizedBox(
-                              height: 15,
-                              child: LinearProgressIndicator(
-                                value: temperatureSliderValue / _max,
-                                color: Colors.red,
-                                backgroundColor: Colors.white,
+                            Expanded(
+                              flex: _max.abs().round(),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(100.0),
+                                    bottomRight: Radius.circular(100.0)
+                                ),
+                                child: SizedBox(
+                                  height: 15,
+                                  child: LinearProgressIndicator(
+                                    value: temperatureSliderValue / _max,
+                                    color: Colors.red,
+                                    backgroundColor: Colors.white,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  SliderTheme(
-                    data: const SliderThemeData(
-                      trackHeight: 15.0,
-                      thumbShape: RoundSliderThumbShape(
-                        enabledThumbRadius: 15.0,
                       ),
-                      // Customize other properties as needed
-                    ),
-                    child: Slider(
-                      value: temperatureSliderValue,
-                      activeColor: Colors.transparent,
-                      inactiveColor: Colors.transparent,
-                      thumbColor: temperatureSliderValue == 0
-                          ? Colors.blue
-                          : temperatureSliderValue > 0
-                          ? Colors.red
-                          : Colors.blue,
-                      min: _min,
-                      max: _max,
-                      divisions: ((_min.abs() + _max.abs())/5).round(),
-                      label: temperatureSliderValue.round().toString(),
-                      onChanged: (double newValue) {
-                        setState(() {
-                          sliderValuesSingleton.setSliderValue('temperature', newValue);
-                        });
-                        print('Slider value: ${newValue.round()}');
-                        String stringCommand = "t ${newValue.round()}";
-                        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                        print(hexValue);
-                        bluetoothController.writeToDevice("temperature", hexValue);
-                      },
+                      SliderTheme(
+                        data: const SliderThemeData(
+                          trackHeight: 15.0,
+                          thumbShape: RoundSliderThumbShape(
+                            enabledThumbRadius: 15.0,
+                          ),
+                          // Customize other properties as needed
+                        ),
+                        child: Slider(
+                          value: temperatureSliderValue,
+                          activeColor: Colors.transparent,
+                          inactiveColor: Colors.transparent,
+                          thumbColor: temperatureSliderValue == 0
+                              ? Colors.blue
+                              : temperatureSliderValue > 0
+                              ? Colors.red
+                              : Colors.blue,
+                          min: _min,
+                          max: _max,
+                          divisions: ((_min.abs() + _max.abs())/5).round(),
+                          label: temperatureSliderValue.round().toString(),
+                          onChanged: (double newValue) {
+                            setState(() {
+                              globalValues.setSliderValue('temperature', newValue);
+                            });
+                            print('Slider value: ${newValue.round()}');
+                            String stringCommand = "t ${newValue.round()}";
+                            List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                            print(hexValue);
+                            bluetoothController.writeToDevice("temperature", hexValue);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Adjust Temperature',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              const Text(
-                'Adjust Temperature setting',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
