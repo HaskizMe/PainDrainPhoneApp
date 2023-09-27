@@ -18,7 +18,30 @@ class _TempSettingsState extends State<TempSettings> {
 
   final double _min = -100;
   final double _max = 100;
+  List<int> readValueList = [];
+  String readValue = "";
+  double sliderValue = 0;
 
+  // Create a function to handle the slider change with debounce
+  void handleSliderChange(double newValue) async {
+    setState(() {
+      globalValues.setSliderValue('temperature', newValue);
+    });
+
+    // Implement your async operations here
+    print('Slider value: ${newValue.round()}');
+    String stringCommand = "t ${newValue.round()}";
+    List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+    print(hexValue);
+    await bluetoothController.writeToDevice("temperature", hexValue);
+    readValueList = await bluetoothController.readFromDevice();
+    print('value: $readValue');
+
+    // Update readValue
+    setState(() {
+      readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+    });
+  }
   @override
   Widget build(BuildContext context) {
     double temperatureSliderValue = globalValues.getSliderValue('temperature');
@@ -111,13 +134,14 @@ class _TempSettingsState extends State<TempSettings> {
                           label: temperatureSliderValue.round().toString(),
                           onChanged: (double newValue) {
                             setState(() {
-                              globalValues.setSliderValue('temperature', newValue);
+                              handleSliderChange(newValue);
+                              //globalValues.setSliderValue('temperature', newValue);
                             });
-                            print('Slider value: ${newValue.round()}');
-                            String stringCommand = "t ${newValue.round()}";
-                            List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                            print(hexValue);
-                            bluetoothController.writeToDevice("temperature", hexValue);
+                            // print('Slider value: ${newValue.round()}');
+                            // String stringCommand = "t ${newValue.round()}";
+                            // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                            // print(hexValue);
+                            // bluetoothController.writeToDevice("temperature", hexValue);
                           },
                         ),
                       ),
@@ -132,6 +156,16 @@ class _TempSettingsState extends State<TempSettings> {
                       fontSize: 20,
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  if(readValue.isNotEmpty)
+                    Text(
+                      readValue,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
                 ],
               ),
             ),

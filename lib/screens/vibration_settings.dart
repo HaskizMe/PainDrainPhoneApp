@@ -18,7 +18,46 @@ class _VibrationSettingsState extends State<VibrationSettings> {
   final BluetoothController bluetoothController = Get.find<BluetoothController>();
 
   String selectedItem = 'Sine';
+  List<int> readValueList = [];
+  String readValue = "";
+  double sliderValue = 0;
 
+  // Create a function to handle the slider change with debounce
+  void handleSliderChange(var newValue, String stimulus) async {
+    setState(() {
+      if(stimulus == 'waveform'){
+        globalValues.setSliderValue('waveform', newValue);
+      }
+      else if(stimulus == 'amplitude'){
+        globalValues.setSliderValue('amplitude', newValue);
+      }
+      else if(stimulus == 'frequency'){
+        globalValues.setSliderValue('frequency', newValue);
+      }
+      else if(stimulus == 'waveType'){
+        globalValues.setWaveType(newValue);
+      }
+
+    });
+
+    // Implement your async operations here
+    String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${globalValues.getSliderValue('amplitude').toInt()} ${globalValues.getSliderValue('frequency').toInt()} ${globalValues.getSliderValue('waveform').toInt()}";
+    List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+    print(stringCommand);
+    print('list hex values $hexValue');
+    await bluetoothController.writeToDevice('vibration', hexValue);
+    readValueList = await bluetoothController.readFromDevice();
+    print('value: $readValue');
+
+    // Update readValue
+    setState(() {
+      readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+    });
+  }
+
+  void handleDropboxChange(String newValue){
+
+  }
   @override
   Widget build(BuildContext context) {
     double sliderValueAmplitude = globalValues.getSliderValue('amplitude');
@@ -66,13 +105,14 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                       max: 100,
                       onChanged: (newValue) {
                         setState(() {
-                          globalValues.setSliderValue('amplitude', newValue);
+                          //globalValues.setSliderValue('amplitude', newValue);
+                          handleSliderChange(newValue, 'amplitude');
                         });
                         // Makes a command string for the vibration
-                        String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                        print(stringCommand);
-                        bluetoothController.writeToDevice("vibration", hexValue);
+                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
+                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                        // print(stringCommand);
+                        // bluetoothController.writeToDevice("vibration", hexValue);
                       },
                       label: sliderValueAmplitude.round().abs().toString(),
                       divisions: 20,
@@ -95,13 +135,14 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                       max: 100,
                       onChanged: (newValue) {
                         setState(() {
-                          globalValues.setSliderValue('frequency', newValue);
+                          // globalValues.setSliderValue('frequency', newValue);
+                          handleSliderChange(newValue, 'frequency');
                         });
                         // Makes a command string for the vibration
-                        String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${newValue.round()} ${sliderValueWaveform.toInt()}";
-                        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                        print(stringCommand);
-                        bluetoothController.writeToDevice("vibration", hexValue);
+                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${newValue.round()} ${sliderValueWaveform.toInt()}";
+                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                        // print(stringCommand);
+                        // bluetoothController.writeToDevice("vibration", hexValue);
                         },
                       label: sliderValueFrequency.round().abs().toString(),
                       divisions: 20,
@@ -123,14 +164,15 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                       max: 100,
                       onChanged: (newValue) {
                         setState(() {
-                          globalValues.setSliderValue('waveform', newValue);
+                          //globalValues.setSliderValue('waveform', newValue);
+                          handleSliderChange(newValue, 'waveform');
                         });
 
                         // Makes a command string for the vibration
-                        String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${newValue.round()}";
-                        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                        print(stringCommand);
-                        bluetoothController.writeToDevice("vibration", hexValue);
+                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${newValue.round()}";
+                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                        // print(stringCommand);
+                        // bluetoothController.writeToDevice("vibration", hexValue);
                       },
                       label: sliderValueWaveform.round().abs().toString(),
                       divisions: 20,
@@ -160,13 +202,14 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedItem = newValue!;
-                              globalValues.setWaveType(selectedItem);
+                              //globalValues.setWaveType(selectedItem);
+                              handleSliderChange(selectedItem, 'waveType');
 
                             });
-                            String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                            List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                            print(stringCommand);
-                            bluetoothController.writeToDevice("vibration", hexValue);
+                            // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
+                            // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                            // print(stringCommand);
+                            // bluetoothController.writeToDevice("vibration", hexValue);
                           },
                           items: <String>['Sine', 'Square', 'Triangle', 'Sawtooth']
                               .map<DropdownMenuItem<String>>((String value) {
@@ -180,7 +223,15 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
+                    if(readValue.isNotEmpty)
+                      Text(
+                        readValue,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
                   ],
                 ),
               ),

@@ -16,32 +16,31 @@ class TENSSettings extends StatefulWidget with WidgetsBindingObserver {
 }
 
 class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver {
-  // final sliderValuesSingleton = SliderValuesSingleton();
 
   final BluetoothController bluetoothController = Get.find<BluetoothController>();
+  List<int> readValueList = [];
+  String readValue = "";
+  double sliderValue = 0;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance?.addObserver(this);
-  //   startCheckingConnection();
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   stopCheckingConnection();
-  //   WidgetsBinding.instance?.removeObserver(this);
-  //   super.dispose();
-  // }
-  //
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   if (state == AppLifecycleState.resumed) {
-  //     startCheckingConnection();
-  //   } else {
-  //     stopCheckingConnection();
-  //   }
-  // }
+  // A function to handle the slider change with debounce
+  void handleSliderChange(double newValue) async {
+      setState(() {
+        globalValues.setSliderValue('tens', newValue);
+      });
+
+      // Implement your async operations here
+      print('Slider value: ${newValue.round()}');
+      String stringCommand = "T ${newValue.round()}";
+      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+      await bluetoothController.writeToDevice("tens", hexValue);
+      readValueList = await bluetoothController.readFromDevice();
+      print('value: $readValue');
+
+      // Update readValue
+      setState(() {
+        readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +90,8 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                       max: 100,
                       onChanged: (newValue) {
                         setState(() {
-                          globalValues.setSliderValue('tens', newValue);
+                          handleSliderChange(newValue);
                         });
-                        print('Slider value: ${newValue.round()}');
-                        String stringCommand = "T ${newValue.round()}";
-                        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                        bluetoothController.writeToDevice("tens", hexValue);
                       },
                       label: sliderValue.round().toString(),
                       divisions: 20,
@@ -110,6 +105,16 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                         fontSize: 20,
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    if(readValue.isNotEmpty)
+                      Text(
+                        readValue,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
                   ],
                 ),
               ),

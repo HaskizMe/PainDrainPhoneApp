@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pain_drain_mobile_app/main.dart';
 import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 DeviceIdentifier luna3Identifier = const DeviceIdentifier('E6:D8:E7:66:CB:0D');
 DeviceIdentifier painDrainIdentifier = const DeviceIdentifier('00:A0:50:00:00:03');
@@ -38,6 +39,8 @@ class BluetoothController extends GetxController {
   // }
 
   Future<void> _setupBluetooth() async {
+    //var locationStatus = await Permission.locationWhenInUse.status;
+    // continue testing if user dialogue to enable location isn't showing
     if (await FlutterBluePlus.isAvailable == false) {
       print("Bluetooth not supported by this device");
       return;
@@ -63,10 +66,7 @@ class BluetoothController extends GetxController {
     });
 
     FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 5),
-      androidUsesFineLocation: false,
-    );
-    //FlutterBluePlus.stopScan();
+      timeout: const Duration(seconds: 5), androidUsesFineLocation: true);
   }
 
   void startScanning() {
@@ -104,7 +104,7 @@ class BluetoothController extends GetxController {
           Get.to(() => const BleConnect());
           onDisconnectedCallback!();
           await device.disconnect();
-          await device.connect();
+          //await device.connect();
 
         } else if (state == BluetoothConnectionState.connected) {
           print("already connected");
@@ -128,8 +128,6 @@ class BluetoothController extends GetxController {
   }
 
   Future writeToDevice(String stimulus, List<int> hexValues) async {
-    //List<BluetoothService> services = await connectedDevice.discoverServices();
-    //await customCharacteristic.write(hexValues);
     switch (stimulus){
       case "tens":
         await customCharacteristic.write(hexValues);
@@ -140,6 +138,7 @@ class BluetoothController extends GetxController {
         print("temperature");
         break;
       case "vibration":
+        print('vibration $hexValues');
         await customCharacteristic.write(hexValues);
         print("vibration");
         break;
@@ -149,11 +148,17 @@ class BluetoothController extends GetxController {
     }
   }
 
-  Future readFromDevice(characteristics) async {
-    for (BluetoothCharacteristic c in characteristics) {
-      List<int> value = await c.read();
-      //print(value);
+  Future<List<int>> readFromDevice() async {
+    List<int> rspHexValues = [];
+    print("Read testing: ${await customCharacteristic.read()}");
+    rspHexValues = await customCharacteristic.read();
+
+    // Remove elements after the null terminator ('\0')
+    if (rspHexValues.contains(0)) {
+      rspHexValues = rspHexValues.sublist(0, rspHexValues.indexOf(0));
     }
+
+    return rspHexValues;
   }
   List<int> stringToHexList(String input) {
     List<int> hexList = [];
@@ -166,5 +171,18 @@ class BluetoothController extends GetxController {
 
     return hexList;
   }
+
+  String hexToString(List<int> list){
+    String asciiString = "";
+
+    for (int hexValue in list) {
+      // Convert each hex value to its corresponding ASCII character
+      asciiString += String.fromCharCode(hexValue);
+    }
+    return asciiString;
+  }
+
+
+
 }
 

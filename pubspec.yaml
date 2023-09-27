@@ -37,6 +37,7 @@ dependencies:
   get: ^4.6.5
   async: ^2.11.0
   shared_preferences: ^2.2.1
+  permission_handler: ^11.0.0
 
 
 dev_dependencies:

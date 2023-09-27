@@ -285,7 +285,7 @@ class _PresetSettingsState extends State<PresetSettings> {
     // Sends a new command with the loaded preset values
     String stringCommandTens = "T ${globalValues.getSliderValue("tens").round()}";
     String stringCommandTemperature = "t ${globalValues.getSliderValue("temperature").round()}";
-    String stringCommandVibration = "v ${globalValues.getWaveType()} ${globalValues.getSliderValue("amplitude")} ${globalValues.getSliderValue("frequency")} ${globalValues.getSliderValue("waveform")}";
+    String stringCommandVibration = "v ${globalValues.getWaveType()} ${globalValues.getSliderValue("amplitude").round()} ${globalValues.getSliderValue("frequency").round()} ${globalValues.getSliderValue("waveform").round()}";
     print(stringCommandTemperature);
     print(stringCommandVibration);
     print(stringCommandTens);
