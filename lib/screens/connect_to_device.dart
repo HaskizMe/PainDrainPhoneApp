@@ -20,14 +20,14 @@ class ConnectDevice extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.grey[900],
             borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 3,
-                offset: const Offset(0, 3),
-              ),
-            ],
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: Colors.grey.withOpacity(0.5),
+            //     spreadRadius: 2,
+            //     blurRadius: 3,
+            //     offset: const Offset(0, 3),
+            //   ),
+            // ],
           ),
           child: Scrollbar(
             child: SingleChildScrollView(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'global_values.dart';
 import 'screens/TENS_settings.dart';
 import 'screens/temp_settings.dart';
@@ -20,6 +21,9 @@ void main() {
     home: SplashScreen(),
   ));
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp, // Allow portrait orientation
+  ]);
 }
 
 bool showStack = true;
@@ -32,13 +36,15 @@ class PageNavigation extends StatefulWidget with WidgetsBindingObserver {
   State<PageNavigation> createState() => _PageNavigationState();
 }
 
-class _PageNavigationState extends State<PageNavigation>
-    with WidgetsBindingObserver {
+class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObserver {
   // Declare and initialize the page controller
+  final BluetoothController bluetoothController = Get.find<BluetoothController>();
   final PageController _pageController = PageController(initialPage: 0);
 
   // The index of the current page
   int _activePage = 0;
+  int batteryLevel = 0;
+
 
   final List<Widget> _pages = [
     const TENSSettings(),
@@ -47,6 +53,68 @@ class _PageNavigationState extends State<PageNavigation>
     const PresetSettings()
   ];
 
+  // Battery percentage indicator widget
+  // Widget _buildBatteryIndicator() {
+  //   const Widget batteryIcon = Icon(
+  //     Icons.battery_6_bar_rounded,
+  //     color: Colors.white,
+  //     size: 24,
+  //   );
+  //
+  //   const Widget batteryText = Text(
+  //     "80% ${bluetoothController.batteryLevelRead()}", // Replace with your actual battery percentage
+  //     style: TextStyle(
+  //       color: Colors.white,
+  //       fontSize: 16,
+  //     ),
+  //   );
+  //
+  //   return const Row(
+  //     mainAxisSize: MainAxisSize.min, // Allows the row to take the minimum required space
+  //     children: [
+  //       batteryText,
+  //       batteryIcon,
+  //     ],
+  //   );
+  // }
+  // This added a battery indicator but is not needed right now
+  // Widget _buildBatteryIndicator() {
+  //   const Widget batteryIcon = Icon(
+  //     Icons.battery_6_bar_rounded,
+  //     color: Colors.white,
+  //     size: 24,
+  //   );
+  //
+  //   return FutureBuilder<int>(
+  //     future: bluetoothController.batteryLevelRead(),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         // While waiting for the result, you can display a loading indicator or placeholder.
+  //         return const CircularProgressIndicator();
+  //       } else if (snapshot.hasError) {
+  //         // Handle any errors that may have occurred during the async operation.
+  //         return Text("Error: ${snapshot.error}");
+  //       } else {
+  //         // Once the future completes successfully, you can display the battery percentage.
+  //         final int batteryLevel = snapshot.data ?? 0;
+  //         return Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text(
+  //               "${batteryLevel.toString()}%", // Display the battery level
+  //               style: const TextStyle(
+  //                 color: Colors.white,
+  //                 fontSize: 20,
+  //               ),
+  //             ),
+  //             batteryIcon,
+  //           ],
+  //         );
+  //       }
+  //     },
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
@@ -54,6 +122,7 @@ class _PageNavigationState extends State<PageNavigation>
     return Scaffold(
       body: Stack(
         children: [
+          // PageView and navigation dots
           PageView.builder(
             controller: _pageController,
             onPageChanged: (int page) {
@@ -99,6 +168,15 @@ class _PageNavigationState extends State<PageNavigation>
                 ),
               ),
             ),
+          // Battery percentage indicator above the app title bar not needed right now
+          // Align(
+          //   alignment: Alignment.bottomRight, // Adjust the values to position it as needed
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(bottom: 8.0, right: 8.0), // Adjust the values for padding
+          //     child: _buildBatteryIndicator(),
+          //   ),
+          // ),
+
         ],
       ),
     );

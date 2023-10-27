@@ -25,9 +25,9 @@ class _BleConnectState extends State<BleConnect> {
         const SnackBar(
           content: Row(
             children: [
-              Icon(Icons.bluetooth_connected_rounded, color: Colors.blue),
+              Icon(Icons.warning_amber, color: Colors.amber),
               SizedBox(width: 8),
-              Text('Device reconnecting'),
+              Text('Device was disconnected!'),
             ],
           ),
           duration: Duration(seconds: 5),
@@ -54,6 +54,21 @@ class _BleConnectState extends State<BleConnect> {
       });
     });
   }
+
+  bool isLoaderVisible = false;
+
+  void showLoader(BuildContext context) {
+    setState(() {
+      isLoaderVisible = true;
+    });
+  }
+
+  void hideLoader(BuildContext context) {
+    setState(() {
+      isLoaderVisible = false;
+    });
+  }
+
   @override
   void initState(){
     super.initState();
@@ -106,32 +121,64 @@ class _BleConnectState extends State<BleConnect> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: Obx(() => ListView.builder(
-                itemCount: bluetoothController.notConnectedDevices.length,
-                itemBuilder: (context, index) {
-                  final result = bluetoothController.notConnectedDevices[index];
+              child: Stack(
+                children: [
+                  Obx(() => ListView.builder(
+                    itemCount: bluetoothController.notConnectedDevices.length,
+                    itemBuilder: (context, index) {
+                      final result = bluetoothController.notConnectedDevices[index];
 
-                  // Filtering devices by name
-                  if (result.device.localName == 'PainDrain' || result.device.localName == 'Luna3') {
-                    return GestureDetector(
-                      onTap: () async {
-                          bluetoothController.connectToDevice(result.device);
-                      },
-                      child: Card(
-                        elevation: 4,
-                        child: ListTile(
-                          title: Text(result.device.localName),
-                          subtitle: Text(result.device.remoteId.toString()),
-                          trailing: Text(result.rssi.toString()),
+                      // Filtering devices by name
+                      if (result.device.localName == 'PainDrain' || result.device.localName == 'Luna3') {
+                        return GestureDetector(
+                          onTap: () async {
+                            // Show loader while connecting
+                            showLoader(context);
+                            await bluetoothController.connectToDevice(result.device);
+                            // Hide loader after connection is complete
+                            hideLoader(context);
+                          },
+                          child: Card(
+                            elevation: 4,
+                            child: ListTile(
+                              title: Text(result.device.localName),
+                              subtitle: Text(result.device.remoteId.toString()),
+                              trailing: Text(result.rssi.toString()),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return const SizedBox.shrink(); // Empty space for devices not matching the filter
+                    },
+                  )),
+                  // Loader widget
+                  Visibility(
+                    visible: isLoaderVisible,
+                    child: Center(
+                      child: Container(
+                        width: 200, // Adjust the width to your preference
+                        height: 100, // Adjust the height to your preference
+                        decoration: BoxDecoration(
+                          color: Colors.white, // Change the background color as needed
+                          borderRadius: BorderRadius.circular(10.0), // Add rounded corners
+                        ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 10), // Add some spacing
+                            Text("Connecting..."), // Display connecting text
+                          ],
                         ),
                       ),
-                    );
-                  }
+                    ),
+                  )
 
-                  return const SizedBox.shrink(); // Empty space for devices not matching the filter
-                },
-              )),
+                ],
+              ),
             ),
+
             const SizedBox(height: 20),
             const Text(
               'Connected Devices',
@@ -143,34 +190,38 @@ class _BleConnectState extends State<BleConnect> {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: Obx(() => ListView.builder(
-                itemCount: bluetoothController.connectedDevices.length,
-                itemBuilder: (context, index) {
-                  final device = bluetoothController.connectedDevices[index];
+              child: Stack(
+                children: [
+                  Obx(() => ListView.builder(
+                  itemCount: bluetoothController.connectedDevices.length,
+                  itemBuilder: (context, index) {
+                    final device = bluetoothController.connectedDevices[index];
 
-                  // Filtering devices by name
-                  if (device.localName == 'PainDrain' || device.localName == 'Luna3') {
-                    return GestureDetector(
-                      onTap: () async {
-                        bluetoothController.connectToDevice(device);
-                        //bool isConnected = await getConnectionState();
-                        // if(isConnected){
-                        //   Get.to(() => const PageNavigation());
-                        // }
-                      },
-                      child: Card(
-                        elevation: 4,
-                        child: ListTile(
-                          title: Text(device.localName),
-                          subtitle: Text(device.remoteId.toString()),
+                    // Filtering devices by name
+                    if (device.localName == 'PainDrain' || device.localName == 'Luna3') {
+                      return GestureDetector(
+                        onTap: () async {
+                          showLoader(context);
+                          await bluetoothController.connectToDevice(device);
+                          hideLoader(context);
+                        },
+                        child: Card(
+                          elevation: 4,
+                          child: ListTile(
+                            title: Text(device.localName),
+                            subtitle: Text(device.remoteId.toString()),
+                          ),
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  return const SizedBox.shrink(); // Empty space for devices not matching the filter
-                },
-              )),
+                    return const SizedBox.shrink(); // Empty space for devices not matching the filter
+
+                  },
+                )),
+              ]
+              ),
+
             ),
           ],
         ),

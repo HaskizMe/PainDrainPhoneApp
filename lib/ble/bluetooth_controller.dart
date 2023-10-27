@@ -22,10 +22,15 @@ BluetoothDevice painDrain = BluetoothDevice(
 
 class BluetoothController extends GetxController {
   Function? onDisconnectedCallback;
+  Function? onReconnectedCallback;
   String customServiceUUID = "3bf00c21-d291-4688-b8e9-5a379e3d9874";
   String customCharacteristicUUID = "93c836a2-695a-42cc-95ac-1afa0eef6b0a";
+  String batteryServiceUUID = "0000180f-0000-1000-8000-00805f9b34fb";
+  String batteryCharacteristicUUID = "00002a19-0000-1000-8000-00805f9b34fb";
   late BluetoothService customService;
   late BluetoothCharacteristic customCharacteristic;
+  late BluetoothService batteryService;
+  late BluetoothCharacteristic batteryCharacteristic;
   late BluetoothDevice connectedDevice;
   late List<BluetoothService> services;
 
@@ -85,40 +90,65 @@ class BluetoothController extends GetxController {
           print("Custom service found");
           customService = service;
         }
+        if(service.uuid.toString() == batteryServiceUUID){
+          print("Battery service found");
+          batteryService = service;
+        }
       }
       // Reads all characteristics
-      var characteristics = customService.characteristics;
-      for(BluetoothCharacteristic characteristic in characteristics) {
-        print(characteristic.uuid);
+      var customServiceCharacteristics = customService.characteristics;
+      var batteryServiceCharacteristics = batteryService.characteristics;
+      for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
         if(characteristic.uuid.toString() == customCharacteristicUUID){
           print("Custom characteristic found");
           customCharacteristic = characteristic;
         }
       }
+      for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
+        if(characteristic.uuid.toString() == batteryCharacteristicUUID){
+          print("Battery characteristic found");
+          batteryCharacteristic = characteristic;
+        }
+      }
+
       // This listens to the device and if it gets connected it will return back
       // to the connection page also, if its already connected it will navigate
       // to the other pages.
-      device.connectionState.listen((state) async {
-        if (state == BluetoothConnectionState.disconnected) {
-          print("Disconnected");
-          Get.to(() => const BleConnect());
-          onDisconnectedCallback!();
-          await device.disconnect();
-          //await device.connect();
-
-        } else if (state == BluetoothConnectionState.connected) {
-          print("already connected");
-          //connectedDevice = device;
+      late StreamSubscription<BluetoothConnectionState> connectionStateSubscription;
+      connectionStateSubscription = device.connectionState.listen((state) async {
+        if (state == BluetoothConnectionState.connected) {
+          print("Connected");
           Get.to(() => const PageNavigation());
         }
+        else if (state == BluetoothConnectionState.disconnected) {
+          print("Disconnected");
+          connectionStateSubscription.cancel();
+          reconnectToDevice(device);
+        }
       });
-      //await customCharacteristic.write([116, 32, 49, 48, 48]);
+    } catch (e) {
+      print("Error connecting $e");
+      onDisconnectedCallback!();
+      Get.to(() => const BleConnect());
+    }
+
+
+
+
+  }
+
+  Future<void> reconnectToDevice(BluetoothDevice device) async {
+    try {
+      await device.disconnect();
+      await connectToDevice(device);
     } catch (e) {
       print(e);
     }
+
+
+
+
   }
-
-
   @override
   void onClose() {
     luna3.disconnect();
@@ -150,7 +180,7 @@ class BluetoothController extends GetxController {
 
   Future<List<int>> readFromDevice() async {
     List<int> rspHexValues = [];
-    print("Read testing: ${await customCharacteristic.read()}");
+    //print("Read testing: ${await customCharacteristic.read()}");
     rspHexValues = await customCharacteristic.read();
 
     // Remove elements after the null terminator ('\0')
@@ -180,6 +210,13 @@ class BluetoothController extends GetxController {
       asciiString += String.fromCharCode(hexValue);
     }
     return asciiString;
+  }
+
+  Future<int> batteryLevelRead() async {
+    List<int> rspHexValues = [];
+    rspHexValues = await batteryCharacteristic.read();
+
+    return rspHexValues[0];
   }
 
 
