@@ -19,6 +19,7 @@ class _PresetSettingsState extends State<PresetSettings> {
   TextEditingController textController = TextEditingController();
   FocusNode textFocusNode = FocusNode();
   bool isAddingItem = false; // Track whether we are in "add" mode
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -42,6 +43,27 @@ class _PresetSettingsState extends State<PresetSettings> {
     setState(() {
       dropdownItems = items;
     });
+  }
+  void _handleButtonPress() {
+    // Simulate loading for 2 seconds
+    setState(() {
+      isLoading = true;
+      loadPreset();
+    });
+
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
+
+  void httpJob(AnimationController controller) async {
+    controller.forward();
+    print("delay start");
+    await Future.delayed(Duration(seconds: 3), () {});
+    print("delay stop");
+    controller.reset();
   }
   @override
   Widget build(BuildContext context) {
@@ -154,21 +176,50 @@ class _PresetSettingsState extends State<PresetSettings> {
                     ),
                     child: const Text('DELETE'),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        loadPreset();
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                  // ElevatedButton(
+                  //   onPressed: () {
+                  //     setState(() {
+                  //       loadPreset();
+                  //     });
+                  //   },
+                  //   style: ElevatedButton.styleFrom(
+                  //     padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                  //     shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(15.0)
+                  //     ),
+                  //   ),
+                  //   child: const Text('LOAD'),
+                  // ),
+
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0)
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
+                      backgroundColor: Colors.blue
                     ),
-                    child: const Text('LOAD'),
+                      onPressed: isLoading ? null : _handleButtonPress,
+                      child: Container(
+                        child: isLoading
+                        ? Container(
+                          height: 15,
+                          width: 15,
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ) : const Text(
+                            "LOAD",
+                          style: TextStyle(
+                            color: Colors.white
+                          ),
+                        )
+                      )
                   ),
+
+
                 ]
+
             ),
           ],
         ),

@@ -81,115 +81,125 @@ class _TempSettingsState extends State<TempSettings> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 20,),
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.45,
-                      //color: Colors.green,
-                      child: Stack(
-                        alignment: Alignment.center,
+                      height: MediaQuery.of(context).size.height * .5,
+                      //color: Colors.pink,
+                      child: Column(
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                flex: _max.abs().round(),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(30),
-                                    topLeft: Radius.circular(30)
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(0, 20, 0, 5),
+                              //color: Colors.green,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        flex: _max.abs().round(),
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            topRight: Radius.circular(30),
+                                            topLeft: Radius.circular(30)
+                                          ),
+                                          child: Container(
+                                            //height: 100,
+                                            width: 50,
+                                            color: Colors.white,
+                                            child: RotatedBox(
+                                              quarterTurns: -1,
+                                              child: LinearProgressIndicator(
+                                                value: temperatureSliderValue / _max,
+                                                color: Colors.red,
+                                                backgroundColor: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: _min.abs().round(),
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                            bottomRight: Radius.circular(30),
+                                            bottomLeft: Radius.circular(30)
+                                          ),
+                                          child: Container(
+                                            //height: 100,
+                                            width: 50,
+                                            color: Colors.red,
+                                            child: RotatedBox(
+                                              quarterTurns: -1,
+                                              child: LinearProgressIndicator(
+                                                value: 1 - temperatureSliderValue / _min,
+                                                color: Colors.grey,
+                                                backgroundColor: Colors.blue,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  child: Container(
-                                    //height: 100,
-                                    width: 50,
-                                    color: Colors.white,
-                                    child: RotatedBox(
+                                  RotatedBox(
                                       quarterTurns: -1,
-                                      child: LinearProgressIndicator(
-                                        value: temperatureSliderValue / _max,
-                                        color: Colors.red,
-                                        backgroundColor: Colors.grey,
+                                      child: Slider(
+                                        value: temperatureSliderValue,
+                                        min: _min,
+                                        max: _max,
+                                        activeColor: Colors.transparent,
+                                        inactiveColor: Colors.transparent,
+                                        thumbColor: temperatureSliderValue == 0 ? Colors.grey : temperatureSliderValue > 0 ? Colors.red : Colors.blue,
+                                        divisions: ((_min.abs() + _max.abs())/5).round(),
+                                        //label: temperatureSliderValue.round().toString(),
+                                        onChanged: (double newValue){
+                                          setState(() {
+                                            handleSliderChange(newValue);
+                                          });
+                                        },
+                                      ),
+                                  ),
+                                  Center(
+                                    child: IgnorePointer(
+                                      ignoring: true,
+                                      child: Text(
+                                        '${temperatureSliderValue.round()}%',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 24,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: _min.abs().round(),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    bottomRight: Radius.circular(30),
-                                    bottomLeft: Radius.circular(30)
-                                  ),
-                                  child: Container(
-                                    //height: 100,
-                                    width: 50,
-                                    color: Colors.red,
-                                    child: RotatedBox(
-                                      quarterTurns: -1,
-                                      child: LinearProgressIndicator(
-                                        value: 1 - temperatureSliderValue / _min,
-                                        color: Colors.grey,
-                                        backgroundColor: Colors.blue,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          RotatedBox(
-                              quarterTurns: -1,
-                              child: Slider(
-                                value: temperatureSliderValue,
-                                min: _min,
-                                max: _max,
-                                activeColor: Colors.transparent,
-                                inactiveColor: Colors.transparent,
-                                thumbColor: temperatureSliderValue == 0 ? Colors.grey : temperatureSliderValue > 0 ? Colors.red : Colors.blue,
-                                divisions: ((_min.abs() + _max.abs())/5).round(),
-                                //label: temperatureSliderValue.round().toString(),
-                                onChanged: (double newValue){
-                                  setState(() {
-                                    handleSliderChange(newValue);
-                                  });
-                                },
-                              ),
-                          ),
-                          Center(
-                            child: IgnorePointer(
-                              ignoring: true,
-                              child: Text(
-                                '${temperatureSliderValue.round()}%',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                ),
+                                ],
                               ),
                             ),
-                          )
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Adjust Temperature',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          if(readValue.isNotEmpty)
+                            Text(
+                              readValue,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Adjust Temperature',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    if(readValue.isNotEmpty)
-                      Text(
-                        readValue,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
+
                   ],
                 ),
               ),
