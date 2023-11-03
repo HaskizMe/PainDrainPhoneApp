@@ -57,13 +57,16 @@ class _BleConnectState extends State<BleConnect> {
 
   bool isLoaderVisible = false;
 
-  void showLoader(BuildContext context) {
+  void showLoader() {
     setState(() {
       isLoaderVisible = true;
     });
   }
 
-  void hideLoader(BuildContext context) {
+  void hideLoader() {
+    // Introduce a delay of 2 seconds (you can adjust the duration as needed)
+    //await Future.delayed(const Duration(seconds: 5));
+
     setState(() {
       isLoaderVisible = false;
     });
@@ -133,10 +136,10 @@ class _BleConnectState extends State<BleConnect> {
                         return GestureDetector(
                           onTap: () async {
                             // Show loader while connecting
-                            showLoader(context);
+                            showLoader();
                             await bluetoothController.connectToDevice(result.device);
                             // Hide loader after connection is complete
-                            hideLoader(context);
+                            hideLoader();
                           },
                           child: Card(
                             elevation: 4,
@@ -201,9 +204,9 @@ class _BleConnectState extends State<BleConnect> {
                     if (device.localName == 'PainDrain' || device.localName == 'Luna3') {
                       return GestureDetector(
                         onTap: () async {
-                          showLoader(context);
+                          showLoader();
                           await bluetoothController.connectToDevice(device);
-                          hideLoader(context);
+                          hideLoader();
                         },
                         child: Card(
                           elevation: 4,

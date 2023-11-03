@@ -16,8 +16,8 @@ void main() {
   // This initializes the Bluetooth controller class so we can use it wherever
   // in the app.
   Get.put(BluetoothController());
-
   runApp(const GetMaterialApp(
+    debugShowCheckedModeBanner: false,
     home: SplashScreen(),
   ));
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);

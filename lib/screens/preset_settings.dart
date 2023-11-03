@@ -58,7 +58,7 @@ class _PresetSettingsState extends State<PresetSettings> {
     });
   }
 
-  void httpJob(AnimationController controller) async {
+  void loaderAnimation(AnimationController controller) async {
     controller.forward();
     print("delay start");
     await Future.delayed(Duration(seconds: 3), () {});
@@ -82,146 +82,159 @@ class _PresetSettingsState extends State<PresetSettings> {
         toolbarHeight: 90,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 150,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: DropdownButton<String>(
-                isExpanded: true,
-                value: selectedItem,
-                underline: Container(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedItem = newValue!;
-                    globalValues.setPresetValue(selectedItem);
-                  });
-                },
-                items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ),
-            SizedBox(height: 40),
-            if (isAddingItem)
-              Container(
-                //margin: const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
-                width: 200,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        child: TextFormField(
-                          controller: textController,
-                          focusNode: textFocusNode, // Request focus on the text input field
-                          decoration: const InputDecoration(
-                            labelText: 'Add item:',
-                          ),
-                          onFieldSubmitted: (value) {
-                            addNewItem();
-                          },
-                          textInputAction: TextInputAction.done, // Show "done" action button
-                          onEditingComplete: () {
-                            addNewItem();
-                          },
-                          maxLength: 15, // Set a max length of 10 characters
-                          style: TextStyle(fontSize: 26, color: Colors.white), // Set a smaller font size
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: dropdownItems.length <= 5 ? () {
-                      setState(() {
-                        isAddingItem = true;
-                        textController.clear();
-                        textFocusNode.requestFocus(); // Request focus when the "Add Item" button is pressed
-                      });
-                    } : null, // Disable the button when list length is greater than 5
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0)
-                      ),
-                    ),
-                    child: const Text('ADD'),
+        child: Card(
+          elevation: 20.0,
+          color: Colors.grey[700],
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0)
+          ),
+          child: Container(
+            height: MediaQuery.of(context).size.height * .3,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-
-
-                  ElevatedButton(
-                    onPressed: () {
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: selectedItem,
+                    underline: Container(),
+                    onChanged: (String? newValue) {
                       setState(() {
-                        deleteItem();
+                        selectedItem = newValue!;
+                        globalValues.setPresetValue(selectedItem);
                       });
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0)
+                    items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                SizedBox(height: 40),
+                if (isAddingItem)
+                  Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Container(
+                      //margin: const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
+                      width: 200,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              child: TextFormField(
+                                controller: textController,
+                                focusNode: textFocusNode, // Request focus on the text input field
+                                decoration: const InputDecoration(
+                                  labelText: 'Add item:',
+                                ),
+                                onFieldSubmitted: (value) {
+                                  addNewItem();
+                                },
+                                textInputAction: TextInputAction.done, // Show "done" action button
+                                onEditingComplete: () {
+                                  addNewItem();
+                                },
+                                maxLength: 15, // Set a max length of 10 characters
+                                style: TextStyle(fontSize: 26, color: Colors.white), // Set a smaller font size
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: const Text('DELETE'),
-                  ),
-                  // ElevatedButton(
-                  //   onPressed: () {
-                  //     setState(() {
-                  //       loadPreset();
-                  //     });
-                  //   },
-                  //   style: ElevatedButton.styleFrom(
-                  //     padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                  //     shape: RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(15.0)
-                  //     ),
-                  //   ),
-                  //   child: const Text('LOAD'),
-                  // ),
-
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: dropdownItems.length <= 5 ? () {
+                          setState(() {
+                            isAddingItem = true;
+                            textController.clear();
+                            textFocusNode.requestFocus(); // Request focus when the "Add Item" button is pressed
+                          });
+                        } : null, // Disable the button when list length is greater than 5
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0)
+                          ),
+                        ),
+                        child: const Text('ADD'),
                       ),
-                      backgroundColor: Colors.blue
-                    ),
-                      onPressed: isLoading ? null : _handleButtonPress,
-                      child: Container(
-                        child: isLoading
-                        ? Container(
-                          height: 15,
-                          width: 15,
-                          child: const CircularProgressIndicator(
-                            color: Colors.white,
+
+
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            deleteItem();
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0)
                           ),
-                        ) : const Text(
-                            "LOAD",
-                          style: TextStyle(
-                            color: Colors.white
+                        ),
+                        child: const Text('DELETE'),
+                      ),
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     setState(() {
+                      //       loadPreset();
+                      //     });
+                      //   },
+                      //   style: ElevatedButton.styleFrom(
+                      //     padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                      //     shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(15.0)
+                      //     ),
+                      //   ),
+                      //   child: const Text('LOAD'),
+                      // ),
+
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
-                        )
-                      )
-                  ),
+                          backgroundColor: Colors.blue
+                        ),
+                          onPressed: isLoading ? null : _handleButtonPress,
+                          child: Container(
+                            child: isLoading
+                            ? Container(
+                              height: 15,
+                              width: 15,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ) : const Text(
+                                "LOAD",
+                              style: TextStyle(
+                                color: Colors.white
+                              ),
+                            )
+                          )
+                      ),
 
 
-                ]
+                    ]
 
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -229,9 +242,13 @@ class _PresetSettingsState extends State<PresetSettings> {
   void addNewItem() async {
     // Adds a new setting
     double temperatureSliderValue = globalValues.getSliderValue('temperature');
-    double tensSliderValue = globalValues.getSliderValue('tensAmplitude');
-    double tensDurationSliderValue = globalValues.getSliderValue('tensDuration');
-    double tensPeriodSliderValue = globalValues.getSliderValue('tensPeriod');
+    double tensAmplitudeSliderValueCh1 = globalValues.getSliderValue('tensAmplitudeCh1');
+    double tensDurationSliderValueCh1 = globalValues.getSliderValue('tensDurationCh1');
+    double tensPeriodSliderValueCh1 = globalValues.getSliderValue('tensPeriodCh1');
+    double tensAmplitudeSliderValueCh2 = globalValues.getSliderValue('tensAmplitudeCh2');
+    double tensDurationSliderValueCh2 = globalValues.getSliderValue('tensDurationCh2');
+    double tensPeriodSliderValueCh2 = globalValues.getSliderValue('tensPeriodCh2');
+    double tensPhase = globalValues.getSliderValue('tensPhase');
     double amplitudeSliderValue = globalValues.getSliderValue('vibrationAmplitude');
     double frequencySliderValue = globalValues.getSliderValue('vibrationFrequency');
     double waveformSliderValue = globalValues.getSliderValue('vibrationWaveform');
@@ -262,9 +279,13 @@ class _PresetSettingsState extends State<PresetSettings> {
         prefs.setString("$selectedItem.setting", selectedItem);
         prefs.setString("$selectedItem.vibrationWaveType", waveType);
         prefs.setDouble("$selectedItem.temperature", temperatureSliderValue);
-        prefs.setDouble("$selectedItem.tensAmplitude", tensSliderValue);
-        prefs.setDouble("$selectedItem.tensDuration", tensDurationSliderValue);
-        prefs.setDouble("$selectedItem.tensPeriod", tensPeriodSliderValue);
+        prefs.setDouble("$selectedItem.tensAmplitudeCh1", tensAmplitudeSliderValueCh1);
+        prefs.setDouble("$selectedItem.tensDurationCh1", tensDurationSliderValueCh1);
+        prefs.setDouble("$selectedItem.tensPeriodCh1", tensPeriodSliderValueCh1);
+        prefs.setDouble("$selectedItem.tensAmplitudeCh2", tensAmplitudeSliderValueCh2);
+        prefs.setDouble("$selectedItem.tensDurationCh2", tensDurationSliderValueCh2);
+        prefs.setDouble("$selectedItem.tensPeriodCh2", tensPeriodSliderValueCh2);
+        prefs.setDouble("$selectedItem.tensPhase", tensPhase);
         prefs.setDouble("$selectedItem.vibrationAmplitude", amplitudeSliderValue);
         prefs.setDouble("$selectedItem.vibrationFrequency", frequencySliderValue);
         prefs.setDouble("$selectedItem.vibrationWaveform", waveformSliderValue);
@@ -287,9 +308,13 @@ class _PresetSettingsState extends State<PresetSettings> {
         if(settingName != null) {
           prefs.remove("$settingName.setting");
           prefs.remove("$settingName.temperature");
-          prefs.remove("$settingName.tensAmplitude");
-          prefs.remove("$settingName.tensDuration");
-          prefs.remove("$settingName.tensPeriod");
+          prefs.remove("$settingName.tensAmplitudeCh1");
+          prefs.remove("$settingName.tensDurationCh1");
+          prefs.remove("$settingName.tensPeriodCh1");
+          prefs.remove("$settingName.tensAmplitudeCh2");
+          prefs.remove("$settingName.tensDurationCh2");
+          prefs.remove("$settingName.tensPeriodCh2");
+          prefs.remove("$settingName.tensPhase");
           prefs.remove("$settingName.vibrationAmplitude");
           prefs.remove("$settingName.vibrationFrequency");
           prefs.remove("$settingName.vibrationWaveform");
@@ -315,9 +340,13 @@ class _PresetSettingsState extends State<PresetSettings> {
     if(selectedItem == dropdownItems.first){
       setState(() {
         globalValues.setSliderValue("temperature", 0.0);
-        globalValues.setSliderValue("tensAmplitude", 0.0);
-        globalValues.setSliderValue('tensDuration', 0.1);
-        globalValues.setSliderValue('tensPeriod', 0.5);
+        globalValues.setSliderValue("tensAmplitudeCh1", 0.0);
+        globalValues.setSliderValue('tensDurationCh1', 0.1);
+        globalValues.setSliderValue('tensPeriodCh1', 0.5);
+        globalValues.setSliderValue("tensAmplitudeCh2", 0.0);
+        globalValues.setSliderValue('tensDurationCh2', 0.1);
+        globalValues.setSliderValue('tensPeriodCh2', 0.5);
+        globalValues.setSliderValue('tensPhase', 0.0);
         globalValues.setSliderValue("vibrationAmplitude", 0.0);
         globalValues.setSliderValue("vibrationFrequency", 0.0);
         globalValues.setSliderValue("vibrationWaveform", 0.0);
@@ -326,9 +355,13 @@ class _PresetSettingsState extends State<PresetSettings> {
     }
     else {
       final double? tempValue = prefs.getDouble('$selectedItem.temperature');
-      final double? tensValue = prefs.getDouble('$selectedItem.tensAmplitude');
-      final double? tensDuration = prefs.getDouble('$selectedItem.tensDuration');
-      final double? tensPeriod = prefs.getDouble('$selectedItem.tensPeriod');
+      final double? tensAmplitudeCh1 = prefs.getDouble('$selectedItem.tensAmplitudeCh1');
+      final double? tensDurationCh1 = prefs.getDouble('$selectedItem.tensDurationCh1');
+      final double? tensPeriodCh1 = prefs.getDouble('$selectedItem.tensPeriodCh1');
+      final double? tensAmplitudeCh2 = prefs.getDouble('$selectedItem.tensAmplitudeCh2');
+      final double? tensDurationCh2 = prefs.getDouble('$selectedItem.tensDurationCh2');
+      final double? tensPeriodCh2 = prefs.getDouble('$selectedItem.tensPeriodCh2');
+      final double? tensPhase = prefs.getDouble('$selectedItem.tensPhase');
       final double? ampValue = prefs.getDouble('$selectedItem.vibrationAmplitude');
       final double? freqValue = prefs.getDouble('$selectedItem.vibrationFrequency');
       final double? waveValue = prefs.getDouble('$selectedItem.vibrationWaveform');
@@ -336,9 +369,13 @@ class _PresetSettingsState extends State<PresetSettings> {
       // Sets all sliders and other values to the values associated with the preset name
       setState(() {
         globalValues.setSliderValue("temperature", tempValue!);
-        globalValues.setSliderValue("tensAmplitude", tensValue!);
-        globalValues.setSliderValue("tensDuration", tensDuration!);
-        globalValues.setSliderValue("tensPeriod", tensPeriod!);
+        globalValues.setSliderValue("tensAmplitude", tensAmplitudeCh1!);
+        globalValues.setSliderValue("tensDurationCh1", tensDurationCh1!);
+        globalValues.setSliderValue("tensPeriodCh1", tensPeriodCh1!);
+        globalValues.setSliderValue("tensAmplitudeCh2", tensAmplitudeCh2!);
+        globalValues.setSliderValue("tensDurationCh2", tensDurationCh2!);
+        globalValues.setSliderValue("tensPeriodCh2", tensPeriodCh2!);
+        globalValues.setSliderValue("tensPhase", tensPhase!);
         globalValues.setSliderValue("vibrationAmplitude", ampValue!);
         globalValues.setSliderValue("vibrationFrequency", freqValue!);
         globalValues.setSliderValue("vibrationWaveform", waveValue!);
@@ -346,14 +383,30 @@ class _PresetSettingsState extends State<PresetSettings> {
       });
     }
     // Sends a new command with the loaded preset values
-    String stringCommandTens = "T ${globalValues.getSliderValue('tensAmplitude').toInt()} ${globalValues.getSliderValue('tensDuration')} ${globalValues.getSliderValue('tensPeriod')}";
+    int channel1 = 1;
+    int channel2 = 2;
+    String stringCommandTensCh1 = "T ${globalValues.getSliderValue('tensAmplitudeCh1').toInt()} ${globalValues.getSliderValue('tensDurationCh1')} ${globalValues.getSliderValue('tensPeriodCh1')} $channel1";
+    String stringCommandTensCh2 = "T ${globalValues.getSliderValue('tensAmplitudeCh2').toInt()} ${globalValues.getSliderValue('tensDurationCh2')} ${globalValues.getSliderValue('tensPeriodCh2')} $channel2";
+    String stringCommandTensPhase = "T p ${globalValues.getSliderValue('tensPhase')}";
+
     String stringCommandTemperature = "t ${globalValues.getSliderValue("temperature").round()}";
     String stringCommandVibration = "v ${globalValues.getWaveType()} ${globalValues.getSliderValue("vibrationAmplitude").round()} ${globalValues.getSliderValue("vibrationFrequency").round()} ${globalValues.getSliderValue("vibrationWaveform").round()}";
     print(stringCommandTemperature);
     print(stringCommandVibration);
-    print(stringCommandTens);
-    // writing tens command string
-    List<int> hexValue = bluetoothController.stringToHexList(stringCommandTens);
+    print(stringCommandTensCh1);
+    print(stringCommandTensCh2);
+    print(stringCommandTensPhase);
+
+    // writing tens channel 1 command string
+    List<int> hexValue = bluetoothController.stringToHexList(stringCommandTensCh1);
+    bluetoothController.writeToDevice("tens", hexValue);
+
+    // writing tens channel 1 command string
+    hexValue = bluetoothController.stringToHexList(stringCommandTensCh2);
+    bluetoothController.writeToDevice("tens", hexValue);
+
+    // writing tens phase command string
+    hexValue = bluetoothController.stringToHexList(stringCommandTensPhase);
     bluetoothController.writeToDevice("tens", hexValue);
 
     // writing temperature command string
@@ -363,8 +416,5 @@ class _PresetSettingsState extends State<PresetSettings> {
     // writing vibration command string
     hexValue = bluetoothController.stringToHexList(stringCommandVibration);
     bluetoothController.writeToDevice("vibration", hexValue);
-
-
-
   }
 }

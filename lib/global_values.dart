@@ -8,7 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class GlobalValues {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   static final GlobalValues _instance = GlobalValues._internal();
-  final Map<String, double> _sliderValues = {'tensPeriod' : .5, 'tensDuration' : .1};
+  final Map<String, double> _sliderValues = {
+    'tensPeriodCh1' : .5,
+    'tensDurationCh1' : .1,
+    'tensPeriodCh2' : .5,
+    'tensDurationCh2' : .1
+  };
   String waveType = "Sine";
   String presetType = "Select preset";
   List<String> presets = ["Select preset"];
