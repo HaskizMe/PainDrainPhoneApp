@@ -135,15 +135,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     await bluetoothController.writeToDevice('tens', hexValue);
     readValueList = await bluetoothController.readFromDevice();
 
-    // When phase changes it sends channel 2 next
-    // stringCommand = "T ${globalValues.getSliderValue('tensAmplitudeCh1')} ${globalValues.getSliderValue('tensDurationCh1')} ${globalValues.getSliderValue('tensPeriodCh1')} $channel1 ${globalValues.getSliderValue("tensPhase")}";
-    // hexValue = bluetoothController.stringToHexList(stringCommand);
-    // print('Value: $stringCommand');
-    // print('list hex values $hexValue');
-    // await bluetoothController.writeToDevice('tens', hexValue);
-    // readValueList = await bluetoothController.readFromDevice();
     setState(() {
-      //phaseValue = newValue;
       readValue = bluetoothController.hexToString(readValueList);
     });
   }
@@ -173,143 +165,144 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     return Scaffold(
       backgroundColor: Colors.grey[800],
       appBar: AppBar(
-        title: const Text(
-          'TENS',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 50,
+        title: Padding(
+          padding: EdgeInsets.all(35.0),
+          child: const Text(
+            'TENS',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 50,
+            ),
           ),
         ),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[900],
         centerTitle: true,
-        toolbarHeight: 90,
+        //toolbarHeight: 50,
       ),
-      body: Center(
-        child: SliderTheme(
-          data: const SliderThemeData(
-            trackHeight: 50,
-            activeTrackColor: Colors.blue, // Color of the active portion of the track
-            inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
-            thumbColor: AppColors.blue, // Color of the thumb
-            tickMarkShape: RoundSliderTickMarkShape(
-                tickMarkRadius: 0
-            ),
-            thumbShape: RoundSliderThumbShape(
-              enabledThumbRadius: 30.0, // Adjust the radius as needed
-            ),// Make ticks invisible
+      body: SliderTheme(
+        data: const SliderThemeData(
+          trackHeight: 50,
+          activeTrackColor: Colors.blue, // Color of the active portion of the track
+          inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
+          thumbColor: AppColors.blue, // Color of the thumb
+          tickMarkShape: RoundSliderTickMarkShape(
+              tickMarkRadius: 0
           ),
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            //color: Colors.green,
-            child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: EdgeInsets.all(5.0),
-                    child: Text(
-                      "Channel 1",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+          thumbShape: RoundSliderThumbShape(
+            enabledThumbRadius: 30.0, // Adjust the radius as needed
+          ),// Make ticks invisible
+        ),
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          //color: Colors.green,
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Text(
+                    "Channel 1",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
                   ),
                 ),
-               // SizedBox(height: 15,),
-                ChannelWidget(
-                    sliderValuePeriod: sliderValuePeriodChannel1,
-                    sliderValueDuration: sliderValueDurationChannel1,
-                    sliderValueAmplitude: sliderValueAmplitudeChannel1,
-                    handleSliderChange: handleSliderChange,
-                    //height: 260,
-                    height: MediaQuery.of(context).size.height * .3,
-                    width: MediaQuery.of(context).size.width * 1,
-                    //color: Colors.green,
-                    channel: 1,
-                ),
-                const Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: EdgeInsets.all(5.0),
-                    child: Text(
-                      "Channel 2",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+              ),
+             // SizedBox(height: 15,),
+              ChannelWidget(
+                  sliderValuePeriod: sliderValuePeriodChannel1,
+                  sliderValueDuration: sliderValueDurationChannel1,
+                  sliderValueAmplitude: sliderValueAmplitudeChannel1,
+                  handleSliderChange: handleSliderChange,
+                  //height: 260,
+                  height: MediaQuery.of(context).size.height * .3,
+                  width: MediaQuery.of(context).size.width * 1,
+                  //color: Colors.green,
+                  channel: 1,
+              ),
+              const Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Text(
+                    "Channel 2",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
                   ),
                 ),
-                ChannelWidget(
-                    sliderValuePeriod: sliderValuePeriodChannel2,
-                    sliderValueDuration: sliderValueDurationChannel2,
-                    sliderValueAmplitude: sliderValueAmplitudeChannel2,
-                    handleSliderChange: handleSliderChange,
-                    //height: 260,
-                    height: MediaQuery.of(context).size.height * .3,
+              ),
+              ChannelWidget(
+                  sliderValuePeriod: sliderValuePeriodChannel2,
+                  sliderValueDuration: sliderValueDurationChannel2,
+                  sliderValueAmplitude: sliderValueAmplitudeChannel2,
+                  handleSliderChange: handleSliderChange,
+                  //height: 260,
+                  height: MediaQuery.of(context).size.height * .3,
 
-                  //width: 300,
-                    width: MediaQuery.of(context).size.width * 1,
-                    //color: Colors.pink,
-                    channel: 2,
-                ),
-                Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(0.0, 5.0, 10.0, 0.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            '0',
-                            style: TextStyle(
+                //width: 300,
+                  width: MediaQuery.of(context).size.width * 1,
+                  //color: Colors.pink,
+                  channel: 2,
+              ),
+              Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(0.0, 5.0, 10.0, 0.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Text(
+                          '0',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white
+                          ),
+                        ),
+                        const SizedBox(width: 15,),
+                        Transform.scale(
+                          scale: 2.0,
+                          child: Switch(
+                            value: phaseValue,
+                            onChanged: onSwitchChanged,
+                            activeColor: Colors.blue, // Color when switch is ON
+                            inactiveTrackColor: Colors.grey, // Color of the inactive track
+                            inactiveThumbColor: Colors.grey, // Color of the switch's thumb when OFF
+                          ),
+                        ),
+                        const SizedBox(width: 15,),
+                        const Text(
+                          '180',
+                          style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
                               color: Colors.white
-                            ),
                           ),
-                          const SizedBox(width: 15,),
-                          Transform.scale(
-                            scale: 2.0,
-                            child: Switch(
-                              value: phaseValue,
-                              onChanged: onSwitchChanged,
-                              activeColor: Colors.blue, // Color when switch is ON
-                              inactiveTrackColor: Colors.grey, // Color of the inactive track
-                              inactiveThumbColor: Colors.grey, // Color of the switch's thumb when OFF
-                            ),
-                          ),
-                          const SizedBox(width: 15,),
-                          const Text(
-                            '180',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.white
-                            ),
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  if(readValue.isNotEmpty)
+                    Text(
+                      readValue,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    if(readValue.isNotEmpty)
-                      Text(
-                        readValue,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                  ],
-                )
-              ],
-            ),
+                ],
+              )
+            ],
           ),
         ),
       )

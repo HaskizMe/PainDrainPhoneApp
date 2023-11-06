@@ -79,9 +79,10 @@ class _PresetSettingsState extends State<PresetSettings> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[900],
         centerTitle: true,
-        toolbarHeight: 90,
+        //toolbarHeight: 90,
       ),
-      body: Center(
+      body: Align(
+        alignment: Alignment(0, -.25),
         child: Card(
           elevation: 20.0,
           color: Colors.grey[700],

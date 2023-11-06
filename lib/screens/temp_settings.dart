@@ -74,9 +74,10 @@ class _TempSettingsState extends State<TempSettings> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[900],
         centerTitle: true,
-        toolbarHeight: 90,
+        //toolbarHeight: 90,
       ),
-      body: Center(
+      body: Align(
+        alignment: Alignment(0, -.25),
         child: Scrollbar(
           child: SingleChildScrollView(
             child: SliderTheme(
@@ -227,7 +228,7 @@ class _TempSettingsState extends State<TempSettings> {
                   ],
                 ),
               ),
-      ),
+        ),
     ),
     ),
       ),

@@ -10,15 +10,19 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:device_preview/device_preview.dart';
 final globalValues = GlobalValues();
 
 void main() {
   // This initializes the Bluetooth controller class so we can use it wherever
   // in the app.
   Get.put(BluetoothController());
-  runApp(const GetMaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: SplashScreen(),
+  runApp(DevicePreview(
+    enabled: false,
+    builder: (context) => const GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SplashScreen(),
+    ),
   ));
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
   SystemChrome.setPreferredOrientations([
@@ -45,7 +49,11 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
   int _activePage = 0;
   int batteryLevel = 0;
 
-
+  bool isSmallScreen(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    print('my width is $height');
+    return height < 670;
+  }
   final List<Widget> _pages = [
     const TENSSettings(),
     const TempSettings(),
@@ -136,12 +144,12 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
             },
           ),
           // This will only show the navigation dots when in portrait mode
-          if (orientation == Orientation.portrait)
+          if (orientation == Orientation.portrait || orientation == Orientation.landscape)
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
-              height: 80,
+              height: isSmallScreen(context) ? 40.0 : 80.0,
               child: Container(
                 color: Colors.black54,
                 child: Row(
@@ -168,6 +176,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
                 ),
               ),
             ),
+
           // Battery percentage indicator above the app title bar not needed right now
           // Align(
           //   alignment: Alignment.bottomRight, // Adjust the values to position it as needed

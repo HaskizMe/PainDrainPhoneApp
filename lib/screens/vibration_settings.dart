@@ -87,7 +87,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.grey[900],
         centerTitle: true,
-        toolbarHeight: 90,
+        //toolbarHeight: 90,
       ),
       body: Center(
         child: Container(
