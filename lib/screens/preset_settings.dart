@@ -188,20 +188,6 @@ class _PresetSettingsState extends State<PresetSettings> {
                         ),
                         child: const Text('DELETE'),
                       ),
-                      // ElevatedButton(
-                      //   onPressed: () {
-                      //     setState(() {
-                      //       loadPreset();
-                      //     });
-                      //   },
-                      //   style: ElevatedButton.styleFrom(
-                      //     padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                      //     shape: RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.circular(15.0)
-                      //     ),
-                      //   ),
-                      //   child: const Text('LOAD'),
-                      // ),
 
                       TextButton(
                         style: TextButton.styleFrom(
@@ -242,17 +228,16 @@ class _PresetSettingsState extends State<PresetSettings> {
   }
   void addNewItem() async {
     // Adds a new setting
-    double temperatureSliderValue = globalValues.getSliderValue('temperature');
-    double tensAmplitudeSliderValueCh1 = globalValues.getSliderValue('tensAmplitudeCh1');
-    double tensDurationSliderValueCh1 = globalValues.getSliderValue('tensDurationCh1');
-    double tensPeriodSliderValueCh1 = globalValues.getSliderValue('tensPeriodCh1');
-    double tensAmplitudeSliderValueCh2 = globalValues.getSliderValue('tensAmplitudeCh2');
-    double tensDurationSliderValueCh2 = globalValues.getSliderValue('tensDurationCh2');
-    double tensPeriodSliderValueCh2 = globalValues.getSliderValue('tensPeriodCh2');
-    double tensPhase = globalValues.getSliderValue('tensPhase');
-    double amplitudeSliderValue = globalValues.getSliderValue('vibrationAmplitude');
-    double frequencySliderValue = globalValues.getSliderValue('vibrationFrequency');
-    double waveformSliderValue = globalValues.getSliderValue('vibrationWaveform');
+    double temperatureSliderValue = globalValues.getSliderValue(globalValues.temperature);
+    double tensAmplitudeSliderValue = globalValues.getSliderValue(globalValues.tensAmplitude);
+    double tensDurationSliderValueCh1 = globalValues.getSliderValue(globalValues.tensDurationCh1);
+    double tensPeriodSliderValueCh1 = globalValues.getSliderValue(globalValues.tensPeriodCh1);
+    double tensDurationSliderValueCh2 = globalValues.getSliderValue(globalValues.tensDurationCh2);
+    double tensPeriodSliderValueCh2 = globalValues.getSliderValue(globalValues.tensPeriodCh2);
+    double tensPhase = globalValues.getSliderValue(globalValues.tensPhase);
+    double amplitudeSliderValue = globalValues.getSliderValue(globalValues.vibeAmplitude);
+    double frequencySliderValue = globalValues.getSliderValue(globalValues.vibeFreq);
+    double waveformSliderValue = globalValues.getSliderValue(globalValues.vibeWaveform);
     String waveType = globalValues.getWaveType();
     final SharedPreferences prefs = _prefs;
     String newItem = textController.text.trim();
@@ -278,18 +263,17 @@ class _PresetSettingsState extends State<PresetSettings> {
         textFocusNode.unfocus(); // Clear focus from the text input field
         // Setting key value pair for persistent storage associated with name typed
         prefs.setString("$selectedItem.setting", selectedItem);
-        prefs.setString("$selectedItem.vibrationWaveType", waveType);
-        prefs.setDouble("$selectedItem.temperature", temperatureSliderValue);
-        prefs.setDouble("$selectedItem.tensAmplitudeCh1", tensAmplitudeSliderValueCh1);
-        prefs.setDouble("$selectedItem.tensDurationCh1", tensDurationSliderValueCh1);
-        prefs.setDouble("$selectedItem.tensPeriodCh1", tensPeriodSliderValueCh1);
-        prefs.setDouble("$selectedItem.tensAmplitudeCh2", tensAmplitudeSliderValueCh2);
-        prefs.setDouble("$selectedItem.tensDurationCh2", tensDurationSliderValueCh2);
-        prefs.setDouble("$selectedItem.tensPeriodCh2", tensPeriodSliderValueCh2);
-        prefs.setDouble("$selectedItem.tensPhase", tensPhase);
-        prefs.setDouble("$selectedItem.vibrationAmplitude", amplitudeSliderValue);
-        prefs.setDouble("$selectedItem.vibrationFrequency", frequencySliderValue);
-        prefs.setDouble("$selectedItem.vibrationWaveform", waveformSliderValue);
+        prefs.setString("$selectedItem.${globalValues.vibeWaveType}", waveType);
+        prefs.setDouble("$selectedItem.${globalValues.temperature}", temperatureSliderValue);
+        prefs.setDouble("$selectedItem.${globalValues.tensAmplitude}", tensAmplitudeSliderValue);
+        prefs.setDouble("$selectedItem.${globalValues.tensDurationCh1}", tensDurationSliderValueCh1);
+        prefs.setDouble("$selectedItem.${globalValues.tensPeriodCh1}", tensPeriodSliderValueCh1);
+        prefs.setDouble("$selectedItem.${globalValues.tensDurationCh2}", tensDurationSliderValueCh2);
+        prefs.setDouble("$selectedItem.${globalValues.tensPeriodCh2}", tensPeriodSliderValueCh2);
+        prefs.setDouble("$selectedItem.${globalValues.tensPhase}", tensPhase);
+        prefs.setDouble("$selectedItem.${globalValues.vibeAmplitude}", amplitudeSliderValue);
+        prefs.setDouble("$selectedItem.${globalValues.vibeFreq}", frequencySliderValue);
+        prefs.setDouble("$selectedItem.${globalValues.vibeWaveform}", waveformSliderValue);
       });
     } else {
       setState(() {
@@ -308,18 +292,17 @@ class _PresetSettingsState extends State<PresetSettings> {
         // If the name is found in persistent storage then it will delete it
         if(settingName != null) {
           prefs.remove("$settingName.setting");
-          prefs.remove("$settingName.temperature");
-          prefs.remove("$settingName.tensAmplitudeCh1");
-          prefs.remove("$settingName.tensDurationCh1");
-          prefs.remove("$settingName.tensPeriodCh1");
-          prefs.remove("$settingName.tensAmplitudeCh2");
-          prefs.remove("$settingName.tensDurationCh2");
-          prefs.remove("$settingName.tensPeriodCh2");
-          prefs.remove("$settingName.tensPhase");
-          prefs.remove("$settingName.vibrationAmplitude");
-          prefs.remove("$settingName.vibrationFrequency");
-          prefs.remove("$settingName.vibrationWaveform");
-          prefs.remove("$settingName.vibrationWaveType");
+          prefs.remove("$settingName.${globalValues.temperature}");
+          prefs.remove("$settingName.${globalValues.tensAmplitude}");
+          prefs.remove("$settingName.${globalValues.tensDurationCh1}");
+          prefs.remove("$settingName.${globalValues.tensPeriodCh1}");
+          prefs.remove("$settingName.${globalValues.tensDurationCh2}");
+          prefs.remove("$settingName.${globalValues.tensPeriodCh2}");
+          prefs.remove("$settingName.${globalValues.tensPhase}");
+          prefs.remove("$settingName.${globalValues.vibeAmplitude}");
+          prefs.remove("$settingName.${globalValues.vibeFreq}");
+          prefs.remove("$settingName.${globalValues.vibeWaveform}");
+          prefs.remove("$settingName.${globalValues.vibeWaveType}");
           print("removed $settingName");
           // Remove string from dropdown button
           dropdownItems.remove(selectedItem);
@@ -340,58 +323,55 @@ class _PresetSettingsState extends State<PresetSettings> {
      */
     if(selectedItem == dropdownItems.first){
       setState(() {
-        globalValues.setSliderValue("temperature", 0.0);
-        globalValues.setSliderValue("tensAmplitudeCh1", 0.0);
-        globalValues.setSliderValue('tensDurationCh1', 0.1);
-        globalValues.setSliderValue('tensPeriodCh1', 0.5);
-        globalValues.setSliderValue("tensAmplitudeCh2", 0.0);
-        globalValues.setSliderValue('tensDurationCh2', 0.1);
-        globalValues.setSliderValue('tensPeriodCh2', 0.5);
-        globalValues.setSliderValue('tensPhase', 0.0);
-        globalValues.setSliderValue("vibrationAmplitude", 0.0);
-        globalValues.setSliderValue("vibrationFrequency", 0.0);
-        globalValues.setSliderValue("vibrationWaveform", 0.0);
+        globalValues.setSliderValue(globalValues.temperature, 0.0);
+        globalValues.setSliderValue(globalValues.tensAmplitude, 0.0);
+        globalValues.setSliderValue(globalValues.tensDurationCh1, 0.1);
+        globalValues.setSliderValue(globalValues.tensPeriodCh1, 0.5);
+        globalValues.setSliderValue(globalValues.tensDurationCh2, 0.1);
+        globalValues.setSliderValue(globalValues.tensPeriodCh2, 0.5);
+        globalValues.setSliderValue(globalValues.tensPhase, 0.0);
+        globalValues.setSliderValue(globalValues.vibeAmplitude, 0.0);
+        globalValues.setSliderValue(globalValues.vibeFreq, 0.0);
+        globalValues.setSliderValue(globalValues.vibeWaveform, 0.0);
         globalValues.setWaveType("Sine");
       });
     }
     else {
-      final double? tempValue = prefs.getDouble('$selectedItem.temperature');
-      final double? tensAmplitudeCh1 = prefs.getDouble('$selectedItem.tensAmplitudeCh1');
-      final double? tensDurationCh1 = prefs.getDouble('$selectedItem.tensDurationCh1');
-      final double? tensPeriodCh1 = prefs.getDouble('$selectedItem.tensPeriodCh1');
-      final double? tensAmplitudeCh2 = prefs.getDouble('$selectedItem.tensAmplitudeCh2');
-      final double? tensDurationCh2 = prefs.getDouble('$selectedItem.tensDurationCh2');
-      final double? tensPeriodCh2 = prefs.getDouble('$selectedItem.tensPeriodCh2');
-      final double? tensPhase = prefs.getDouble('$selectedItem.tensPhase');
-      final double? ampValue = prefs.getDouble('$selectedItem.vibrationAmplitude');
-      final double? freqValue = prefs.getDouble('$selectedItem.vibrationFrequency');
-      final double? waveValue = prefs.getDouble('$selectedItem.vibrationWaveform');
-      final String? waveTypeValue = prefs.getString('$selectedItem.vibrationWaveType');
+      final double? tempValue = prefs.getDouble('$selectedItem.${globalValues.temperature}');
+      final double? tensAmplitudeCh1 = prefs.getDouble('$selectedItem.${globalValues.tensAmplitude}');
+      final double? tensDurationCh1 = prefs.getDouble('$selectedItem.${globalValues.tensDurationCh1}');
+      final double? tensPeriodCh1 = prefs.getDouble('$selectedItem.${globalValues.tensPeriodCh1}');
+      final double? tensDurationCh2 = prefs.getDouble('$selectedItem.${globalValues.tensDurationCh2}');
+      final double? tensPeriodCh2 = prefs.getDouble('$selectedItem.${globalValues.tensPeriodCh2}');
+      final double? tensPhase = prefs.getDouble('$selectedItem.${globalValues.tensPhase}');
+      final double? ampValue = prefs.getDouble('$selectedItem.${globalValues.vibeAmplitude}');
+      final double? freqValue = prefs.getDouble('$selectedItem.${globalValues.vibeFreq}');
+      final double? waveValue = prefs.getDouble('$selectedItem.${globalValues.vibeWaveform}');
+      final String? waveTypeValue = prefs.getString('$selectedItem.${globalValues.vibeWaveType}');
       // Sets all sliders and other values to the values associated with the preset name
       setState(() {
-        globalValues.setSliderValue("temperature", tempValue!);
-        globalValues.setSliderValue("tensAmplitude", tensAmplitudeCh1!);
-        globalValues.setSliderValue("tensDurationCh1", tensDurationCh1!);
-        globalValues.setSliderValue("tensPeriodCh1", tensPeriodCh1!);
-        globalValues.setSliderValue("tensAmplitudeCh2", tensAmplitudeCh2!);
-        globalValues.setSliderValue("tensDurationCh2", tensDurationCh2!);
-        globalValues.setSliderValue("tensPeriodCh2", tensPeriodCh2!);
-        globalValues.setSliderValue("tensPhase", tensPhase!);
-        globalValues.setSliderValue("vibrationAmplitude", ampValue!);
-        globalValues.setSliderValue("vibrationFrequency", freqValue!);
-        globalValues.setSliderValue("vibrationWaveform", waveValue!);
+        globalValues.setSliderValue(globalValues.temperature, tempValue!);
+        globalValues.setSliderValue(globalValues.tensAmplitude, tensAmplitudeCh1!);
+        globalValues.setSliderValue(globalValues.tensDurationCh1, tensDurationCh1!);
+        globalValues.setSliderValue(globalValues.tensPeriodCh1, tensPeriodCh1!);
+        globalValues.setSliderValue(globalValues.tensDurationCh2, tensDurationCh2!);
+        globalValues.setSliderValue(globalValues.tensPeriodCh2, tensPeriodCh2!);
+        globalValues.setSliderValue(globalValues.tensPhase, tensPhase!);
+        globalValues.setSliderValue(globalValues.vibeAmplitude, ampValue!);
+        globalValues.setSliderValue(globalValues.vibeFreq, freqValue!);
+        globalValues.setSliderValue(globalValues.vibeWaveform, waveValue!);
         globalValues.setWaveType(waveTypeValue!);
       });
     }
     // Sends a new command with the loaded preset values
     int channel1 = 1;
     int channel2 = 2;
-    String stringCommandTensCh1 = "T ${globalValues.getSliderValue('tensAmplitudeCh1').toInt()} ${globalValues.getSliderValue('tensDurationCh1')} ${globalValues.getSliderValue('tensPeriodCh1')} $channel1";
-    String stringCommandTensCh2 = "T ${globalValues.getSliderValue('tensAmplitudeCh2').toInt()} ${globalValues.getSliderValue('tensDurationCh2')} ${globalValues.getSliderValue('tensPeriodCh2')} $channel2";
-    String stringCommandTensPhase = "T p ${globalValues.getSliderValue('tensPhase')}";
+    String stringCommandTensCh1 = "T ${globalValues.getSliderValue(globalValues.tensAmplitude).toInt()} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriodCh1)} $channel1";
+    String stringCommandTensCh2 = "T ${globalValues.getSliderValue(globalValues.tensAmplitude).toInt()} ${globalValues.getSliderValue('tensDurationCh2')} ${globalValues.getSliderValue('tensPeriodCh2')} $channel2";
+    String stringCommandTensPhase = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
 
-    String stringCommandTemperature = "t ${globalValues.getSliderValue("temperature").round()}";
-    String stringCommandVibration = "v ${globalValues.getWaveType()} ${globalValues.getSliderValue("vibrationAmplitude").round()} ${globalValues.getSliderValue("vibrationFrequency").round()} ${globalValues.getSliderValue("vibrationWaveform").round()}";
+    String stringCommandTemperature = "t ${globalValues.getSliderValue(globalValues.temperature).round()}";
+    String stringCommandVibration = "v ${globalValues.getWaveType()} ${globalValues.getSliderValue(globalValues.vibeAmplitude).round()} ${globalValues.getSliderValue(globalValues.vibeFreq).round()} ${globalValues.getSliderValue(globalValues.vibeWaveform).round()}";
     print(stringCommandTemperature);
     print(stringCommandVibration);
     print(stringCommandTensCh1);

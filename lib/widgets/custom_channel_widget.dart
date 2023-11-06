@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pain_drain_mobile_app/main.dart';
 typedef HandleSliderChange = void Function(double value, String stimulus);
 
 class ChannelWidget extends StatefulWidget {
@@ -60,13 +61,8 @@ class _ChannelWidgetState extends State<ChannelWidget> {
                             onChanged: (newValue) {
                               setState(() {
                                 //globalValues.setSliderValue('amplitude', newValue);
-                                widget.handleSliderChange(newValue, 'tensAmplitude', widget.channel);
+                                widget.handleSliderChange(newValue, globalValues.tensAmplitude, widget.channel);
                               });
-                              // Makes a command string for the vibration
-                              // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                              // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                              // print(stringCommand);
-                              // bluetoothController.writeToDevice("vibration", hexValue);
                             },
                             //label: sliderValueAmplitude.round().abs().toString(),
                             divisions: 20,

@@ -28,16 +28,16 @@ class _VibrationSettingsState extends State<VibrationSettings> {
   // Create a function to handle the slider change with debounce
   void handleSliderChange(var newValue, String stimulus) async {
     setState(() {
-      if(stimulus == 'vibrationWaveform'){
-        globalValues.setSliderValue('vibrationWaveform', newValue);
+      if(stimulus == globalValues.vibeWaveform){
+        globalValues.setSliderValue(globalValues.vibeWaveform, newValue);
       }
-      else if(stimulus == 'vibrationAmplitude'){
-        globalValues.setSliderValue('vibrationAmplitude', newValue);
+      else if(stimulus == globalValues.vibeAmplitude){
+        globalValues.setSliderValue(globalValues.vibeAmplitude, newValue);
       }
-      else if(stimulus == 'vibrationFrequency'){
-        globalValues.setSliderValue('vibrationFrequency', newValue);
+      else if(stimulus == globalValues.vibeFreq){
+        globalValues.setSliderValue(globalValues.vibeFreq, newValue);
       }
-      else if(stimulus == 'vibrationWaveType'){
+      else if(stimulus == globalValues.vibeWaveType){
         globalValues.setWaveType(newValue);
       }
 
@@ -50,7 +50,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
     */
     writeTimer = Timer(writeDelay, () async {
       // Implement your async operations here
-      String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${globalValues.getSliderValue('vibrationAmplitude').toInt()} ${globalValues.getSliderValue('vibrationFrequency').toInt()} ${globalValues.getSliderValue('vibrationWaveform').toInt()}";
+      String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${globalValues.getSliderValue(globalValues.vibeAmplitude).toInt()} ${globalValues.getSliderValue(globalValues.vibeFreq).toInt()} ${globalValues.getSliderValue(globalValues.vibeWaveform).toInt()}";
       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
       print(stringCommand);
       print('list hex values $hexValue');
@@ -72,9 +72,9 @@ class _VibrationSettingsState extends State<VibrationSettings> {
 
   @override
   Widget build(BuildContext context) {
-    double sliderValueAmplitude = globalValues.getSliderValue('vibrationAmplitude');
-    double sliderValueFrequency = globalValues.getSliderValue('vibrationFrequency');
-    double sliderValueWaveform = globalValues.getSliderValue('vibrationWaveform');
+    double sliderValueAmplitude = globalValues.getSliderValue(globalValues.vibeAmplitude);
+    double sliderValueFrequency = globalValues.getSliderValue(globalValues.vibeFreq);
+    double sliderValueWaveform = globalValues.getSliderValue(globalValues.vibeWaveform);
     return Scaffold(
       backgroundColor: Colors.grey[800],
       appBar: AppBar(
@@ -140,15 +140,9 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                                         onChanged: (newValue) {
                                           setState(() {
                                             //globalValues.setSliderValue('amplitude', newValue);
-                                            handleSliderChange(newValue, 'vibrationAmplitude');
+                                            handleSliderChange(newValue, globalValues.vibeAmplitude);
                                           });
-                                          // Makes a command string for the vibration
-                                          // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                                          // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                                          // print(stringCommand);
-                                          // bluetoothController.writeToDevice("vibration", hexValue);
                                         },
-                                        //label: sliderValueAmplitude.round().abs().toString(),
                                         divisions: 20,
 
                                       ),
@@ -205,13 +199,8 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                                         onChanged: (newValue) {
                                           setState(() {
                                             // globalValues.setSliderValue('frequency', newValue);
-                                            handleSliderChange(newValue, 'vibrationFrequency');
+                                            handleSliderChange(newValue, globalValues.vibeFreq);
                                           });
-                                          // Makes a command string for the vibration
-                                          // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${newValue.round()} ${sliderValueWaveform.toInt()}";
-                                          // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                                          // print(stringCommand);
-                                          // bluetoothController.writeToDevice("vibration", hexValue);
                                         },
                                         //label: sliderValueFrequency.round().abs().toString(),
                                         divisions: 20,
@@ -270,7 +259,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                                         onChanged: (newValue) {
                                           setState(() {
                                             //globalValues.setSliderValue('waveform', newValue);
-                                            handleSliderChange(newValue, 'vibrationWaveform');
+                                            handleSliderChange(newValue, globalValues.vibeWaveform);
                                           });
 
                                           // Makes a command string for the vibration
@@ -343,7 +332,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                           setState(() {
                             selectedItem = newValue!;
                             //globalValues.setWaveType(selectedItem);
-                            handleSliderChange(selectedItem, 'vibrationWaveType');
+                            handleSliderChange(selectedItem, globalValues.vibeWaveType);
 
                           });
                           // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";

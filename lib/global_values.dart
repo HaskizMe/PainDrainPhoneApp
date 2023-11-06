@@ -17,6 +17,17 @@ class GlobalValues {
   String waveType = "Sine";
   String presetType = "Select preset";
   List<String> presets = ["Select preset"];
+  String tensAmplitude = "tensAmplitude";
+  String tensDurationCh1 = "tensDurationCh1";
+  String tensPeriodCh1 = "tensPeriodCh1";
+  String tensDurationCh2 = "tensDurationCh2";
+  String tensPeriodCh2 = "tensPeriodCh2";
+  String tensPhase = "tensPhase";
+  String temperature = "temperature";
+  String vibeAmplitude = "vibrationAmplitude";
+  String vibeFreq = "vibrationFrequency";
+  String vibeWaveform = "vibrationWaveform";
+  String vibeWaveType = "vibrationWaveType";
 
   factory GlobalValues() {
     return _instance;

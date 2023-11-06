@@ -26,6 +26,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
   final Duration writeDelay = const Duration(milliseconds: 500);
   Timer? writeTimer;
 
+
   // Create a function to handle the slider change
   void handleSliderChange(var newValue, String stimulus, int channel) async {
     // Makes changes to channel 1
@@ -33,13 +34,13 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
       setState(() {
 
         if(stimulus == 'tensDuration'){
-          globalValues.setSliderValue('tensDurationCh1', newValue);
+          globalValues.setSliderValue(globalValues.tensDurationCh1, newValue);
         }
         else if(stimulus == 'tensAmplitude'){
-          globalValues.setSliderValue('tensAmplitudeCh1', newValue);
+          globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
         }
         else if(stimulus == 'tensPeriod'){
-          globalValues.setSliderValue('tensPeriodCh1', newValue);
+          globalValues.setSliderValue(globalValues.tensPeriodCh1, newValue);
         }
 
       });
@@ -52,13 +53,12 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     */
       writeTimer = Timer(writeDelay, () async {
         // Implement your async operations here
-        String stringCommand = "T ${globalValues.getSliderValue('tensAmplitudeCh1')} ${globalValues.getSliderValue('tensDurationCh1')} ${globalValues.getSliderValue('tensPeriodCh1')} $channel";
+        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriodCh1)} $channel";
         List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
         print('Value: $stringCommand');
         print('list hex values $hexValue');
         await bluetoothController.writeToDevice('tens', hexValue);
         readValueList = await bluetoothController.readFromDevice();
-        //print('value: $');
 
         // Update readValue
         setState(() {
@@ -70,13 +70,13 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     else if(channel == 2){
       setState(() {
         if(stimulus == 'tensDuration'){
-          globalValues.setSliderValue('tensDurationCh2', newValue);
+          globalValues.setSliderValue(globalValues.tensDurationCh2, newValue);
         }
         else if(stimulus == 'tensAmplitude'){
-          globalValues.setSliderValue('tensAmplitudeCh2', newValue);
+          globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
         }
         else if(stimulus == 'tensPeriod'){
-          globalValues.setSliderValue('tensPeriodCh2', newValue);
+          globalValues.setSliderValue(globalValues.tensPeriodCh2, newValue);
         }
 
       });
@@ -89,7 +89,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     */
       writeTimer = Timer(writeDelay, () async {
         // Implement your async operations here
-        String stringCommand = "T ${globalValues.getSliderValue('tensAmplitudeCh2')} ${globalValues.getSliderValue('tensDurationCh2')} ${globalValues.getSliderValue('tensPeriodCh2')} $channel";
+        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriodCh2)} $channel";
         List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
         print('Value: $stringCommand');
         print('list hex values $hexValue');
@@ -115,10 +115,10 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     int channel1 = 1;
     int channel2 = 2;
     if(newValue == false){
-      globalValues.setSliderValue('tensPhase', 0);
+      globalValues.setSliderValue(globalValues.tensPhase, 0);
     }
     else if(newValue = true){
-      globalValues.setSliderValue('tensPhase', 180);
+      globalValues.setSliderValue(globalValues.tensPhase, 180);
     }
     else {
       print("ERROR");
@@ -126,9 +126,9 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     setState(() {
       phaseValue = newValue;
     });
-    print('Phase value ${globalValues.getSliderValue("tensPhase")}');
+    print('Phase value ${globalValues.getSliderValue(globalValues.tensPhase)}');
     // When phase changes it sends channel 1 values
-    String stringCommand = "T p ${globalValues.getSliderValue("tensPhase")}";
+    String stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
     List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
     print('Value: $stringCommand');
     print('list hex values $hexValue');
@@ -148,13 +148,12 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
-    double sliderValuePeriodChannel1 = globalValues.getSliderValue('tensPeriodCh1');
-    double sliderValueDurationChannel1 = globalValues.getSliderValue('tensDurationCh1');
-    double sliderValueAmplitudeChannel1 = globalValues.getSliderValue('tensAmplitudeCh1');
-    double sliderValueAmplitudeChannel2 = globalValues.getSliderValue('tensAmplitudeCh2');
-    double sliderValueDurationChannel2 = globalValues.getSliderValue('tensDurationCh2');
-    double sliderValuePeriodChannel2 = globalValues.getSliderValue('tensPeriodCh2');
-    double sliderValuePhase = globalValues.getSliderValue('tensPhase');
+    double sliderValuePeriodChannel1 = globalValues.getSliderValue(globalValues.tensPeriodCh1);
+    double sliderValueDurationChannel1 = globalValues.getSliderValue(globalValues.tensDurationCh1);
+    double sliderValueAmplitude = globalValues.getSliderValue(globalValues.tensAmplitude);
+    double sliderValueDurationChannel2 = globalValues.getSliderValue(globalValues.tensDurationCh2);
+    double sliderValuePeriodChannel2 = globalValues.getSliderValue(globalValues.tensPeriodCh2);
+    double sliderValuePhase = globalValues.getSliderValue(globalValues.tensPhase);
     if(sliderValuePhase == 0){
        phaseValue = false;
     }
@@ -165,14 +164,11 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     return Scaffold(
       backgroundColor: Colors.grey[800],
       appBar: AppBar(
-        title: Padding(
-          padding: EdgeInsets.all(35.0),
-          child: const Text(
-            'TENS',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 50,
-            ),
+        title: const Text(
+          'TENS',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 50,
           ),
         ),
         automaticallyImplyLeading: false,
@@ -217,7 +213,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
               ChannelWidget(
                   sliderValuePeriod: sliderValuePeriodChannel1,
                   sliderValueDuration: sliderValueDurationChannel1,
-                  sliderValueAmplitude: sliderValueAmplitudeChannel1,
+                  sliderValueAmplitude: sliderValueAmplitude,
                   handleSliderChange: handleSliderChange,
                   //height: 260,
                   height: MediaQuery.of(context).size.height * .3,
@@ -242,7 +238,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
               ChannelWidget(
                   sliderValuePeriod: sliderValuePeriodChannel2,
                   sliderValueDuration: sliderValueDurationChannel2,
-                  sliderValueAmplitude: sliderValueAmplitudeChannel2,
+                  sliderValueAmplitude: sliderValueAmplitude,
                   handleSliderChange: handleSliderChange,
                   //height: 260,
                   height: MediaQuery.of(context).size.height * .3,

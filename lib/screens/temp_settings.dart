@@ -28,7 +28,7 @@ class _TempSettingsState extends State<TempSettings> {
   // Create a function to handle the slider change with debounce
   void handleSliderChange(double newValue) async {
     setState(() {
-      globalValues.setSliderValue('temperature', newValue);
+      globalValues.setSliderValue(globalValues.temperature, newValue);
     });
 
     // Restarts timer when slider value changes
@@ -39,11 +39,11 @@ class _TempSettingsState extends State<TempSettings> {
     */
     writeTimer = Timer(writeDelay, () async {
       // Implement your async operations here
-      print('Slider value: ${globalValues.getSliderValue('temperature').round()}');
-      String stringCommand = "t ${globalValues.getSliderValue('temperature').round()}";
+      print('Slider value: ${globalValues.getSliderValue(globalValues.temperature).round()}');
+      String stringCommand = "t ${globalValues.getSliderValue(globalValues.temperature).round()}";
       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
       print(hexValue);
-      await bluetoothController.writeToDevice("temperature", hexValue);
+      await bluetoothController.writeToDevice(globalValues.temperature, hexValue);
       readValueList = await bluetoothController.readFromDevice();
       print('value: $readValue');
       // Update readValue
@@ -61,7 +61,7 @@ class _TempSettingsState extends State<TempSettings> {
 
   @override
   Widget build(BuildContext context) {
-    double temperatureSliderValue = globalValues.getSliderValue('temperature');
+    double temperatureSliderValue = globalValues.getSliderValue(globalValues.temperature);
     return Scaffold(
       backgroundColor: Colors.grey[800],
       appBar: AppBar(
