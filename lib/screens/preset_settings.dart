@@ -51,7 +51,7 @@ class _PresetSettingsState extends State<PresetSettings> {
       loadPreset();
     });
 
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         isLoading = false;
       });
@@ -61,7 +61,7 @@ class _PresetSettingsState extends State<PresetSettings> {
   void loaderAnimation(AnimationController controller) async {
     controller.forward();
     print("delay start");
-    await Future.delayed(Duration(seconds: 3), () {});
+    await Future.delayed(const Duration(seconds: 3), () {});
     print("delay stop");
     controller.reset();
   }
@@ -82,14 +82,14 @@ class _PresetSettingsState extends State<PresetSettings> {
         //toolbarHeight: 90,
       ),
       body: Align(
-        alignment: Alignment(0, -.25),
+        alignment: const Alignment(0, -.25),
         child: Card(
           elevation: 20.0,
           color: Colors.grey[700],
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0)
           ),
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.of(context).size.height * .3,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -118,11 +118,11 @@ class _PresetSettingsState extends State<PresetSettings> {
                     }).toList(),
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 if (isAddingItem)
                   Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Container(
+                    padding: const EdgeInsets.all(20.0),
+                    child: SizedBox(
                       //margin: const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
                       width: 200,
                       child: Row(
@@ -144,7 +144,7 @@ class _PresetSettingsState extends State<PresetSettings> {
                                   addNewItem();
                                 },
                                 maxLength: 15, // Set a max length of 10 characters
-                                style: TextStyle(fontSize: 26, color: Colors.white), // Set a smaller font size
+                                style: const TextStyle(fontSize: 26, color: Colors.white), // Set a smaller font size
                               ),
                             ),
                           ),
@@ -165,7 +165,7 @@ class _PresetSettingsState extends State<PresetSettings> {
                           });
                         } : null, // Disable the button when list length is greater than 5
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                          padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0)
                           ),
@@ -181,7 +181,7 @@ class _PresetSettingsState extends State<PresetSettings> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                          padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15.0)
                           ),
@@ -200,10 +200,10 @@ class _PresetSettingsState extends State<PresetSettings> {
                           onPressed: isLoading ? null : _handleButtonPress,
                           child: Container(
                             child: isLoading
-                            ? Container(
+                            ? const SizedBox(
                               height: 15,
                               width: 15,
-                              child: const CircularProgressIndicator(
+                              child: CircularProgressIndicator(
                                 color: Colors.white,
                               ),
                             ) : const Text(
@@ -231,9 +231,8 @@ class _PresetSettingsState extends State<PresetSettings> {
     double temperatureSliderValue = globalValues.getSliderValue(globalValues.temperature);
     double tensAmplitudeSliderValue = globalValues.getSliderValue(globalValues.tensAmplitude);
     double tensDurationSliderValueCh1 = globalValues.getSliderValue(globalValues.tensDurationCh1);
-    double tensPeriodSliderValueCh1 = globalValues.getSliderValue(globalValues.tensPeriodCh1);
+    double tensPeriodSliderValueCh1 = globalValues.getSliderValue(globalValues.tensPeriod);
     double tensDurationSliderValueCh2 = globalValues.getSliderValue(globalValues.tensDurationCh2);
-    double tensPeriodSliderValueCh2 = globalValues.getSliderValue(globalValues.tensPeriodCh2);
     double tensPhase = globalValues.getSliderValue(globalValues.tensPhase);
     double amplitudeSliderValue = globalValues.getSliderValue(globalValues.vibeAmplitude);
     double frequencySliderValue = globalValues.getSliderValue(globalValues.vibeFreq);
@@ -267,9 +266,8 @@ class _PresetSettingsState extends State<PresetSettings> {
         prefs.setDouble("$selectedItem.${globalValues.temperature}", temperatureSliderValue);
         prefs.setDouble("$selectedItem.${globalValues.tensAmplitude}", tensAmplitudeSliderValue);
         prefs.setDouble("$selectedItem.${globalValues.tensDurationCh1}", tensDurationSliderValueCh1);
-        prefs.setDouble("$selectedItem.${globalValues.tensPeriodCh1}", tensPeriodSliderValueCh1);
+        prefs.setDouble("$selectedItem.${globalValues.tensPeriod}", tensPeriodSliderValueCh1);
         prefs.setDouble("$selectedItem.${globalValues.tensDurationCh2}", tensDurationSliderValueCh2);
-        prefs.setDouble("$selectedItem.${globalValues.tensPeriodCh2}", tensPeriodSliderValueCh2);
         prefs.setDouble("$selectedItem.${globalValues.tensPhase}", tensPhase);
         prefs.setDouble("$selectedItem.${globalValues.vibeAmplitude}", amplitudeSliderValue);
         prefs.setDouble("$selectedItem.${globalValues.vibeFreq}", frequencySliderValue);
@@ -295,9 +293,8 @@ class _PresetSettingsState extends State<PresetSettings> {
           prefs.remove("$settingName.${globalValues.temperature}");
           prefs.remove("$settingName.${globalValues.tensAmplitude}");
           prefs.remove("$settingName.${globalValues.tensDurationCh1}");
-          prefs.remove("$settingName.${globalValues.tensPeriodCh1}");
+          prefs.remove("$settingName.${globalValues.tensPeriod}");
           prefs.remove("$settingName.${globalValues.tensDurationCh2}");
-          prefs.remove("$settingName.${globalValues.tensPeriodCh2}");
           prefs.remove("$settingName.${globalValues.tensPhase}");
           prefs.remove("$settingName.${globalValues.vibeAmplitude}");
           prefs.remove("$settingName.${globalValues.vibeFreq}");
@@ -326,9 +323,8 @@ class _PresetSettingsState extends State<PresetSettings> {
         globalValues.setSliderValue(globalValues.temperature, 0.0);
         globalValues.setSliderValue(globalValues.tensAmplitude, 0.0);
         globalValues.setSliderValue(globalValues.tensDurationCh1, 0.1);
-        globalValues.setSliderValue(globalValues.tensPeriodCh1, 0.5);
+        globalValues.setSliderValue(globalValues.tensPeriod, 0.5);
         globalValues.setSliderValue(globalValues.tensDurationCh2, 0.1);
-        globalValues.setSliderValue(globalValues.tensPeriodCh2, 0.5);
         globalValues.setSliderValue(globalValues.tensPhase, 0.0);
         globalValues.setSliderValue(globalValues.vibeAmplitude, 0.0);
         globalValues.setSliderValue(globalValues.vibeFreq, 0.0);
@@ -340,9 +336,8 @@ class _PresetSettingsState extends State<PresetSettings> {
       final double? tempValue = prefs.getDouble('$selectedItem.${globalValues.temperature}');
       final double? tensAmplitudeCh1 = prefs.getDouble('$selectedItem.${globalValues.tensAmplitude}');
       final double? tensDurationCh1 = prefs.getDouble('$selectedItem.${globalValues.tensDurationCh1}');
-      final double? tensPeriodCh1 = prefs.getDouble('$selectedItem.${globalValues.tensPeriodCh1}');
+      final double? tensPeriodCh1 = prefs.getDouble('$selectedItem.${globalValues.tensPeriod}');
       final double? tensDurationCh2 = prefs.getDouble('$selectedItem.${globalValues.tensDurationCh2}');
-      final double? tensPeriodCh2 = prefs.getDouble('$selectedItem.${globalValues.tensPeriodCh2}');
       final double? tensPhase = prefs.getDouble('$selectedItem.${globalValues.tensPhase}');
       final double? ampValue = prefs.getDouble('$selectedItem.${globalValues.vibeAmplitude}');
       final double? freqValue = prefs.getDouble('$selectedItem.${globalValues.vibeFreq}');
@@ -353,9 +348,8 @@ class _PresetSettingsState extends State<PresetSettings> {
         globalValues.setSliderValue(globalValues.temperature, tempValue!);
         globalValues.setSliderValue(globalValues.tensAmplitude, tensAmplitudeCh1!);
         globalValues.setSliderValue(globalValues.tensDurationCh1, tensDurationCh1!);
-        globalValues.setSliderValue(globalValues.tensPeriodCh1, tensPeriodCh1!);
+        globalValues.setSliderValue(globalValues.tensPeriod, tensPeriodCh1!);
         globalValues.setSliderValue(globalValues.tensDurationCh2, tensDurationCh2!);
-        globalValues.setSliderValue(globalValues.tensPeriodCh2, tensPeriodCh2!);
         globalValues.setSliderValue(globalValues.tensPhase, tensPhase!);
         globalValues.setSliderValue(globalValues.vibeAmplitude, ampValue!);
         globalValues.setSliderValue(globalValues.vibeFreq, freqValue!);
@@ -366,7 +360,7 @@ class _PresetSettingsState extends State<PresetSettings> {
     // Sends a new command with the loaded preset values
     int channel1 = 1;
     int channel2 = 2;
-    String stringCommandTensCh1 = "T ${globalValues.getSliderValue(globalValues.tensAmplitude).toInt()} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriodCh1)} $channel1";
+    String stringCommandTensCh1 = "T ${globalValues.getSliderValue(globalValues.tensAmplitude).toInt()} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel1";
     String stringCommandTensCh2 = "T ${globalValues.getSliderValue(globalValues.tensAmplitude).toInt()} ${globalValues.getSliderValue('tensDurationCh2')} ${globalValues.getSliderValue('tensPeriodCh2')} $channel2";
     String stringCommandTensPhase = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
 

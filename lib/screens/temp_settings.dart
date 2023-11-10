@@ -1,10 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:get/get.dart';
-import '../global_values.dart';
 import '../main.dart';
 
 class TempSettings extends StatefulWidget {
@@ -77,7 +75,7 @@ class _TempSettingsState extends State<TempSettings> {
         //toolbarHeight: 90,
       ),
       body: Align(
-        alignment: Alignment(0, -.25),
+        alignment: const Alignment(0, -.25),
         child: Scrollbar(
           child: SingleChildScrollView(
             child: SliderTheme(
@@ -93,7 +91,7 @@ class _TempSettingsState extends State<TempSettings> {
                   enabledThumbRadius: 30.0, // Adjust the radius as needed
                 ),// Make ticks invisible
               ),
-              child: Container(
+              child: SizedBox(
                 height: MediaQuery.of(context).size.height * 0.65,
                 //color: Colors.black,
                 child: Column(
@@ -105,7 +103,7 @@ class _TempSettingsState extends State<TempSettings> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)
                       ),
-                      child: Container(
+                      child: SizedBox(
                         height: MediaQuery.of(context).size.height * .6,
                         //color: Colors.pink,
                         child: Column(

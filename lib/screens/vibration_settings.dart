@@ -90,7 +90,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
         //toolbarHeight: 90,
       ),
       body: Center(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height * .65,
           //color: Colors.green,
           child: Column(
@@ -103,7 +103,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.0)
                 ),
-                child: Container(
+                child: SizedBox(
                   //color: Colors.black,
                   //width: MediaQuery.of(context).size.width * 0.90,
                   height: MediaQuery.of(context).size.height * .5,
@@ -124,7 +124,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
+                        SizedBox(
                           width: 100,
                           child: Column(
                             children: [
@@ -182,7 +182,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                             ],
                           ),
                         ),
-                        Container(
+                        SizedBox(
                           width: 100,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -242,7 +242,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                             ],
                           ),
                         ),
-                        Container(
+                        SizedBox(
                           width: 100,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

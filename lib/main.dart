@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'global_values.dart';
 import 'screens/TENS_settings.dart';
 import 'screens/temp_settings.dart';
-import 'screens/vibration_settings.dart'; // Removed double slashes
+import 'screens/vibration_settings.dart';
 import 'screens/preset_settings.dart';
 import 'screens/splash_screen.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -52,7 +52,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
   bool isSmallScreen(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     print('my width is $height');
-    return height < 670;
+    return height < 740;
   }
   final List<Widget> _pages = [
     const TENSSettings(),

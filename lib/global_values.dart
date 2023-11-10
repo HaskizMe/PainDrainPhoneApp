@@ -19,9 +19,8 @@ class GlobalValues {
   List<String> presets = ["Select preset"];
   String tensAmplitude = "tensAmplitude";
   String tensDurationCh1 = "tensDurationCh1";
-  String tensPeriodCh1 = "tensPeriodCh1";
+  String tensPeriod = "tensPeriodCh1";
   String tensDurationCh2 = "tensDurationCh2";
-  String tensPeriodCh2 = "tensPeriodCh2";
   String tensPhase = "tensPhase";
   String temperature = "temperature";
   String vibeAmplitude = "vibrationAmplitude";
@@ -60,7 +59,7 @@ class GlobalValues {
 
   Future<List<String>> getPresets() async {
     final SharedPreferences prefs = await _prefs;
-   // await prefs.clear();
+   //await prefs.clear();
     
     List<String> keys = prefs.getKeys().toList();
     for (String element in keys){
@@ -73,6 +72,7 @@ class GlobalValues {
     }
     print("My map ${prefs.getKeys()}");
     print("My presets list $presets");
+    //presets.clear();
     return presets;
   }
 }

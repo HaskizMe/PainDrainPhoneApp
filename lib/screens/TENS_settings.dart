@@ -1,13 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:pain_drain_mobile_app/global_values.dart';
-import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:get/get.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 import '../main.dart';
-import '../widgets/custom_channel_widget.dart';
+import '../widgets/custom_card.dart';
+import '../widgets/custom_slider.dart';
 
 
 
@@ -28,19 +25,19 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
 
 
   // Create a function to handle the slider change
-  void handleSliderChange(var newValue, String stimulus, int channel) async {
+  void handleSliderChange(var newValue, String stimulus, [int? channel]) async {
     // Makes changes to channel 1
-    if(channel == 1){
+    if(channel == 1 || channel == 0){
       setState(() {
 
-        if(stimulus == 'tensDuration'){
+        if(stimulus == 'tensDurationCh1'){
           globalValues.setSliderValue(globalValues.tensDurationCh1, newValue);
         }
         else if(stimulus == 'tensAmplitude'){
           globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
         }
         else if(stimulus == 'tensPeriod'){
-          globalValues.setSliderValue(globalValues.tensPeriodCh1, newValue);
+          globalValues.setSliderValue(globalValues.tensPeriod, newValue);
         }
 
       });
@@ -53,7 +50,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     */
       writeTimer = Timer(writeDelay, () async {
         // Implement your async operations here
-        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriodCh1)} $channel";
+        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
         List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
         print('Value: $stringCommand');
         print('list hex values $hexValue');
@@ -69,14 +66,14 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     // Makes changes to channel 2
     else if(channel == 2){
       setState(() {
-        if(stimulus == 'tensDuration'){
+        if(stimulus == 'tensDurationCh2'){
           globalValues.setSliderValue(globalValues.tensDurationCh2, newValue);
         }
         else if(stimulus == 'tensAmplitude'){
           globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
         }
         else if(stimulus == 'tensPeriod'){
-          globalValues.setSliderValue(globalValues.tensPeriodCh2, newValue);
+          globalValues.setSliderValue(globalValues.tensPeriod, newValue);
         }
 
       });
@@ -89,7 +86,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     */
       writeTimer = Timer(writeDelay, () async {
         // Implement your async operations here
-        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriodCh2)} $channel";
+        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
         List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
         print('Value: $stringCommand');
         print('list hex values $hexValue');
@@ -109,11 +106,10 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
 
 
   }
+
   bool phaseValue = false;
 
   void onSwitchChanged(bool newValue) async {
-    int channel1 = 1;
-    int channel2 = 2;
     if(newValue == false){
       globalValues.setSliderValue(globalValues.tensPhase, 0);
     }
@@ -140,6 +136,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     });
   }
 
+
   @override
   void dispose() {
     writeTimer?.cancel(); // Cancel the timer when the widget is disposed.
@@ -148,12 +145,88 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
-    double sliderValuePeriodChannel1 = globalValues.getSliderValue(globalValues.tensPeriodCh1);
+    double sliderValuePeriod = globalValues.getSliderValue(globalValues.tensPeriod);
     double sliderValueDurationChannel1 = globalValues.getSliderValue(globalValues.tensDurationCh1);
     double sliderValueAmplitude = globalValues.getSliderValue(globalValues.tensAmplitude);
     double sliderValueDurationChannel2 = globalValues.getSliderValue(globalValues.tensDurationCh2);
-    double sliderValuePeriodChannel2 = globalValues.getSliderValue(globalValues.tensPeriodCh2);
     double sliderValuePhase = globalValues.getSliderValue(globalValues.tensPhase);
+    // The two sliders I want in the top portion
+    List<Widget> topSliders = [
+      CustomSlider(
+        min: 0,
+        max: 100,
+        divisions: 20,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueAmplitude,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.tensAmplitude,
+        sliderLabel: 'Amplitude',
+        valueLabel: "${sliderValueAmplitude.round()}%",
+        channel: 0,
+      ),
+      CustomSlider(
+        min: 0.5,
+        max: 10,
+        divisions: (10.0 - 0.5) ~/ 0.5,
+        // divisions: 10,
+        handleSliderChange: handleSliderChange,
+        value: sliderValuePeriod,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: "tensPeriod",
+        sliderLabel: 'Period',
+        valueLabel: "${sliderValuePeriod}s",
+        channel: 0,
+      ),
+      // You can add more sliders here
+    ];
+
+    // Slider that I want in the bottom left
+    List<Widget> bottomSliderLeft = [
+      CustomSlider(
+        min: 0.1,
+        max: 1.0,
+        divisions: 9,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueDurationChannel1,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.tensDurationCh1,
+        sliderLabel: 'Duration',
+        valueLabel: "${sliderValueDurationChannel1}s",
+        channel: 1,
+      ),
+      // You can add more sliders here
+    ];
+    // Slider that I want in the bottom right
+    List<Widget> bottomSliderRight = [
+      CustomSlider(
+        min: 0.1,
+        max: 1.0,
+        divisions: 9,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueDurationChannel2,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.tensDurationCh2,
+        sliderLabel: 'Duration',
+        valueLabel: "${sliderValueDurationChannel2}s",
+        channel: 2,
+      ),
+    ];
     if(sliderValuePhase == 0){
        phaseValue = false;
     }
@@ -176,82 +249,78 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
         centerTitle: true,
         //toolbarHeight: 50,
       ),
-      body: SliderTheme(
-        data: const SliderThemeData(
-          trackHeight: 50,
-          activeTrackColor: Colors.blue, // Color of the active portion of the track
-          inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
-          thumbColor: AppColors.blue, // Color of the thumb
-          tickMarkShape: RoundSliderTickMarkShape(
-              tickMarkRadius: 0
-          ),
-          thumbShape: RoundSliderThumbShape(
-            enabledThumbRadius: 30.0, // Adjust the radius as needed
-          ),// Make ticks invisible
-        ),
-        child: Container(
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: SizedBox(
           height: MediaQuery.of(context).size.height,
           //color: Colors.green,
           child: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: Text(
-                    "Channel 1",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-              ),
-             // SizedBox(height: 15,),
-              ChannelWidget(
-                  sliderValuePeriod: sliderValuePeriodChannel1,
-                  sliderValueDuration: sliderValueDurationChannel1,
-                  sliderValueAmplitude: sliderValueAmplitude,
-                  handleSliderChange: handleSliderChange,
-                  //height: 260,
+              CustomCard(
                   height: MediaQuery.of(context).size.height * .3,
                   width: MediaQuery.of(context).size.width * 1,
-                  //color: Colors.green,
-                  channel: 1,
+                  sliders: topSliders,
               ),
-              const Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: Text(
-                    "Channel 2",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+              const Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Channel 1",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Text(
+                            "Channel 2",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
-              ChannelWidget(
-                  sliderValuePeriod: sliderValuePeriodChannel2,
-                  sliderValueDuration: sliderValueDurationChannel2,
-                  sliderValueAmplitude: sliderValueAmplitude,
-                  handleSliderChange: handleSliderChange,
-                  //height: 260,
-                  height: MediaQuery.of(context).size.height * .3,
-
-                //width: 300,
-                  width: MediaQuery.of(context).size.width * 1,
-                  //color: Colors.pink,
-                  channel: 2,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: CustomCard(
+                        height: MediaQuery.of(context).size.height * .3,
+                        width: MediaQuery.of(context).size.width * .4,
+                        sliders: bottomSliderLeft
+                    ),
+                  ),
+                  Expanded(
+                    child: CustomCard(
+                        height: MediaQuery.of(context).size.height * .3,
+                        width: MediaQuery.of(context).size.width * .4,
+                        sliders: bottomSliderRight
+                    ),
+                  ),
+                ],
               ),
               Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.fromLTRB(0.0, 5.0, 10.0, 0.0),
+                    padding: const EdgeInsets.fromLTRB(0.0, 10.0, 10.0, 0.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
