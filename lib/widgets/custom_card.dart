@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-typedef HandleSliderChange = void Function(double value, String stimulus);
 
-class CustomCard extends StatefulWidget {
-  final double height;
-  final double width;
+class CustomCard extends StatelessWidget {
+  final double? width;
   final List<Widget> sliders;
+  final double spacing;
   const CustomCard({Key? key,
-    required this.height,
-    required this.width,
+    this.width,
     required this.sliders,
+    this.spacing = 50.0
   }) : super(key: key);
 
-  @override
-  State<CustomCard> createState() => _CustomCardState();
-}
-
-class _CustomCardState extends State<CustomCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -25,21 +19,20 @@ class _CustomCardState extends State<CustomCard> {
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(10.0),
         child: SizedBox(
-          height: widget.height,
-          width: widget.width,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          width: width,
+          child: Wrap(
+            spacing: spacing,
+            runSpacing: 16.0,
+            alignment: WrapAlignment.spaceEvenly,
+            //crossAxisAlignment: WrapCrossAlignment.center,
             // Fill with however many widgets needed
             children: [
-              ...widget.sliders,
+              ...sliders,
             ],
           ),
-
-          // Your custom widget content
-        ),
+        )
       ),
     );
   }

@@ -59,7 +59,7 @@ class GlobalValues {
 
   Future<List<String>> getPresets() async {
     final SharedPreferences prefs = await _prefs;
-   //await prefs.clear();
+    //await prefs.clear();
     
     List<String> keys = prefs.getKeys().toList();
     for (String element in keys){

@@ -53,46 +53,44 @@ class _CustomSliderState extends State<CustomSlider> {
           width: 100,
           child: Column(
             children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    RotatedBox(
-                      quarterTurns: -1,
-                      child: Slider(
-                          value: widget.value,
-                          min: widget.min,
-                          max: widget.max,
-                          divisions: widget.divisions,
-                        onChanged: (newValue) {
-                          setState(() {
-                            widget.value = double.parse(newValue.toStringAsFixed(1));
-                            //globalValues.setSliderValue('amplitude', newValue);
-                            newValue = widget.value;
-                            //widget.value = newValue;
-                            print("slider name: ${widget.sliderName}");
-                            widget.handleSliderChange(newValue, widget.sliderName, widget.channel);
-                          });
-                        },
-                      ),
+              Stack(
+                children: [
+                  RotatedBox(
+                    quarterTurns: -1,
+                    child: Slider(
+                        value: widget.value,
+                        min: widget.min,
+                        max: widget.max,
+                        divisions: widget.divisions,
+                      onChanged: (newValue) {
+                        setState(() {
+                          widget.value = double.parse(newValue.toStringAsFixed(1));
+                          //globalValues.setSliderValue('amplitude', newValue);
+                          newValue = widget.value;
+                          //widget.value = newValue;
+                          print("slider name: ${widget.sliderName}");
+                          widget.handleSliderChange(newValue, widget.sliderName, widget.channel);
+                        });
+                      },
                     ),
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: IgnorePointer(
-                          ignoring: true,
-                          child: Text(
-                            widget.valueLabel,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                            ),
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: IgnorePointer(
+                        ignoring: true,
+                        child: Text(
+                          widget.valueLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
                           ),
                         ),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  )
+                ],
               ),
               const SizedBox(height: 5),
               Text(

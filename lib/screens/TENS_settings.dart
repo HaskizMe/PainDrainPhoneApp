@@ -251,123 +251,121 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          //color: Colors.green,
-          child: Column(
-            children: [
-              CustomCard(
-                  height: MediaQuery.of(context).size.height * .3,
-                  width: MediaQuery.of(context).size.width * 1,
-                  sliders: topSliders,
-              ),
-              const Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Channel 1",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Text(
-                            "Channel 2",
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              children: [
+                CustomCard(
+                    width: MediaQuery.of(context).size.width,
+                    sliders: topSliders,
+                ),
+                const Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Channel 1",
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: CustomCard(
-                        height: MediaQuery.of(context).size.height * .3,
-                        width: MediaQuery.of(context).size.width * .4,
-                        sliders: bottomSliderLeft
-                    ),
-                  ),
-                  Expanded(
-                    child: CustomCard(
-                        height: MediaQuery.of(context).size.height * .3,
-                        width: MediaQuery.of(context).size.width * .4,
-                        sliders: bottomSliderRight
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0.0, 10.0, 10.0, 0.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const Text(
-                          '0',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.white
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(5.0),
+                            child: Text(
+                              "Channel 2",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 15,),
-                        Transform.scale(
-                          scale: 2.0,
-                          child: Switch(
-                            value: phaseValue,
-                            onChanged: onSwitchChanged,
-                            activeColor: Colors.blue, // Color when switch is ON
-                            inactiveTrackColor: Colors.grey, // Color of the inactive track
-                            inactiveThumbColor: Colors.grey, // Color of the switch's thumb when OFF
-                          ),
-                        ),
-                        const SizedBox(width: 15,),
-                        const Text(
-                          '180',
-                          style: TextStyle(
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: CustomCard(
+                          width: MediaQuery.of(context).size.width * .4,
+                          sliders: bottomSliderLeft,
+                      ),
+                    ),
+                    Expanded(
+                      child: CustomCard(
+                          width: MediaQuery.of(context).size.width * .4,
+                          sliders: bottomSliderRight
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 10.0, 10.0, 0.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text(
+                            '0',
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
                               color: Colors.white
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  if(readValue.isNotEmpty)
-                    Text(
-                      readValue,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                          const SizedBox(width: 15,),
+                          Transform.scale(
+                            scale: 2.0,
+                            child: Switch(
+                              value: phaseValue,
+                              onChanged: onSwitchChanged,
+                              activeColor: Colors.blue, // Color when switch is ON
+                              inactiveTrackColor: Colors.grey, // Color of the inactive track
+                              inactiveThumbColor: Colors.grey, // Color of the switch's thumb when OFF
+                            ),
+                          ),
+                          const SizedBox(width: 15,),
+                          const Text(
+                            '180',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Colors.white
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                ],
-              )
-            ],
+                    const SizedBox(height: 5),
+                    if(readValue.isNotEmpty)
+                      Text(
+                        readValue,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 80),
+              ],
+            ),
           ),
         ),
       )

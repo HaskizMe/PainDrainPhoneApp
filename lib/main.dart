@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pain_drain_mobile_app/screens/home_page.dart';
 import 'global_values.dart';
 import 'screens/TENS_settings.dart';
 import 'screens/temp_settings.dart';
@@ -34,7 +35,14 @@ bool showStack = true;
 
 // This class Navigates through all the screens
 class PageNavigation extends StatefulWidget with WidgetsBindingObserver {
-  const PageNavigation({Key? key}) : super(key: key);
+  // activePage and pageController need to be set to a value to be able
+  // to use the scroll dots. Enter the index number of the page you want to do to.
+  int activePage;
+  final PageController pageController;
+  PageNavigation({Key? key,
+    required this.activePage,
+    required this.pageController
+  }) : super(key: key);
 
   @override
   State<PageNavigation> createState() => _PageNavigationState();
@@ -43,10 +51,6 @@ class PageNavigation extends StatefulWidget with WidgetsBindingObserver {
 class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObserver {
   // Declare and initialize the page controller
   final BluetoothController bluetoothController = Get.find<BluetoothController>();
-  final PageController _pageController = PageController(initialPage: 0);
-
-  // The index of the current page
-  int _activePage = 0;
   int batteryLevel = 0;
 
   bool isSmallScreen(BuildContext context) {
@@ -55,87 +59,24 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
     return height < 740;
   }
   final List<Widget> _pages = [
+    const HomePage(),
     const TENSSettings(),
     const TempSettings(),
     const VibrationSettings(),
     const PresetSettings()
   ];
-
-  // Battery percentage indicator widget
-  // Widget _buildBatteryIndicator() {
-  //   const Widget batteryIcon = Icon(
-  //     Icons.battery_6_bar_rounded,
-  //     color: Colors.white,
-  //     size: 24,
-  //   );
-  //
-  //   const Widget batteryText = Text(
-  //     "80% ${bluetoothController.batteryLevelRead()}", // Replace with your actual battery percentage
-  //     style: TextStyle(
-  //       color: Colors.white,
-  //       fontSize: 16,
-  //     ),
-  //   );
-  //
-  //   return const Row(
-  //     mainAxisSize: MainAxisSize.min, // Allows the row to take the minimum required space
-  //     children: [
-  //       batteryText,
-  //       batteryIcon,
-  //     ],
-  //   );
-  // }
-  // This added a battery indicator but is not needed right now
-  // Widget _buildBatteryIndicator() {
-  //   const Widget batteryIcon = Icon(
-  //     Icons.battery_6_bar_rounded,
-  //     color: Colors.white,
-  //     size: 24,
-  //   );
-  //
-  //   return FutureBuilder<int>(
-  //     future: bluetoothController.batteryLevelRead(),
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         // While waiting for the result, you can display a loading indicator or placeholder.
-  //         return const CircularProgressIndicator();
-  //       } else if (snapshot.hasError) {
-  //         // Handle any errors that may have occurred during the async operation.
-  //         return Text("Error: ${snapshot.error}");
-  //       } else {
-  //         // Once the future completes successfully, you can display the battery percentage.
-  //         final int batteryLevel = snapshot.data ?? 0;
-  //         return Row(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Text(
-  //               "${batteryLevel.toString()}%", // Display the battery level
-  //               style: const TextStyle(
-  //                 color: Colors.white,
-  //                 fontSize: 20,
-  //               ),
-  //             ),
-  //             batteryIcon,
-  //           ],
-  //         );
-  //       }
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
-
     return Scaffold(
       body: Stack(
         children: [
           // PageView and navigation dots
           PageView.builder(
-            controller: _pageController,
+            controller: widget.pageController,
             onPageChanged: (int page) {
               setState(() {
-                _activePage = page;
+                widget.activePage = page;
               });
             },
             itemCount: _pages.length,
@@ -154,19 +95,17 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
                 color: Colors.black54,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List<Widget>.generate(
-                    _pages.length,
-                        (index) => Padding(
+                  children: List<Widget>.generate(_pages.length, (index) => Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: InkWell(
                         onTap: () {
-                          _pageController.animateToPage(index,
+                          widget.pageController.animateToPage(index,
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeIn);
                         },
                         child: CircleAvatar(
                           radius: 8,
-                          backgroundColor: _activePage == index
+                          backgroundColor: widget.activePage == index
                               ? Colors.black
                               : Colors.grey,
                         ),

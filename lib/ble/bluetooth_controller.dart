@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pain_drain_mobile_app/main.dart';
 import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 DeviceIdentifier luna3Identifier = const DeviceIdentifier('E6:D8:E7:66:CB:0D');
@@ -119,7 +120,7 @@ class BluetoothController extends GetxController {
         if (state == BluetoothConnectionState.connected) {
           print("Connected");
           await Future.delayed(const Duration(seconds: 2));
-          Get.to(() => const PageNavigation());
+          Get.to(() => PageNavigation(activePage: 0, pageController: PageController(initialPage: 0),));
         }
         else if (state == BluetoothConnectionState.disconnected) {
           print("Disconnected");
