@@ -61,45 +61,47 @@ class _TempSettingsState extends State<TempSettings> {
   Widget build(BuildContext context) {
     double temperatureSliderValue = globalValues.getSliderValue(globalValues.temperature);
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
         title: const Text(
           'Temperature',
           style: TextStyle(
             fontSize: 50,
+            color: AppColors.offWhite
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppColors.darkerGrey,
         centerTitle: true,
         //toolbarHeight: 90,
       ),
       body: Align(
         alignment: const Alignment(0, -.25),
-        child: Scrollbar(
-          child: SingleChildScrollView(
-            child: SliderTheme(
-              data: const SliderThemeData(
-                trackHeight: 50,
-                activeTrackColor: Colors.blue, // Color of the active portion of the track
-                inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
-                thumbColor: AppColors.blue, // Color of the thumb
-                tickMarkShape: RoundSliderTickMarkShape(
-                    tickMarkRadius: 0
-                ),
-                thumbShape: RoundSliderThumbShape(
-                  enabledThumbRadius: 30.0, // Adjust the radius as needed
-                ),// Make ticks invisible
+        child: SingleChildScrollView(
+          child: SliderTheme(
+            data: const SliderThemeData(
+              trackHeight: 50,
+              activeTrackColor: Colors.blue, // Color of the active portion of the track
+              inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
+              thumbColor: Colors.blue, // Color of the thumb
+              tickMarkShape: RoundSliderTickMarkShape(
+                  tickMarkRadius: 0
               ),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.65,
-                //color: Colors.black,
+              thumbShape: RoundSliderThumbShape(
+                enabledThumbRadius: 30.0, // Adjust the radius as needed
+              ),// Make ticks invisible
+            ),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.65,
+              //color: Colors.black,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   //mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Card(
-                      elevation: 20.0,
-                      color: Colors.grey[700],
+                      elevation: 4.0,
+                      color: AppColors.darkerGrey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)
                       ),
@@ -128,7 +130,7 @@ class _TempSettingsState extends State<TempSettings> {
                                             child: Container(
                                               //height: 100,
                                               width: 50,
-                                              color: Colors.white,
+                                              color: AppColors.offWhite,
                                               child: RotatedBox(
                                                 quarterTurns: -1,
                                                 child: LinearProgressIndicator(
@@ -188,7 +190,7 @@ class _TempSettingsState extends State<TempSettings> {
                                         child: Text(
                                           '${temperatureSliderValue.round()}%',
                                           style: const TextStyle(
-                                            color: Colors.white,
+                                            color: AppColors.offWhite,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 24,
                                           ),
@@ -203,7 +205,7 @@ class _TempSettingsState extends State<TempSettings> {
                             const Text(
                               'Adjust Temperature',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: AppColors.offWhite,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               ),
@@ -213,7 +215,7 @@ class _TempSettingsState extends State<TempSettings> {
                               Text(
                                 readValue,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.offWhite,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
                                 ),
@@ -226,8 +228,8 @@ class _TempSettingsState extends State<TempSettings> {
                   ],
                 ),
               ),
+            ),
         ),
-    ),
     ),
       ),
     );

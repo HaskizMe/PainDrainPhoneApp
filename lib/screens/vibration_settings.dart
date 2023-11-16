@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 
 import '../main.dart';
+import '../widgets/custom_card.dart';
+import '../widgets/custom_slider.dart';
 
 
 class VibrationSettings extends StatefulWidget {
@@ -26,7 +28,7 @@ class _VibrationSettingsState extends State<VibrationSettings> {
   double sliderValue = 0;
 
   // Create a function to handle the slider change with debounce
-  void handleSliderChange(var newValue, String stimulus) async {
+  void handleSliderChange(var newValue, String stimulus, int channel) async {
     setState(() {
       if(stimulus == globalValues.vibeWaveform){
         globalValues.setSliderValue(globalValues.vibeWaveform, newValue);
@@ -75,13 +77,68 @@ class _VibrationSettingsState extends State<VibrationSettings> {
     double sliderValueAmplitude = globalValues.getSliderValue(globalValues.vibeAmplitude);
     double sliderValueFrequency = globalValues.getSliderValue(globalValues.vibeFreq);
     double sliderValueWaveform = globalValues.getSliderValue(globalValues.vibeWaveform);
+    List<Widget> vibeSliders = [
+      CustomSlider(
+        min: 0,
+        max: 100,
+        divisions: 20,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueAmplitude,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.vibeAmplitude,
+        sliderLabel: 'Amplitude',
+        valueLabel: "${sliderValueAmplitude.round()}%",
+        channel: 0,
+        height: MediaQuery.of(context).size.height * 0.55,
+      ),
+      CustomSlider(
+        min: 0,
+        max: 100,
+        divisions: 20,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueFrequency,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.vibeFreq,
+        sliderLabel: 'Frequency',
+        valueLabel: "${sliderValueFrequency.round()}%",
+        channel: 0,
+        height: MediaQuery.of(context).size.height * 0.55
+      ),
+      CustomSlider(
+        min: 0,
+        max: 100,
+        divisions: 20,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueWaveform,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.vibeWaveform,
+        sliderLabel: 'Waveform',
+        valueLabel: "${sliderValueWaveform.round()}%",
+        channel: 0,
+        height: MediaQuery.of(context).size.height * 0.55
+      ),
+      // You can add more sliders here
+    ];
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
         title: const Text(
           'Vibration',
           style: TextStyle(
             fontSize: 50,
+            color: AppColors.offWhite
           ),
         ),
         automaticallyImplyLeading: false,
@@ -90,281 +147,63 @@ class _VibrationSettingsState extends State<VibrationSettings> {
         //toolbarHeight: 90,
       ),
       body: Center(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * .65,
-          //color: Colors.green,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            //crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Card(
-                elevation: 20.0,
-                color: Colors.grey[700],
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0)
-                ),
-                child: SizedBox(
-                  //color: Colors.black,
-                  //width: MediaQuery.of(context).size.width * 0.90,
-                  height: MediaQuery.of(context).size.height * .5,
-                  child: SliderTheme(
-                    data: const SliderThemeData(
-                      trackHeight: 50,
-                      activeTrackColor: Colors.blue, // Color of the active portion of the track
-                      inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
-                      thumbColor: AppColors.blue, // Color of the thumb
-                      tickMarkShape: RoundSliderTickMarkShape(
-                          tickMarkRadius: 0
-                      ),
-                      thumbShape: RoundSliderThumbShape(
-                        enabledThumbRadius: 30.0, // Adjust the radius as needed
-                      ),// Make ticks invisible
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CustomCard(widgets: vibeSliders, width: double.infinity, spacing: 10.0,),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    margin: const EdgeInsets.fromLTRB(0, 25, 20, 0),
+                    decoration: BoxDecoration(
+                      color: AppColors.offWhite,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    RotatedBox(
-                                      quarterTurns: -1,
-                                      child: Slider(
-                                        value: sliderValueAmplitude,
-                                        min: 0,
-                                        max: 100,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            //globalValues.setSliderValue('amplitude', newValue);
-                                            handleSliderChange(newValue, globalValues.vibeAmplitude);
-                                          });
-                                        },
-                                        divisions: 20,
+                    child:
+                    DropdownButton(
+                      value: globalValues.getWaveType(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedItem = newValue!;
+                          //globalValues.setWaveType(selectedItem);
+                          handleSliderChange(selectedItem, globalValues.vibeWaveType, 0);
 
-                                      ),
-                                    ),
-                                    Positioned.fill(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: IgnorePointer(
-                                          ignoring: true,
-                                          child: Text(
-                                            '${sliderValueAmplitude.round()}%',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Padding(
-                                padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0),
-                                child: Text(
-                                  'Amplitude',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: Colors.white,
-
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    RotatedBox(
-                                      quarterTurns: -1,
-                                      child: Slider(
-                                        value: sliderValueFrequency,
-                                        min: 0,
-                                        max: 100,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            // globalValues.setSliderValue('frequency', newValue);
-                                            handleSliderChange(newValue, globalValues.vibeFreq);
-                                          });
-                                        },
-                                        //label: sliderValueFrequency.round().abs().toString(),
-                                        divisions: 20,
-
-                                      ),
-                                    ),
-                                    Positioned.fill(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: IgnorePointer(
-                                          ignoring: true,
-                                          child: Text(
-                                            '${sliderValueFrequency.round()}%',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-
-                              ),
-                              const SizedBox(height: 10),
-                              const Padding(
-                                padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0),
-                                child: Text(
-                                  'Frequency',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    RotatedBox(
-                                      quarterTurns: -1,
-                                      child: Slider(
-                                        value: sliderValueWaveform,
-                                        min: 0,
-                                        max: 100,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            //globalValues.setSliderValue('waveform', newValue);
-                                            handleSliderChange(newValue, globalValues.vibeWaveform);
-                                          });
-
-                                          // Makes a command string for the vibration
-                                          // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${newValue.round()}";
-                                          // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                                          // print(stringCommand);
-                                          // bluetoothController.writeToDevice("vibration", hexValue);
-                                        },
-                                        //label: sliderValueWaveform.round().abs().toString(),
-                                        divisions: 20,
-
-                                      ),
-                                    ),
-                                    Positioned.fill(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: IgnorePointer(
-                                          ignoring: true,
-                                          child: Text(
-                                            '${sliderValueWaveform.round()}%',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              const Padding(
-                                padding: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0),
-                                child: Text(
-                                  'Waveform',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      ],
+                        });
+                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
+                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                        // print(stringCommand);
+                        // bluetoothController.writeToDevice("vibration", hexValue);
+                      },
+                      items: <String>['Sine', 'Square', 'Triangle', 'Sawtooth']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      underline: Container(),
                     ),
                   ),
                 ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      margin: const EdgeInsets.fromLTRB(0, 25, 20, 0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child:
-                      DropdownButton(
-                        value: globalValues.getWaveType(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedItem = newValue!;
-                            //globalValues.setWaveType(selectedItem);
-                            handleSliderChange(selectedItem, globalValues.vibeWaveType);
-
-                          });
-                          // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                          // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                          // print(stringCommand);
-                          // bluetoothController.writeToDevice("vibration", hexValue);
-                        },
-                        items: <String>['Sine', 'Square', 'Triangle', 'Sawtooth']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        underline: Container(),
-                      ),
+                const SizedBox(height: 10),
+                if(readValue.isNotEmpty)
+                  Text(
+                    readValue,
+                    style: const TextStyle(
+                      color: AppColors.offWhite,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  if(readValue.isNotEmpty)
-                    Text(
-                      readValue,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                ],
-              )
-            ],
-          ),
+                const SizedBox(height: 80)
+              ],
+            )
+          ],
         ),
       ),
     );

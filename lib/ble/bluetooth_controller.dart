@@ -120,7 +120,8 @@ class BluetoothController extends GetxController {
         if (state == BluetoothConnectionState.connected) {
           print("Connected");
           await Future.delayed(const Duration(seconds: 2));
-          Get.to(() => PageNavigation(activePage: 0, pageController: PageController(initialPage: 0),));
+           Get.to(() => PageNavigation(activePage: 0, pageController: PageController(initialPage: 0),));
+          //Get.to(() => Test());
         }
         else if (state == BluetoothConnectionState.disconnected) {
           print("Disconnected");

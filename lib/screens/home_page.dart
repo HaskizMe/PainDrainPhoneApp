@@ -3,6 +3,7 @@ import 'package:pain_drain_mobile_app/screens/TENS_settings.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import '../main.dart';
+import '../scheme_colors/app_colors.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/custom_slider.dart';
 class HomePage extends StatelessWidget {
@@ -15,7 +16,7 @@ class HomePage extends StatelessWidget {
     double vibrationBoxHeight = 130.0;
     double periodMinValue = .5;
     double periodMaxValue = 10.0;
-    double durationMinValue = .1;
+    double durationMinValue = 0;
     double durationMaxValue = 1.0;
     double temperatureMaxValue = 100;
     double temperatureMinValue = 0;
@@ -55,24 +56,24 @@ class HomePage extends StatelessWidget {
       CustomCircularBar(value: vibrationWaveformPercentage, radius: 80, name: 'Waveform', centerValue: "${vibrationWaveformSliderValue.round()}%"),
     ];
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 0.0,
-        backgroundColor: Colors.grey[800],
-        toolbarHeight: 10,
+        //automaticallyImplyLeading: false,
+        //elevation: 0.0,
+        backgroundColor: AppColors.darkGrey,
+        //toolbarHeight: 10,
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(10.0),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
               child: Text(
                   "Tens",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.offWhite,
                   fontSize: 24,
                   fontWeight: FontWeight.bold
                 ),
@@ -87,17 +88,17 @@ class HomePage extends StatelessWidget {
                 ),
                 child: CustomCard(
                   width: width,
-                  sliders: tensWidgets,
+                  widgets: tensWidgets,
                   spacing: 60.0,
                 ),
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
                 "Temperature",
                 style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.offWhite,
                     fontSize: 24,
                     fontWeight: FontWeight.bold
                 ),
@@ -113,16 +114,16 @@ class HomePage extends StatelessWidget {
                 child: CustomCard(
                   width: width,
                   spacing: 0.0,
-                  sliders: <Widget> [CustomCircularBar(selectedColor: Colors.red, value: temperaturePercentage, radius: 80, name: 'Temperature', centerValue: "${temperatureSliderValue.round()}%",)],
+                  widgets: <Widget> [CustomCircularBar(selectedColor: Colors.red, value: temperaturePercentage, radius: 80, name: 'Temperature', centerValue: "${temperatureSliderValue.round()}%",)],
                 ),
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
                 "Vibration",
                 style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.offWhite,
                     fontSize: 24,
                     fontWeight: FontWeight.bold
                 ),
@@ -138,7 +139,7 @@ class HomePage extends StatelessWidget {
                 child: CustomCard(
                   spacing: 10.0,
                   width: width,
-                  sliders: vibrationWidgets,
+                  widgets: vibrationWidgets,
                 ),
               ),
             ),
@@ -193,7 +194,7 @@ class CustomCircularBar extends StatelessWidget {
                   child: CircularProgressIndicator(
                     value: value.abs(), // Use the absolute value for the progress
                     valueColor: AlwaysStoppedAnimation<Color>(color),
-                    backgroundColor: Colors.grey[300], // Neutral background color
+                    backgroundColor: AppColors.lightGrey, // Neutral background color
                     strokeWidth: 10.0,
                   ),
                 ),
@@ -204,7 +205,7 @@ class CustomCircularBar extends StatelessWidget {
                 child: Text(
                   centerValue,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.offWhite,
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
                   ),
@@ -218,7 +219,7 @@ class CustomCircularBar extends StatelessWidget {
             child: Text(
                 name,
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColors.offWhite,
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,
               ),

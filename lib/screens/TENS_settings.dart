@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:get/get.dart';
 import '../main.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/custom_slider.dart';
+import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 
 
 
@@ -22,91 +24,167 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
   String readValue = "";
   final Duration writeDelay = const Duration(milliseconds: 500);
   Timer? writeTimer;
-
+  Queue<Map<String, dynamic>> writeQueue = Queue<Map<String, dynamic>>();
+  bool isWriting = false;
 
   // Create a function to handle the slider change
+  // void handleSliderChange(var newValue, String stimulus, [int? channel]) async {
+  //   // Makes changes to channel 1
+  //   if(channel == 1 || channel == 0){
+  //     setState(() {
+  //
+  //       if(stimulus == 'tensDurationCh1'){
+  //         globalValues.setSliderValue(globalValues.tensDurationCh1, newValue);
+  //       }
+  //       else if(stimulus == 'tensAmplitude'){
+  //         globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
+  //       }
+  //       else if(stimulus == 'tensPeriod'){
+  //         globalValues.setSliderValue(globalValues.tensPeriod, newValue);
+  //       }
+  //
+  //     });
+  //
+  //     // Restarts timer when slider value changes
+  //     writeTimer?.cancel();
+  //     /*
+  //   * Only sends a value if the slider has paused for at
+  //   * least 1 second so we aren't sending a of unnecessary values.
+  //   */
+  //     writeTimer = Timer(writeDelay, () async {
+  //       // Implement your async operations here
+  //       String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
+  //       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+  //       print('Value: $stringCommand');
+  //       print('list hex values $hexValue');
+  //       await bluetoothController.writeToDevice('tens', hexValue);
+  //       readValueList = await bluetoothController.readFromDevice();
+  //
+  //       // Update readValue
+  //       setState(() {
+  //         readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+  //       });
+  //     });
+  //   }
+  //   // Makes changes to channel 2
+  //   if(channel == 2){
+  //     setState(() {
+  //       if(stimulus == 'tensDurationCh2'){
+  //         globalValues.setSliderValue(globalValues.tensDurationCh2, newValue);
+  //       }
+  //       else if(stimulus == 'tensAmplitude'){
+  //         globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
+  //       }
+  //       else if(stimulus == 'tensPeriod'){
+  //         globalValues.setSliderValue(globalValues.tensPeriod, newValue);
+  //       }
+  //
+  //     });
+  //
+  //     // Restarts timer when slider value changes
+  //     writeTimer?.cancel();
+  //     /*
+  //   * Only sends a value if the slider has paused for at
+  //   * least 1 second so we aren't sending a of unnecessary values.
+  //   */
+  //     writeTimer = Timer(writeDelay, () async {
+  //       // Implement your async operations here
+  //       String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
+  //       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+  //       print('Value: $stringCommand');
+  //       print('list hex values $hexValue');
+  //       await bluetoothController.writeToDevice('tens', hexValue);
+  //       readValueList = await bluetoothController.readFromDevice();
+  //       //print('value: $');
+  //
+  //       // Update readValue
+  //       setState(() {
+  //         readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+  //       });
+  //     });
+  //   }
+  //   else{
+  //     print("ERROR");
+  //   }
+  //
+  //
+  // }
   void handleSliderChange(var newValue, String stimulus, [int? channel]) async {
-    // Makes changes to channel 1
-    if(channel == 1 || channel == 0){
+    Map<String, dynamic> writeOperation = {
+      'newValue': newValue,
+      'stimulus': stimulus,
+      'channel': channel,
+    };
+    if(channel == 1 || channel == 0) {
       setState(() {
-
-        if(stimulus == 'tensDurationCh1'){
+        if (stimulus == 'tensDurationCh1') {
           globalValues.setSliderValue(globalValues.tensDurationCh1, newValue);
         }
-        else if(stimulus == 'tensAmplitude'){
+        else if (stimulus == 'tensAmplitude') {
           globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
         }
-        else if(stimulus == 'tensPeriod'){
+        else if (stimulus == 'tensPeriod') {
           globalValues.setSliderValue(globalValues.tensPeriod, newValue);
         }
-
-      });
-
-      // Restarts timer when slider value changes
-      writeTimer?.cancel();
-      /*
-    * Only sends a value if the slider has paused for at
-    * least 1 second so we aren't sending a of unnecessary values.
-    */
-      writeTimer = Timer(writeDelay, () async {
-        // Implement your async operations here
-        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
-        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-        print('Value: $stringCommand');
-        print('list hex values $hexValue');
-        await bluetoothController.writeToDevice('tens', hexValue);
-        readValueList = await bluetoothController.readFromDevice();
-
-        // Update readValue
-        setState(() {
-          readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
-        });
       });
     }
-    // Makes changes to channel 2
     else if(channel == 2){
       setState(() {
-        if(stimulus == 'tensDurationCh2'){
+        if (stimulus == 'tensDurationCh2') {
           globalValues.setSliderValue(globalValues.tensDurationCh2, newValue);
         }
-        else if(stimulus == 'tensAmplitude'){
+        else if (stimulus == 'tensAmplitude') {
           globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
         }
-        else if(stimulus == 'tensPeriod'){
+        else if (stimulus == 'tensPeriod') {
           globalValues.setSliderValue(globalValues.tensPeriod, newValue);
         }
-
-      });
-
-      // Restarts timer when slider value changes
-      writeTimer?.cancel();
-      /*
-    * Only sends a value if the slider has paused for at
-    * least 1 second so we aren't sending a of unnecessary values.
-    */
-      writeTimer = Timer(writeDelay, () async {
-        // Implement your async operations here
-        String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
-        List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-        print('Value: $stringCommand');
-        print('list hex values $hexValue');
-        await bluetoothController.writeToDevice('tens', hexValue);
-        readValueList = await bluetoothController.readFromDevice();
-        //print('value: $');
-
-        // Update readValue
-        setState(() {
-          readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
-        });
       });
     }
-    else{
-      print("ERROR");
+    // Enqueue the write operation
+    writeQueue.add(writeOperation);
+
+    // Check if a write operation is ongoing
+    if (!isWriting) {
+      // Dequeue and execute the next operation
+      executeNextWriteOperation();
     }
-
-
   }
 
+  void executeNextWriteOperation() async {
+    String stringCommand = "";
+    if (writeQueue.isNotEmpty) {
+      isWriting = true;
+      Map<String, dynamic> writeOperation = writeQueue.removeFirst();
+
+      int? channel = writeOperation['channel'];
+      var newValue = writeOperation['newValue'];
+      var stimulus = writeOperation['stimulus'];
+
+      if(channel == 1 || channel == 0){
+        stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
+
+      }
+      else if(channel == 2){
+        stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
+      }
+      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+      print('Value: $stringCommand');
+      print('list hex values $hexValue');
+      await bluetoothController.writeToDevice('tens', hexValue);
+      readValueList = await bluetoothController.readFromDevice();
+
+      // Update readValue
+      setState(() {
+        readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+      });
+
+      isWriting = false;
+
+      // Execute the next write operation in the queue
+      executeNextWriteOperation();
+    }
+  }
   bool phaseValue = false;
 
   void onSwitchChanged(bool newValue) async {
@@ -191,9 +269,9 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     // Slider that I want in the bottom left
     List<Widget> bottomSliderLeft = [
       CustomSlider(
-        min: 0.1,
+        min: 0,
         max: 1.0,
-        divisions: 9,
+        divisions: 10,
         handleSliderChange: handleSliderChange,
         value: sliderValueDurationChannel1,
         trackHeight: 50.0,
@@ -211,9 +289,9 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     // Slider that I want in the bottom right
     List<Widget> bottomSliderRight = [
       CustomSlider(
-        min: 0.1,
+        min: 0,
         max: 1.0,
-        divisions: 9,
+        divisions: 10,
         handleSliderChange: handleSliderChange,
         value: sliderValueDurationChannel2,
         trackHeight: 50.0,
@@ -235,29 +313,29 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
         title: const Text(
           'TENS',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.offWhite,
             fontSize: 50,
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppColors.darkerGrey,
         centerTitle: true,
         //toolbarHeight: 50,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
+      body: Center(
         child: SingleChildScrollView(
-          child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
                 CustomCard(
                     width: MediaQuery.of(context).size.width,
-                    sliders: topSliders,
+                    widgets: topSliders,
                 ),
                 const Row(
                   children: [
@@ -268,7 +346,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                           Text(
                             "Channel 1",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.offWhite,
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
                             ),
@@ -285,7 +363,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                             child: Text(
                               "Channel 2",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: AppColors.offWhite,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               ),
@@ -302,13 +380,13 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                     Expanded(
                       child: CustomCard(
                           width: MediaQuery.of(context).size.width * .4,
-                          sliders: bottomSliderLeft,
+                          widgets: bottomSliderLeft,
                       ),
                     ),
                     Expanded(
                       child: CustomCard(
                           width: MediaQuery.of(context).size.width * .4,
-                          sliders: bottomSliderRight
+                          widgets: bottomSliderRight
                       ),
                     ),
                   ],
@@ -325,7 +403,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
-                              color: Colors.white
+                              color: AppColors.offWhite
                             ),
                           ),
                           const SizedBox(width: 15,),
@@ -336,7 +414,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                               onChanged: onSwitchChanged,
                               activeColor: Colors.blue, // Color when switch is ON
                               inactiveTrackColor: Colors.grey, // Color of the inactive track
-                              inactiveThumbColor: Colors.grey, // Color of the switch's thumb when OFF
+                              inactiveThumbColor: Colors.blue, // Color of the switch's thumb when OFF
                             ),
                           ),
                           const SizedBox(width: 15,),
@@ -345,7 +423,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
-                                color: Colors.white
+                                color: AppColors.offWhite
                             ),
                           ),
                         ],
@@ -356,7 +434,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                       Text(
                         readValue,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.offWhite,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),

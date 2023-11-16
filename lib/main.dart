@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
 import 'global_values.dart';
 import 'screens/TENS_settings.dart';
@@ -12,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
+import 'package:dots_indicator/dots_indicator.dart';
 final globalValues = GlobalValues();
 
 void main() {
@@ -58,6 +60,20 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
     print('my width is $height');
     return height < 740;
   }
+  void _onIconTapped(int index) {
+    int difference = widget.activePage - index;
+    // If there is a jump to more than a difference of one then just jump to page
+    if(difference.abs() > 1){
+      widget.pageController.jumpToPage(index);
+    }
+    // If the button is adjacent to the current one selected then animate instead
+    else{
+      widget.pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
+    }
+    setState(() {
+      widget.activePage = index;
+    });
+  }
   final List<Widget> _pages = [
     const HomePage(),
     const TENSSettings(),
@@ -69,7 +85,61 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
   Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
     return Scaffold(
-      body: Stack(
+     // backgroundColor: AppColors.green.withOpacity(.1),
+      //backgroundColor: AppColors.offWhite,
+      //body:
+      // PageView(
+      //   controller: widget.pageController,
+      //   children: const [
+      //     HomePage(),
+      //     TENSSettings(),
+      //     TempSettings(),
+      //     VibrationSettings(),
+      //     PresetSettings()
+      //     //PictureScreen()
+      //   ],
+      //   onPageChanged: (index) {
+      //     setState(() {
+      //       widget.activePage = index;
+      //     });
+      //   },
+      // ),
+      // // Sets the bottom nav bar and contains Home, Search, Favorites, and Account
+      // bottomNavigationBar: BottomNavigationBar(
+      //   currentIndex: widget.activePage,
+      //   selectedItemColor: Colors.amber[800],
+      //   onTap: _onIconTapped,
+      //   items: [
+      //     BottomNavigationBarItem(
+      //         icon: const Icon(Icons.home),
+      //         label: "Home",
+      //         backgroundColor: Colors.grey[800]
+      //     ),
+      //     BottomNavigationBarItem(
+      //         icon: const Icon(Icons.search),
+      //         label: "Search Events",
+      //         backgroundColor: Colors.grey[800]
+      //     ),
+      //     BottomNavigationBarItem(
+      //         icon: const Icon(Icons.favorite),
+      //         label: "Favorites",
+      //         backgroundColor: Colors.grey[800]
+      //     ),
+      //     BottomNavigationBarItem(
+      //         icon: const Icon(Icons.person),
+      //         label: "Account",
+      //         backgroundColor: Colors.grey[800]
+      //     ),
+      //     BottomNavigationBarItem(
+      //         icon: const Icon(Icons.person),
+      //         label: "Account",
+      //         backgroundColor: Colors.grey[800]
+      //     )
+      //   ],
+      // ),
+
+      body:
+      Stack(
         children: [
           // PageView and navigation dots
           PageView.builder(
@@ -92,7 +162,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
               right: 0,
               height: isSmallScreen(context) ? 40.0 : 80.0,
               child: Container(
-                color: Colors.black54,
+                color: AppColors.darkGrey,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List<Widget>.generate(_pages.length, (index) => Padding(
@@ -106,7 +176,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
                         child: CircleAvatar(
                           radius: 8,
                           backgroundColor: widget.activePage == index
-                              ? Colors.black
+                              ? Colors.blue
                               : Colors.grey,
                         ),
                       ),

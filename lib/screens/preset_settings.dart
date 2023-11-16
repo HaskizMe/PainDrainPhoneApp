@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ble/bluetooth_controller.dart';
 import '../main.dart';
+import '../scheme_colors/app_colors.dart';
 
 class PresetSettings extends StatefulWidget {
   const PresetSettings({Key? key}) : super(key: key);
@@ -68,7 +69,7 @@ class _PresetSettingsState extends State<PresetSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
         title: const Text(
           'Presets',
@@ -77,149 +78,154 @@ class _PresetSettingsState extends State<PresetSettings> {
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppColors.darkerGrey,
         centerTitle: true,
         //toolbarHeight: 90,
       ),
       body: Align(
         alignment: const Alignment(0, -.25),
-        child: Card(
-          elevation: 20.0,
-          color: Colors.grey[700],
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0)
-          ),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * .3,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Card(
+            elevation: 20.0,
+            color: AppColors.darkerGrey,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)
+            ),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * .3,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 150,
+                    decoration: BoxDecoration(
+                      color: AppColors.offWhite,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: DropdownButton<String>(
+                      focusColor: AppColors.offWhite,
+                      iconEnabledColor: AppColors.offWhite,
+                      isExpanded: true,
+                      value: selectedItem,
+                      underline: Container(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedItem = newValue!;
+                          globalValues.setPresetValue(selectedItem);
+                        });
+                      },
+                      items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                  child: DropdownButton<String>(
-                    isExpanded: true,
-                    value: selectedItem,
-                    underline: Container(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedItem = newValue!;
-                        globalValues.setPresetValue(selectedItem);
-                      });
-                    },
-                    items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 40),
-                if (isAddingItem)
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: SizedBox(
-                      //margin: const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
-                      width: 200,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              child: TextFormField(
-                                controller: textController,
-                                focusNode: textFocusNode, // Request focus on the text input field
-                                decoration: const InputDecoration(
-                                  labelText: 'Add item:',
+                  const SizedBox(height: 40),
+                  if (isAddingItem)
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: SizedBox(
+                        //margin: const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
+                        width: 200,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                child: TextFormField(
+                                  controller: textController,
+                                  focusNode: textFocusNode, // Request focus on the text input field
+                                  decoration: const InputDecoration(
+                                    labelText: 'Add item:',
+                                  ),
+                                  onFieldSubmitted: (value) {
+                                    addNewItem();
+                                  },
+                                  textInputAction: TextInputAction.done, // Show "done" action button
+                                  onEditingComplete: () {
+                                    addNewItem();
+                                  },
+                                  maxLength: 15, // Set a max length of 10 characters
+                                  style: const TextStyle(fontSize: 26, color: AppColors.offWhite), // Set a smaller font size
                                 ),
-                                onFieldSubmitted: (value) {
-                                  addNewItem();
-                                },
-                                textInputAction: TextInputAction.done, // Show "done" action button
-                                onEditingComplete: () {
-                                  addNewItem();
-                                },
-                                maxLength: 15, // Set a max length of 10 characters
-                                style: const TextStyle(fontSize: 26, color: Colors.white), // Set a smaller font size
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: dropdownItems.length <= 5 ? () {
-                          setState(() {
-                            isAddingItem = true;
-                            textController.clear();
-                            textFocusNode.requestFocus(); // Request focus when the "Add Item" button is pressed
-                          });
-                        } : null, // Disable the button when list length is greater than 5
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                          shape: RoundedRectangleBorder(
+                    )
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: dropdownItems.length <= 5 ? () {
+                            setState(() {
+                              isAddingItem = true;
+                              textController.clear();
+                              textFocusNode.requestFocus(); // Request focus when the "Add Item" button is pressed
+                            });
+                          } : null, // Disable the button when list length is greater than 5
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0)
+                            ),
+                          ),
+                          child: const Text('ADD'),
+                        ),
+
+
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              deleteItem();
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0)
+                            ),
                           ),
+                          child: const Text('DELETE'),
                         ),
-                        child: const Text('ADD'),
-                      ),
 
-
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            deleteItem();
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0)
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            backgroundColor: Colors.blue
                           ),
-                        ),
-                        child: const Text('DELETE'),
-                      ),
-
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          backgroundColor: Colors.blue
-                        ),
-                          onPressed: isLoading ? null : _handleButtonPress,
-                          child: Container(
-                            child: isLoading
-                            ? const SizedBox(
-                              height: 15,
-                              width: 15,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ) : const Text(
-                                "LOAD",
-                              style: TextStyle(
-                                color: Colors.white
-                              ),
+                            onPressed: isLoading ? null : _handleButtonPress,
+                            child: Container(
+                              child: isLoading
+                              ? const SizedBox(
+                                height: 15,
+                                width: 15,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.offWhite,
+                                ),
+                              ) : const Text(
+                                  "LOAD",
+                                style: TextStyle(
+                                  color: Colors.white
+                                ),
+                              )
                             )
-                          )
-                      ),
+                        ),
 
 
-                    ]
+                      ]
 
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

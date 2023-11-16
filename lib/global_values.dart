@@ -9,17 +9,14 @@ class GlobalValues {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   static final GlobalValues _instance = GlobalValues._internal();
   final Map<String, double> _sliderValues = {
-    'tensPeriodCh1' : .5,
-    'tensDurationCh1' : .1,
-    'tensPeriodCh2' : .5,
-    'tensDurationCh2' : .1
+    'tensPeriod' : .5,
   };
   String waveType = "Sine";
   String presetType = "Select preset";
   List<String> presets = ["Select preset"];
   String tensAmplitude = "tensAmplitude";
   String tensDurationCh1 = "tensDurationCh1";
-  String tensPeriod = "tensPeriodCh1";
+  String tensPeriod = "tensPeriod";
   String tensDurationCh2 = "tensDurationCh2";
   String tensPhase = "tensPhase";
   String temperature = "temperature";

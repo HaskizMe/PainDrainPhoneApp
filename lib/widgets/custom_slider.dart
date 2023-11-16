@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../scheme_colors/app_colors.dart';
 class CustomSlider extends StatefulWidget {
   final double min;
   final double max;
@@ -13,6 +15,8 @@ class CustomSlider extends StatefulWidget {
   final String sliderLabel;
   final int? channel;
   final String valueLabel;
+  final double height;
+  final double width;
   double value;
 
   CustomSlider({Key? key,
@@ -29,7 +33,9 @@ class CustomSlider extends StatefulWidget {
     required this.sliderName,
     required this.sliderLabel,
     required this.valueLabel,
-    required this.channel
+    required this.channel,
+    this.height = 230,
+    this.width = 100
   }) : super(key: key);
 
   @override
@@ -49,11 +55,12 @@ class _CustomSliderState extends State<CustomSlider> {
             enabledThumbRadius: widget.thumbRadius, // Adjust the radius as needed
           ),// Make ticks invisible
         ),
-        child: SizedBox(
-          width: 100,
-          child: Column(
-            children: [
-              Stack(
+        child: Column(
+          children: [
+            Container(
+              width: widget.width,
+              height: widget.height,
+              child: Stack(
                 children: [
                   RotatedBox(
                     quarterTurns: -1,
@@ -82,7 +89,7 @@ class _CustomSliderState extends State<CustomSlider> {
                         child: Text(
                           widget.valueLabel,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.offWhite,
                             fontWeight: FontWeight.bold,
                             fontSize: 24,
                           ),
@@ -92,18 +99,18 @@ class _CustomSliderState extends State<CustomSlider> {
                   )
                 ],
               ),
-              const SizedBox(height: 5),
-              Text(
-                widget.sliderLabel,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.white,
+            ),
+            const SizedBox(height: 5),
+            Text(
+              widget.sliderLabel,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: AppColors.offWhite,
 
-                ),
               ),
-            ],
-          ),
+            ),
+          ],
         )
     );
   }
