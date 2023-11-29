@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:get/get.dart';
 import '../main.dart';
@@ -25,96 +26,18 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
   final Duration writeDelay = const Duration(milliseconds: 500);
   Timer? writeTimer;
   Queue<Map<String, dynamic>> writeQueue = Queue<Map<String, dynamic>>();
-  bool isWriting = false;
+  Queue<Map<String, dynamic>> writeOperation = Queue<Map<String, dynamic>>();
 
-  // Create a function to handle the slider change
-  // void handleSliderChange(var newValue, String stimulus, [int? channel]) async {
-  //   // Makes changes to channel 1
-  //   if(channel == 1 || channel == 0){
-  //     setState(() {
-  //
-  //       if(stimulus == 'tensDurationCh1'){
-  //         globalValues.setSliderValue(globalValues.tensDurationCh1, newValue);
-  //       }
-  //       else if(stimulus == 'tensAmplitude'){
-  //         globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
-  //       }
-  //       else if(stimulus == 'tensPeriod'){
-  //         globalValues.setSliderValue(globalValues.tensPeriod, newValue);
-  //       }
-  //
-  //     });
-  //
-  //     // Restarts timer when slider value changes
-  //     writeTimer?.cancel();
-  //     /*
-  //   * Only sends a value if the slider has paused for at
-  //   * least 1 second so we aren't sending a of unnecessary values.
-  //   */
-  //     writeTimer = Timer(writeDelay, () async {
-  //       // Implement your async operations here
-  //       String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
-  //       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-  //       print('Value: $stringCommand');
-  //       print('list hex values $hexValue');
-  //       await bluetoothController.writeToDevice('tens', hexValue);
-  //       readValueList = await bluetoothController.readFromDevice();
-  //
-  //       // Update readValue
-  //       setState(() {
-  //         readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
-  //       });
-  //     });
-  //   }
-  //   // Makes changes to channel 2
-  //   if(channel == 2){
-  //     setState(() {
-  //       if(stimulus == 'tensDurationCh2'){
-  //         globalValues.setSliderValue(globalValues.tensDurationCh2, newValue);
-  //       }
-  //       else if(stimulus == 'tensAmplitude'){
-  //         globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
-  //       }
-  //       else if(stimulus == 'tensPeriod'){
-  //         globalValues.setSliderValue(globalValues.tensPeriod, newValue);
-  //       }
-  //
-  //     });
-  //
-  //     // Restarts timer when slider value changes
-  //     writeTimer?.cancel();
-  //     /*
-  //   * Only sends a value if the slider has paused for at
-  //   * least 1 second so we aren't sending a of unnecessary values.
-  //   */
-  //     writeTimer = Timer(writeDelay, () async {
-  //       // Implement your async operations here
-  //       String stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
-  //       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-  //       print('Value: $stringCommand');
-  //       print('list hex values $hexValue');
-  //       await bluetoothController.writeToDevice('tens', hexValue);
-  //       readValueList = await bluetoothController.readFromDevice();
-  //       //print('value: $');
-  //
-  //       // Update readValue
-  //       setState(() {
-  //         readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
-  //       });
-  //     });
-  //   }
-  //   else{
-  //     print("ERROR");
-  //   }
-  //
-  //
-  // }
-  void handleSliderChange(var newValue, String stimulus, [int? channel]) async {
+  bool isWriting = false;
+  bool phaseValue = false;
+
+  void handleSliderChange(var newValue, String? stimulus, int? channel) async {
     Map<String, dynamic> writeOperation = {
       'newValue': newValue,
       'stimulus': stimulus,
       'channel': channel,
     };
+
     if(channel == 1 || channel == 0) {
       setState(() {
         if (stimulus == 'tensDurationCh1') {
@@ -128,7 +51,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
         }
       });
     }
-    else if(channel == 2){
+    else if(channel == 2) {
       setState(() {
         if (stimulus == 'tensDurationCh2') {
           globalValues.setSliderValue(globalValues.tensDurationCh2, newValue);
@@ -141,14 +64,19 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
         }
       });
     }
-    // Enqueue the write operation
-    writeQueue.add(writeOperation);
-
-    // Check if a write operation is ongoing
-    if (!isWriting) {
-      // Dequeue and execute the next operation
-      executeNextWriteOperation();
-    }
+    // Restarts timer when slider value changes
+    writeTimer?.cancel();
+    /*
+    * Only sends a value if the slider has paused for at
+    * least 1 second so we aren't sending a of unnecessary values.
+    */
+    writeTimer = Timer(writeDelay, () async {
+      writeQueue.add(writeOperation);
+      if (!isWriting) {
+        // Dequeue and execute the next operation
+        executeNextWriteOperation();
+      }
+    });
   }
 
   void executeNextWriteOperation() async {
@@ -159,11 +87,12 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
 
       int? channel = writeOperation['channel'];
       var newValue = writeOperation['newValue'];
-      var stimulus = writeOperation['stimulus'];
 
+      if(newValue is bool){
+        stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
+      }
       if(channel == 1 || channel == 0){
         stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
-
       }
       else if(channel == 2){
         stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
@@ -185,9 +114,12 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
       executeNextWriteOperation();
     }
   }
-  bool phaseValue = false;
+
 
   void onSwitchChanged(bool newValue) async {
+    Map<String, dynamic> writeOperation = {
+      'newValue': newValue,
+    };
     if(newValue == false){
       globalValues.setSliderValue(globalValues.tensPhase, 0);
     }
@@ -200,18 +132,33 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     setState(() {
       phaseValue = newValue;
     });
-    print('Phase value ${globalValues.getSliderValue(globalValues.tensPhase)}');
-    // When phase changes it sends channel 1 values
-    String stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
-    List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-    print('Value: $stringCommand');
-    print('list hex values $hexValue');
-    await bluetoothController.writeToDevice('tens', hexValue);
-    readValueList = await bluetoothController.readFromDevice();
 
-    setState(() {
-      readValue = bluetoothController.hexToString(readValueList);
+    // Restarts timer when slider value changes
+    writeTimer?.cancel();
+    /*
+    * Only sends a value if the slider has paused for at
+    * least 1 second so we aren't sending a of unnecessary values.
+    */
+    writeTimer = Timer(writeDelay, () async {
+      // writeQueue.add(writeOperation);
+      // if (!isWriting) {
+      //   // Dequeue and execute the next operation
+      //   executeNextWriteOperation();
+      // }
+      print('Phase value ${globalValues.getSliderValue(globalValues.tensPhase)}');
+      // When phase changes it sends channel 1 values
+      String stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
+      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+      print('Value: $stringCommand');
+      print('list hex values $hexValue');
+      await bluetoothController.writeToDevice('tens', hexValue);
+      readValueList = await bluetoothController.readFromDevice();
+
+      setState(() {
+        readValue = bluetoothController.hexToString(readValueList);
+      });
     });
+
   }
 
 

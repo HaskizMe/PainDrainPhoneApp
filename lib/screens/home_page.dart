@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/screens/TENS_settings.dart';
+import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import '../main.dart';
@@ -58,18 +60,21 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
-        //automaticallyImplyLeading: false,
-        //elevation: 0.0,
         backgroundColor: AppColors.darkGrey,
-        //toolbarHeight: 10,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.to(() => const BleConnect());
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
+            const Padding(
+              padding: EdgeInsets.all(10.0),
               child: Text(
                   "Tens",
                 style: TextStyle(
@@ -93,7 +98,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
                 "Temperature",
@@ -118,7 +123,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
                 "Vibration",

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
@@ -26,9 +27,15 @@ class _VibrationSettingsState extends State<VibrationSettings> {
   List<int> readValueList = [];
   String readValue = "";
   double sliderValue = 0;
+  Queue<Map<String, dynamic>> writeQueue = Queue<Map<String, dynamic>>();
+  bool isWriting = false;
 
   // Create a function to handle the slider change with debounce
-  void handleSliderChange(var newValue, String stimulus, int channel) async {
+  void handleSliderChange(var newValue, String stimulus, int? channel) async {
+    Map<String, dynamic> writeOperation = {
+      'newValue': newValue,
+      'stimulus': stimulus,
+    };
     setState(() {
       if(stimulus == globalValues.vibeWaveform){
         globalValues.setSliderValue(globalValues.vibeWaveform, newValue);
@@ -44,6 +51,8 @@ class _VibrationSettingsState extends State<VibrationSettings> {
       }
 
     });
+
+
     // Restarts timer when slider value changes
     writeTimer?.cancel();
     /*
@@ -51,19 +60,36 @@ class _VibrationSettingsState extends State<VibrationSettings> {
     * least 1 second so we aren't sending a of unnecessary values.
     */
     writeTimer = Timer(writeDelay, () async {
-      // Implement your async operations here
+      writeQueue.add(writeOperation);
+      if (!isWriting) {
+        // Dequeue and execute the next operation
+        executeNextWriteOperation();
+      }
+    });
+  }
+  void executeNextWriteOperation() async {
+    String stringCommand = "";
+    if (writeQueue.isNotEmpty) {
+      isWriting = true;
+      writeQueue.removeFirst();
+
       String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${globalValues.getSliderValue(globalValues.vibeAmplitude).toInt()} ${globalValues.getSliderValue(globalValues.vibeFreq).toInt()} ${globalValues.getSliderValue(globalValues.vibeWaveform).toInt()}";
       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-      print(stringCommand);
+      print('Value: $stringCommand');
       print('list hex values $hexValue');
       await bluetoothController.writeToDevice('vibration', hexValue);
       readValueList = await bluetoothController.readFromDevice();
-      //print('value: $readValue');
+
       // Update readValue
       setState(() {
         readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
       });
-    });
+
+      isWriting = false;
+
+      // Execute the next write operation in the queue
+      executeNextWriteOperation();
+    }
   }
 
   @override

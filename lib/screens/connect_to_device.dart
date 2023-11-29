@@ -50,6 +50,9 @@ class ConnectDevice extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.darkerGrey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0)
+                      )
                     ),
                     child: const Text(
                         'CONNECT',

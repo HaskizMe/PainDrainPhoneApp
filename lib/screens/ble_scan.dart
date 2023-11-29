@@ -124,7 +124,7 @@ class _BleConnectState extends State<BleConnect> {
               ),
             ),
             const SizedBox(height: 20),
-            Text(
+            const Text(
               'Connect',
               style: TextStyle(
                   fontSize: 24,
@@ -153,6 +153,9 @@ class _BleConnectState extends State<BleConnect> {
                           },
                           child: Card(
                             elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
                             child: ListTile(
                               title: Text(result.device.localName),
                               subtitle: Text(result.device.remoteId.toString()),
@@ -183,7 +186,7 @@ class _BleConnectState extends State<BleConnect> {
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CircularProgressIndicator(color: AppColors.amber,),
+                            CircularProgressIndicator(color: Colors.blue,),
                             SizedBox(height: 10), // Add some spacing
                             Text("Connecting..."), // Display connecting text
                           ],
@@ -197,7 +200,7 @@ class _BleConnectState extends State<BleConnect> {
             ),
 
             const SizedBox(height: 20),
-            Text(
+            const Text(
               'Connected Devices',
               style: TextStyle(
                   fontSize: 24,
@@ -224,7 +227,6 @@ class _BleConnectState extends State<BleConnect> {
                         },
                         child: Card(
                           elevation: 4,
-
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
