@@ -1,10 +1,13 @@
+import 'dart:async';
+import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'package:pain_drain_mobile_app/global_values.dart';
-import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:get/get.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 import '../main.dart';
+import '../widgets/custom_card.dart';
+import '../widgets/custom_slider.dart';
+import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 
 
 
@@ -20,388 +23,377 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
   final BluetoothController bluetoothController = Get.find<BluetoothController>();
   List<int> readValueList = [];
   String readValue = "";
-  //double sliderValue = 0;
+  final Duration writeDelay = const Duration(milliseconds: 500);
+  Timer? writeTimer;
+  Queue<Map<String, dynamic>> writeQueue = Queue<Map<String, dynamic>>();
+  Queue<Map<String, dynamic>> writeOperation = Queue<Map<String, dynamic>>();
 
-  // A function to handle the slider change with debounce
-  // void handleSliderChange(double newValue) async {
-  //     setState(() {
-  //       globalValues.setSliderValue('tens', newValue);
-  //     });
-  //
-  //     // Implement your async operations here
-  //     print('Slider value: ${newValue.round()}');
-  //     String stringCommand = "T ${newValue.round()}";
-  //     List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-  //     await bluetoothController.writeToDevice("tens", hexValue);
-  //     readValueList = await bluetoothController.readFromDevice();
-  //     print('value: $readValue');
-  //
-  //     // Update readValue
-  //     setState(() {
-  //       readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
-  //     });
-  // }
+  bool isWriting = false;
+  bool phaseValue = false;
 
-  // Create a function to handle the slider change with debounce
-  void handleSliderChange(var newValue, String stimulus) async {
-    setState(() {
-      if(stimulus == 'tensDuration'){
-        globalValues.setSliderValue('tensDuration', newValue);
+  void handleSliderChange(var newValue, String? stimulus, int? channel) async {
+    Map<String, dynamic> writeOperation = {
+      'newValue': newValue,
+      'stimulus': stimulus,
+      'channel': channel,
+    };
+
+    if(channel == 1 || channel == 0) {
+      setState(() {
+        if (stimulus == 'tensDurationCh1') {
+          globalValues.setSliderValue(globalValues.tensDurationCh1, newValue);
+        }
+        else if (stimulus == 'tensAmplitude') {
+          globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
+        }
+        else if (stimulus == 'tensPeriod') {
+          globalValues.setSliderValue(globalValues.tensPeriod, newValue);
+        }
+      });
+    }
+    else if(channel == 2) {
+      setState(() {
+        if (stimulus == 'tensDurationCh2') {
+          globalValues.setSliderValue(globalValues.tensDurationCh2, newValue);
+        }
+        else if (stimulus == 'tensAmplitude') {
+          globalValues.setSliderValue(globalValues.tensAmplitude, newValue);
+        }
+        else if (stimulus == 'tensPeriod') {
+          globalValues.setSliderValue(globalValues.tensPeriod, newValue);
+        }
+      });
+    }
+    // Restarts timer when slider value changes
+    writeTimer?.cancel();
+    /*
+    * Only sends a value if the slider has paused for at
+    * least 1 second so we aren't sending a of unnecessary values.
+    */
+    writeTimer = Timer(writeDelay, () async {
+      writeQueue.add(writeOperation);
+      if (!isWriting) {
+        // Dequeue and execute the next operation
+        executeNextWriteOperation();
       }
-      else if(stimulus == 'tensAmplitude'){
-        globalValues.setSliderValue('tensAmplitude', newValue);
-      }
-      else if(stimulus == 'tensPeriod'){
-        globalValues.setSliderValue('tensPeriod', newValue);
-      }
-    });
-
-    // Implement your async operations here
-    String stringCommand = "T ${globalValues.getSliderValue('tensAmplitude').toInt()} ${globalValues.getSliderValue('tensDuration')} ${globalValues.getSliderValue('tensPeriod')}";
-    List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-    print('Value: $stringCommand');
-    print('list hex values $hexValue');
-    await bluetoothController.writeToDevice('tens', hexValue);
-    readValueList = await bluetoothController.readFromDevice();
-    //print('value: $');
-
-    // Update readValue
-    setState(() {
-      readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
     });
   }
+
+  void executeNextWriteOperation() async {
+    String stringCommand = "";
+    if (writeQueue.isNotEmpty) {
+      isWriting = true;
+      Map<String, dynamic> writeOperation = writeQueue.removeFirst();
+
+      int? channel = writeOperation['channel'];
+      var newValue = writeOperation['newValue'];
+
+      if(newValue is bool){
+        stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
+      }
+      if(channel == 1 || channel == 0){
+        stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
+      }
+      else if(channel == 2){
+        stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
+      }
+      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+      print('Value: $stringCommand');
+      print('list hex values $hexValue');
+      await bluetoothController.writeToDevice('tens', hexValue);
+      readValueList = await bluetoothController.readFromDevice();
+
+      // Update readValue
+      setState(() {
+        readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+      });
+
+      isWriting = false;
+
+      // Execute the next write operation in the queue
+      executeNextWriteOperation();
+    }
+  }
+
+
+  void onSwitchChanged(bool newValue) async {
+    Map<String, dynamic> writeOperation = {
+      'newValue': newValue,
+    };
+    if(newValue == false){
+      globalValues.setSliderValue(globalValues.tensPhase, 0);
+    }
+    else if(newValue = true){
+      globalValues.setSliderValue(globalValues.tensPhase, 180);
+    }
+    else {
+      print("ERROR");
+    }
+    setState(() {
+      phaseValue = newValue;
+    });
+
+    // Restarts timer when slider value changes
+    writeTimer?.cancel();
+    /*
+    * Only sends a value if the slider has paused for at
+    * least 1 second so we aren't sending a of unnecessary values.
+    */
+    writeTimer = Timer(writeDelay, () async {
+      // writeQueue.add(writeOperation);
+      // if (!isWriting) {
+      //   // Dequeue and execute the next operation
+      //   executeNextWriteOperation();
+      // }
+      print('Phase value ${globalValues.getSliderValue(globalValues.tensPhase)}');
+      // When phase changes it sends channel 1 values
+      String stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
+      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+      print('Value: $stringCommand');
+      print('list hex values $hexValue');
+      await bluetoothController.writeToDevice('tens', hexValue);
+      readValueList = await bluetoothController.readFromDevice();
+
+      setState(() {
+        readValue = bluetoothController.hexToString(readValueList);
+      });
+    });
+
+  }
+
+
+  @override
+  void dispose() {
+    writeTimer?.cancel(); // Cancel the timer when the widget is disposed.
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    double sliderValuePeriod = globalValues.getSliderValue('tensPeriod');
-    double sliderValueDuration = globalValues.getSliderValue('tensDuration');
-    double sliderValueAmplitude = globalValues.getSliderValue('tensAmplitude');
+    double sliderValuePeriod = globalValues.getSliderValue(globalValues.tensPeriod);
+    double sliderValueDurationChannel1 = globalValues.getSliderValue(globalValues.tensDurationCh1);
+    double sliderValueAmplitude = globalValues.getSliderValue(globalValues.tensAmplitude);
+    double sliderValueDurationChannel2 = globalValues.getSliderValue(globalValues.tensDurationCh2);
+    double sliderValuePhase = globalValues.getSliderValue(globalValues.tensPhase);
+    // The two sliders I want in the top portion
+    List<Widget> topSliders = [
+      CustomSlider(
+        min: 0,
+        max: 100,
+        divisions: 20,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueAmplitude,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.tensAmplitude,
+        sliderLabel: 'Amplitude',
+        valueLabel: "${sliderValueAmplitude.round()}%",
+        channel: 0,
+      ),
+      CustomSlider(
+        min: 0.5,
+        max: 10,
+        divisions: (10.0 - 0.5) ~/ 0.5,
+        // divisions: 10,
+        handleSliderChange: handleSliderChange,
+        value: sliderValuePeriod,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: "tensPeriod",
+        sliderLabel: 'Period',
+        valueLabel: "${sliderValuePeriod}s",
+        channel: 0,
+      ),
+      // You can add more sliders here
+    ];
+
+    // Slider that I want in the bottom left
+    List<Widget> bottomSliderLeft = [
+      CustomSlider(
+        min: 0,
+        max: 1.0,
+        divisions: 10,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueDurationChannel1,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.tensDurationCh1,
+        sliderLabel: 'Duration',
+        valueLabel: "${sliderValueDurationChannel1}s",
+        channel: 1,
+      ),
+      // You can add more sliders here
+    ];
+    // Slider that I want in the bottom right
+    List<Widget> bottomSliderRight = [
+      CustomSlider(
+        min: 0,
+        max: 1.0,
+        divisions: 10,
+        handleSliderChange: handleSliderChange,
+        value: sliderValueDurationChannel2,
+        trackHeight: 50.0,
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey,
+        thumbColor: Colors.blue,
+        thumbRadius: 30.0,
+        sliderName: globalValues.tensDurationCh2,
+        sliderLabel: 'Duration',
+        valueLabel: "${sliderValueDurationChannel2}s",
+        channel: 2,
+      ),
+    ];
+    if(sliderValuePhase == 0){
+       phaseValue = false;
+    }
+    else{
+      phaseValue = true;
+    }
+
     return Scaffold(
-      backgroundColor: Colors.grey[800],
+      backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
         title: const Text(
           'TENS',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.offWhite,
             fontSize: 50,
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.grey[900],
+        backgroundColor: AppColors.darkerGrey,
         centerTitle: true,
-        toolbarHeight: 90,
+        //toolbarHeight: 50,
       ),
       body: Center(
-        child: SliderTheme(
-          data: const SliderThemeData(
-            trackHeight: 50,
-            activeTrackColor: Colors.blue, // Color of the active portion of the track
-            inactiveTrackColor: Colors.grey, // Color of the inactive portion of the track
-            thumbColor: AppColors.blue, // Color of the thumb
-            tickMarkShape: RoundSliderTickMarkShape(
-                tickMarkRadius: 0
-            ),
-            thumbShape: RoundSliderThumbShape(
-              enabledThumbRadius: 30.0, // Adjust the radius as needed
-            ),// Make ticks invisible
-          ),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.65,
-            //color: Colors.green,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  //color: Colors.black,
-                  height: MediaQuery.of(context).size.height * .5,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 100,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Stack(
-                                children: [
-                                  RotatedBox(
-                                    quarterTurns: -1,
-                                    child: Slider(
-                                      value: sliderValueAmplitude,
-                                      min: 0,
-                                      max: 100,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          //globalValues.setSliderValue('amplitude', newValue);
-                                          handleSliderChange(newValue, 'tensAmplitude');
-                                        });
-                                        // Makes a command string for the vibration
-                                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                                        // print(stringCommand);
-                                        // bluetoothController.writeToDevice("vibration", hexValue);
-                                      },
-                                      //label: sliderValueAmplitude.round().abs().toString(),
-                                      divisions: 20,
-
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: IgnorePointer(
-                                        ignoring: true,
-                                        child: Text(
-                                          '${sliderValueAmplitude.round()}%',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
+                CustomCard(
+                    width: MediaQuery.of(context).size.width,
+                    widgets: topSliders,
+                ),
+                const Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Channel 1",
+                            style: TextStyle(
+                              color: AppColors.offWhite,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
                             ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Amplitude',
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(5.0),
+                            child: Text(
+                              "Channel 2",
                               style: TextStyle(
+                                color: AppColors.offWhite,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
-                                color: Colors.white,
-
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      Container(
-                        width: 100,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Stack(
-                                children: [
-                                  RotatedBox(
-                                    quarterTurns: -1,
-                                    child: Slider(
-                                      value: sliderValueDuration,
-                                      min: 0.1,
-                                      max: 1.0,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          //globalValues.setSliderValue('amplitude', newValue);
-                                          handleSliderChange(newValue, 'tensDuration');
-                                        });
-                                        // Makes a command string for the vibration
-                                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                                        // print(stringCommand);
-                                        // bluetoothController.writeToDevice("vibration", hexValue);
-                                      },
-                                      //label: sliderValueAmplitude.round().abs().toString(),
-                                      divisions: 9,
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: IgnorePointer(
-                                        ignoring: true,
-                                        child: Text(
-                                          '${sliderValueDuration}s',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Duration',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.white,
-
-                              ),
-                            ),
-                          ],
-                        ),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: CustomCard(
+                          width: MediaQuery.of(context).size.width * .4,
+                          widgets: bottomSliderLeft,
                       ),
-                      Container(
-                        width: 100,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Stack(
-                                children: [
-                                  RotatedBox(
-                                    quarterTurns: -1,
-                                    child: Slider(
-                                      value: sliderValuePeriod,
-                                      min: 0.5,
-                                      max: 10,
-                                      divisions: (10.0 - 0.5) ~/ 0.5,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          //globalValues.setSliderValue('amplitude', newValue);
-                                          handleSliderChange(newValue, 'tensPeriod');
-                                        });
-                                        // Makes a command string for the vibration
-                                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${newValue.round()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                                        // print(stringCommand);
-                                        // bluetoothController.writeToDevice("vibration", hexValue);
-                                      },
-
-                                    ),
-                                  ),
-                                  Positioned.fill(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: IgnorePointer(
-                                        ignoring: true,
-                                        child: Text(
-                                          '${sliderValuePeriod}s',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Period',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.white,
-
-                              ),
-                            ),
-                          ],
-                        ),
+                    ),
+                    Expanded(
+                      child: CustomCard(
+                          width: MediaQuery.of(context).size.width * .4,
+                          widgets: bottomSliderRight
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 Column(
                   children: [
-                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0.0, 10.0, 10.0, 0.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text(
+                            '0',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: AppColors.offWhite
+                            ),
+                          ),
+                          const SizedBox(width: 15,),
+                          Transform.scale(
+                            scale: 2.0,
+                            child: Switch(
+                              value: phaseValue,
+                              onChanged: onSwitchChanged,
+                              activeColor: Colors.blue, // Color when switch is ON
+                              inactiveTrackColor: Colors.grey, // Color of the inactive track
+                              inactiveThumbColor: Colors.blue, // Color of the switch's thumb when OFF
+                            ),
+                          ),
+                          const SizedBox(width: 15,),
+                          const Text(
+                            '180',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: AppColors.offWhite
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 5),
                     if(readValue.isNotEmpty)
                       Text(
                         readValue,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.offWhite,
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
                       ),
                   ],
-                )
+                ),
+                const SizedBox(height: 80),
               ],
             ),
           ),
-          // child: Container(
-          //   height: MediaQuery.of(context).size.height * 0.5,
-          //   color: Colors.green,
-          //   child: Column(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       Expanded(
-          //         child: Container(
-          //           color: Colors.black,
-          //           //height: MediaQuery.of(context).size.height * 0.5,
-          //           child: Column(
-          //              //mainAxisAlignment: MainAxisAlignment.center,
-          //             children: [
-          //               Expanded(
-          //                 child: Container(
-          //                   color: Colors.pink,
-          //                   child: Stack(
-          //                     alignment: Alignment.center,
-          //                     children: [
-          //                       RotatedBox(
-          //                         quarterTurns: 3,
-          //                         child: Container(
-          //                           child: Slider(
-          //                             value: sliderValue,
-          //                             min: 0,
-          //                             max: 100,
-          //                             onChanged: (newValue) {
-          //                               setState(() {
-          //                                 handleSliderChange(newValue);
-          //                               });
-          //                             },
-          //                             //label: sliderValue.round().toString(),
-          //                             divisions: 20,
-          //                           ),
-          //                         ),
-          //                       ),
-          //                       Center(
-          //                         child: IgnorePointer(
-          //                           ignoring: true,
-          //                           child: Text(
-          //                             '${sliderValue.round()}',
-          //                             style: const TextStyle(
-          //                               color: Colors.white,
-          //                               fontWeight: FontWeight.bold,
-          //                               fontSize: 24,
-          //                             ),
-          //                           ),
-          //                         ),
-          //                       )
-          //                     ],
-          //
-          //                   ),
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //         ),
-          //       ),
-          //
-          //       const SizedBox(height: 10),
-          //       const Text(
-          //         'Adjust TENS',
-          //         style: TextStyle(
-          //           color: Colors.white,
-          //           fontWeight: FontWeight.bold,
-          //           fontSize: 20,
-          //         ),
-          //       ),
-          //       const SizedBox(height: 10),
-          //       if(readValue.isNotEmpty)
-          //         Text(
-          //           readValue,
-          //           style: const TextStyle(
-          //             color: Colors.white,
-          //             fontWeight: FontWeight.bold,
-          //             fontSize: 20,
-          //           ),
-          //         ),
-          //     ],
-          //   ),
-          // ),
         ),
       )
     );
   }
 }
-

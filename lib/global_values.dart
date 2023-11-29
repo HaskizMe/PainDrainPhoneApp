@@ -8,10 +8,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 class GlobalValues {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   static final GlobalValues _instance = GlobalValues._internal();
-  final Map<String, double> _sliderValues = {'tensPeriod' : .5, 'tensDuration' : .1};
+  final Map<String, double> _sliderValues = {
+    'tensPeriod' : .5,
+  };
   String waveType = "Sine";
   String presetType = "Select preset";
   List<String> presets = ["Select preset"];
+  String tensAmplitude = "tensAmplitude";
+  String tensDurationCh1 = "tensDurationCh1";
+  String tensPeriod = "tensPeriod";
+  String tensDurationCh2 = "tensDurationCh2";
+  String tensPhase = "tensPhase";
+  String temperature = "temperature";
+  String vibeAmplitude = "vibrationAmplitude";
+  String vibeFreq = "vibrationFrequency";
+  String vibeWaveform = "vibrationWaveform";
+  String vibeWaveType = "vibrationWaveType";
 
   factory GlobalValues() {
     return _instance;
@@ -44,7 +56,7 @@ class GlobalValues {
 
   Future<List<String>> getPresets() async {
     final SharedPreferences prefs = await _prefs;
-   // await prefs.clear();
+    //await prefs.clear();
     
     List<String> keys = prefs.getKeys().toList();
     for (String element in keys){
@@ -57,6 +69,7 @@ class GlobalValues {
     }
     print("My map ${prefs.getKeys()}");
     print("My presets list $presets");
+    //presets.clear();
     return presets;
   }
 }
