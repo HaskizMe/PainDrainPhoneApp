@@ -68,7 +68,6 @@ class _VibrationSettingsState extends State<VibrationSettings> {
     });
   }
   void executeNextWriteOperation() async {
-    String stringCommand = "";
     if (writeQueue.isNotEmpty) {
       isWriting = true;
       writeQueue.removeFirst();
@@ -173,63 +172,64 @@ class _VibrationSettingsState extends State<VibrationSettings> {
         //toolbarHeight: 90,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          //crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CustomCard(widgets: vibeSliders, width: double.infinity, spacing: 10.0,),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    margin: const EdgeInsets.fromLTRB(0, 25, 20, 0),
-                    decoration: BoxDecoration(
-                      color: AppColors.offWhite,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child:
-                    DropdownButton(
-                      value: globalValues.getWaveType(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedItem = newValue!;
-                          //globalValues.setWaveType(selectedItem);
-                          handleSliderChange(selectedItem, globalValues.vibeWaveType, 0);
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomCard(widgets: vibeSliders, width: double.infinity, spacing: 10.0,),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      margin: const EdgeInsets.fromLTRB(0, 25, 20, 0),
+                      decoration: BoxDecoration(
+                        color: AppColors.offWhite,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: DropdownButton(
+                        value: globalValues.getWaveType(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedItem = newValue!;
+                            //globalValues.setWaveType(selectedItem);
+                            handleSliderChange(selectedItem, globalValues.vibeWaveType, 0);
 
-                        });
-                        // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
-                        // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-                        // print(stringCommand);
-                        // bluetoothController.writeToDevice("vibration", hexValue);
-                      },
-                      items: <String>['Sine', 'Square', 'Triangle', 'Sawtooth']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      underline: Container(),
+                          });
+                          // String stringCommand = "v ${globalValues.getWaveType().toLowerCase()} ${sliderValueAmplitude.toInt()} ${sliderValueFrequency.toInt()} ${sliderValueWaveform.toInt()}";
+                          // List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
+                          // print(stringCommand);
+                          // bluetoothController.writeToDevice("vibration", hexValue);
+                        },
+                        items: <String>['Sine', 'Square', 'Triangle', 'Sawtooth']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        underline: Container(),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                if(readValue.isNotEmpty)
-                  Text(
-                    readValue,
-                    style: const TextStyle(
-                      color: AppColors.offWhite,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                  const SizedBox(height: 10),
+                  if(readValue.isNotEmpty)
+                    Text(
+                      readValue,
+                      style: const TextStyle(
+                        color: AppColors.offWhite,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
                     ),
-                  ),
-                const SizedBox(height: 80)
-              ],
-            )
-          ],
+                  const SizedBox(height: 80)
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

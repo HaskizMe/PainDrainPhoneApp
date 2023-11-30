@@ -240,10 +240,14 @@ class _TempSettingsState extends State<TempSettings> {
                             style: ElevatedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0)
-                              )
+                              ),
+                              backgroundColor: Colors.blue
                             ),
                               child: const Text(
-                                "Turn Off"
+                                "Turn Off",
+                                style: TextStyle(
+                                  color: Colors.white
+                                ),
                               ),
                           ),
                           const SizedBox(height: 20,),

@@ -52,12 +52,14 @@ class ConnectDevice extends StatelessWidget {
                       backgroundColor: AppColors.darkerGrey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)
-                      )
+                      ),
+
                     ),
                     child: const Text(
                         'CONNECT',
                       style: TextStyle(
-                        fontSize: 18
+                        fontSize: 18,
+                        color: Colors.white
                       ),
                     ),
                   ),

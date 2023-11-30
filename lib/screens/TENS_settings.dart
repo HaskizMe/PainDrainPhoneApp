@@ -26,8 +26,6 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
   final Duration writeDelay = const Duration(milliseconds: 500);
   Timer? writeTimer;
   Queue<Map<String, dynamic>> writeQueue = Queue<Map<String, dynamic>>();
-  Queue<Map<String, dynamic>> writeOperation = Queue<Map<String, dynamic>>();
-
   bool isWriting = false;
   bool phaseValue = false;
 
@@ -80,23 +78,30 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
   }
 
   void executeNextWriteOperation() async {
+    print('queue $writeQueue');
     String stringCommand = "";
     if (writeQueue.isNotEmpty) {
       isWriting = true;
       Map<String, dynamic> writeOperation = writeQueue.removeFirst();
 
       int? channel = writeOperation['channel'];
-      var newValue = writeOperation['newValue'];
+      bool? value = writeOperation['newBool'];
+      //print('new value write operation $newValue');
 
-      if(newValue is bool){
+      if(value != null){
         stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
       }
-      if(channel == 1 || channel == 0){
+      else if(channel == 1 || channel == 0){
         stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh1)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
       }
       else if(channel == 2){
         stringCommand = "T ${globalValues.getSliderValue(globalValues.tensAmplitude)} ${globalValues.getSliderValue(globalValues.tensDurationCh2)} ${globalValues.getSliderValue(globalValues.tensPeriod)} $channel";
       }
+      else{
+        print("ERROR");
+      }
+
+      // stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
       List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
       print('Value: $stringCommand');
       print('list hex values $hexValue');
@@ -118,7 +123,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
 
   void onSwitchChanged(bool newValue) async {
     Map<String, dynamic> writeOperation = {
-      'newValue': newValue,
+      'newBool': newValue,
     };
     if(newValue == false){
       globalValues.setSliderValue(globalValues.tensPhase, 0);
@@ -132,33 +137,11 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
     setState(() {
       phaseValue = newValue;
     });
-
-    // Restarts timer when slider value changes
-    writeTimer?.cancel();
-    /*
-    * Only sends a value if the slider has paused for at
-    * least 1 second so we aren't sending a of unnecessary values.
-    */
-    writeTimer = Timer(writeDelay, () async {
-      // writeQueue.add(writeOperation);
-      // if (!isWriting) {
-      //   // Dequeue and execute the next operation
-      //   executeNextWriteOperation();
-      // }
-      print('Phase value ${globalValues.getSliderValue(globalValues.tensPhase)}');
-      // When phase changes it sends channel 1 values
-      String stringCommand = "T p ${globalValues.getSliderValue(globalValues.tensPhase)}";
-      List<int> hexValue = bluetoothController.stringToHexList(stringCommand);
-      print('Value: $stringCommand');
-      print('list hex values $hexValue');
-      await bluetoothController.writeToDevice('tens', hexValue);
-      readValueList = await bluetoothController.readFromDevice();
-
-      setState(() {
-        readValue = bluetoothController.hexToString(readValueList);
-      });
-    });
-
+    writeQueue.add(writeOperation);
+    if (!isWriting) {
+      // Dequeue and execute the next operation
+      executeNextWriteOperation();
+    }
   }
 
 
@@ -355,7 +338,7 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                           ),
                           const SizedBox(width: 15,),
                           Transform.scale(
-                            scale: 2.0,
+                            scale: 1.2,
                             child: Switch(
                               value: phaseValue,
                               onChanged: onSwitchChanged,

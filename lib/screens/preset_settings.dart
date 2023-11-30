@@ -75,6 +75,7 @@ class _PresetSettingsState extends State<PresetSettings> {
           'Presets',
           style: TextStyle(
             fontSize: 50,
+            color: Colors.white
           ),
         ),
         automaticallyImplyLeading: false,
@@ -121,6 +122,7 @@ class _PresetSettingsState extends State<PresetSettings> {
                           child: Text(value),
                         );
                       }).toList(),
+                      icon: const Icon(Icons.arrow_drop_down_outlined, color: Colors.grey,),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -140,6 +142,12 @@ class _PresetSettingsState extends State<PresetSettings> {
                                   focusNode: textFocusNode, // Request focus on the text input field
                                   decoration: const InputDecoration(
                                     labelText: 'Add item:',
+                                    labelStyle: TextStyle(
+                                      color: Colors.white
+                                    ),
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.white)
+                                    ),
                                   ),
                                   onFieldSubmitted: (value) {
                                     addNewItem();
@@ -150,6 +158,7 @@ class _PresetSettingsState extends State<PresetSettings> {
                                   },
                                   maxLength: 15, // Set a max length of 10 characters
                                   style: const TextStyle(fontSize: 26, color: AppColors.offWhite), // Set a smaller font size
+                                  cursorColor: Colors.white,
                                 ),
                               ),
                             ),
@@ -174,8 +183,14 @@ class _PresetSettingsState extends State<PresetSettings> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15.0)
                             ),
+                            backgroundColor: Colors.blue
                           ),
-                          child: const Text('ADD'),
+                          child: const Text(
+                              'ADD',
+                            style: TextStyle(
+                              color: Colors.white
+                            ),
+                          ),
                         ),
 
 
@@ -190,8 +205,14 @@ class _PresetSettingsState extends State<PresetSettings> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0)
                             ),
+                            backgroundColor: Colors.blue
                           ),
-                          child: const Text('DELETE'),
+                          child: const Text(
+                              'DELETE',
+                            style: TextStyle(
+                              color: Colors.white
+                            ),
+                          ),
                         ),
 
                         TextButton(

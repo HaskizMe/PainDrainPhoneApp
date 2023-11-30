@@ -138,8 +138,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
       //   ],
       // ),
 
-      body:
-      Stack(
+      body: Stack(
         children: [
           // PageView and navigation dots
           PageView.builder(
