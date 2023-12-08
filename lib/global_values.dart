@@ -11,6 +11,7 @@ class GlobalValues {
   final Map<String, double> _sliderValues = {
     'tensPeriod' : .5,
   };
+
   String waveType = "Sine";
   String presetType = "Select preset";
   List<String> presets = ["Select preset"];
@@ -25,6 +26,16 @@ class GlobalValues {
   String vibeWaveform = "vibrationWaveform";
   String vibeWaveType = "vibrationWaveType";
 
+  // New map for registers
+  final Map<int, String> registers = {
+    // for (var item in List.generate(0x7D, (index) => index)) item : ''
+    0x00 : '', 0x01 : '', 0x02 : '', 0x03 : '', 0x04 : '', 0x07 : '', 0x0A : '',
+    0x1D : '', 0x1E : '', 0x20 : '', 0x26 : '', 0x2D : '', 0x35 : '', 0x36 : '',
+    0x40 : '', 0x41 : '', 0x42 : '', 0x43 : '', 0x44 : '', 0x45 : '', 0x46 : '',
+    0x47 : '', 0x48 : '', 0x49 : '', 0x4A : '', 0x4B : '', 0x7E : '', 0x60 : '',
+    0x61 : '', 0x62 : '', 0x64 : '', 0x65 : '', 0x66 : '', 0x6D : '', 0x75 : '',
+    0x7C : '',
+  };
   factory GlobalValues() {
     return _instance;
   }

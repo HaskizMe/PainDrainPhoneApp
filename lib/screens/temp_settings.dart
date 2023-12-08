@@ -67,7 +67,7 @@ class _TempSettingsState extends State<TempSettings> {
 
       // Update readValue
       setState(() {
-        readValue = bluetoothController.hexToString(readValueList); // Replace with your actual value
+        readValue = bluetoothController.hexToString(readValueList);
       });
 
       isWriting = false;
@@ -122,7 +122,7 @@ class _TempSettingsState extends State<TempSettings> {
                 //mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Card(
-                    elevation: 4.0,
+                    elevation: 2.0,
                     color: AppColors.darkerGrey,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)
@@ -251,16 +251,6 @@ class _TempSettingsState extends State<TempSettings> {
                               ),
                           ),
                           const SizedBox(height: 20,),
-                          // const SizedBox(height: 10),
-                          // if(readValue.isNotEmpty)
-                          //   Text(
-                          //     readValue,
-                          //     style: const TextStyle(
-                          //       color: AppColors.offWhite,
-                          //       fontWeight: FontWeight.bold,
-                          //       fontSize: 20,
-                          //     ),
-                          //   ),
                         ],
                       ),
                     ),

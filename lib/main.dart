@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
+import 'package:pain_drain_mobile_app/screens/register_info.dart';
 import 'global_values.dart';
 import 'screens/TENS_settings.dart';
 import 'screens/temp_settings.dart';
@@ -14,6 +15,8 @@ import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
 final globalValues = GlobalValues();
 
 void main() {
@@ -54,10 +57,18 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
   // Declare and initialize the page controller
   final BluetoothController bluetoothController = Get.find<BluetoothController>();
   int batteryLevel = 0;
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'PainDrain2',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
 
   bool isSmallScreen(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    print('my width is $height');
+    //print('my width is $height');
     return height < 740;
   }
   void _onIconTapped(int index) {
@@ -79,8 +90,25 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
     const TENSSettings(),
     const TempSettings(),
     const VibrationSettings(),
+    const RegisterState(),
     const PresetSettings()
   ];
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    print('hello');
+    // PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final info = await PackageInfo.fromPlatform();
+    String? version = info.version;
+    print('version $version');
+    setState(() {
+      _packageInfo = info;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
@@ -185,6 +213,19 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
               ),
             ),
 
+          const Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 8.0, right: 8.0),
+              child: Text(
+                  'Version 1.0.1',
+                style: TextStyle(
+                  color: Colors.grey
+                ),
+              )
+
+            ),
+          )
           // Battery percentage indicator above the app title bar not needed right now
           // Align(
           //   alignment: Alignment.bottomRight, // Adjust the values to position it as needed
@@ -199,3 +240,97 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
     );
   }
 }
+
+// Copyright 2017 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// ignore_for_file: public_member_api_docs
+
+// import 'dart:async';
+//
+// import 'package:flutter/material.dart';
+// import 'package:package_info_plus/package_info_plus.dart';
+//
+// void main() {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await PackageInfoPlugin().init();
+//   runApp(const MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'PackageInfoPlus Demo',
+//       theme: ThemeData(
+//         useMaterial3: true,
+//         colorSchemeSeed: const Color(0x9f4376f8),
+//       ),
+//       home: const MyHomePage(),
+//     );
+//   }
+// }
+//
+// class MyHomePage extends StatefulWidget {
+//   const MyHomePage({Key? key}) : super(key: key);
+//
+//   @override
+//   State<MyHomePage> createState() => _MyHomePageState();
+// }
+//
+// class _MyHomePageState extends State<MyHomePage> {
+//   PackageInfo _packageInfo = PackageInfo(
+//     appName: 'Unknown',
+//     packageName: 'Unknown',
+//     version: 'Unknown',
+//     buildNumber: 'Unknown',
+//     buildSignature: 'Unknown',
+//     installerStore: 'Unknown',
+//   );
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _initPackageInfo();
+//   }
+//
+//   Future<void> _initPackageInfo() async {
+//     final info = await PackageInfo.fromPlatform();
+//     setState(() {
+//       _packageInfo = info;
+//     });
+//   }
+//
+//   Widget _infoTile(String title, String subtitle) {
+//     return ListTile(
+//       title: Text(title),
+//       subtitle: Text(subtitle.isEmpty ? 'Not set' : subtitle),
+//     );
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('PackageInfoPlus example'),
+//         elevation: 4,
+//       ),
+//       body: ListView(
+//         children: <Widget>[
+//           _infoTile('App name', _packageInfo.appName),
+//           _infoTile('Package name', _packageInfo.packageName),
+//           _infoTile('App version', _packageInfo.version),
+//           _infoTile('Build number', _packageInfo.buildNumber),
+//           _infoTile('Build signature', _packageInfo.buildSignature),
+//           _infoTile(
+//             'Installer store',
+//             _packageInfo.installerStore ?? 'not available',
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

@@ -175,6 +175,11 @@ class BluetoothController extends GetxController {
         await customCharacteristic.write(hexValues);
         print("vibration");
         break;
+      case "register":
+        print('register $hexValues');
+        await customCharacteristic.write(hexValues);
+        print("register");
+        break;
       default:
         print("error");
         break;
@@ -182,16 +187,19 @@ class BluetoothController extends GetxController {
   }
 
   Future<List<int>> readFromDevice() async {
-    List<int> rspHexValues = [];
-    //print("Read testing: ${await customCharacteristic.read()}");
-    rspHexValues = await customCharacteristic.read();
+    try {
+      List<int> rspHexValues = await customCharacteristic.read();
 
-    // Remove elements after the null terminator ('\0')
-    if (rspHexValues.contains(0)) {
-      rspHexValues = rspHexValues.sublist(0, rspHexValues.indexOf(0));
+      // Remove elements after the null terminator ('\0')
+      if (rspHexValues.contains(0)) {
+        rspHexValues = rspHexValues.sublist(0, rspHexValues.indexOf(0));
+      }
+
+      return rspHexValues;
+    } catch (e) {
+      print('Error during readFromDevice: $e');
+      rethrow; // Rethrow the exception after logging or handle it appropriately
     }
-
-    return rspHexValues;
   }
   List<int> stringToHexList(String input) {
     List<int> hexList = [];
