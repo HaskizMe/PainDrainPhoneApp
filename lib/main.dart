@@ -218,7 +218,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
             child: Padding(
               padding: EdgeInsets.only(bottom: 8.0, right: 8.0),
               child: Text(
-                  'Version 1.0.1',
+                  'Version 1.0.2',
                 style: TextStyle(
                   color: Colors.grey
                 ),
