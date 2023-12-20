@@ -90,7 +90,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
     const TENSSettings(),
     const TempSettings(),
     const VibrationSettings(),
-    const RegisterState(),
+    // const RegisterState(),
     const PresetSettings()
   ];
   @override
@@ -216,9 +216,9 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
           const Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 8.0, right: 8.0),
+              padding: EdgeInsets.only(bottom: 0.0, right: 14.0),
               child: Text(
-                  'Version 1.0.2',
+                  'Beta Version 1.0.2',
                 style: TextStyle(
                   color: Colors.grey
                 ),
