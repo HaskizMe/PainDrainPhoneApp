@@ -30,13 +30,12 @@ class _RegisterStateState extends State<RegisterState> {
       readValueList = await bluetoothController.readFromDevice();
       print('readValue list: $readValueList');
       readValue = int.parse(bluetoothController.hexToString(readValueList));
-      globalValues.registers[keysList[i]] = readValue.toString();
+      String formattedHex = '0x${readValue?.toRadixString(16).padLeft(2, '0')}';
+      globalValues.registers[keysList[i]] = formattedHex.toString();
       // This triggers a rebuild to show updated changes
       setState(() {});
     }
     isBusy = false;
-
-
     print('read value: $readValue');
 
   }
