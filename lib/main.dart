@@ -216,9 +216,9 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
           const Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 0.0, right: 14.0),
+              padding: EdgeInsets.only(bottom: 0.0, right: 28.0),
               child: Text(
-                  'Beta Version 1.0.2',
+                  'Beta: 1.0.2',
                 style: TextStyle(
                   color: Colors.grey
                 ),
