@@ -215,16 +215,16 @@ class _VibrationSettingsState extends State<VibrationSettings> {
                       ),
                     ),
                   ),
-                  // const SizedBox(height: 10),
-                  // if(readValue.isNotEmpty)
-                  //   Text(
-                  //     readValue,
-                  //     style: const TextStyle(
-                  //       color: AppColors.offWhite,
-                  //       fontWeight: FontWeight.bold,
-                  //       fontSize: 20,
-                  //     ),
-                  //   ),
+                  const SizedBox(height: 10),
+                  if(readValue.isNotEmpty)
+                    Text(
+                      readValue,
+                      style: const TextStyle(
+                        color: AppColors.offWhite,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
                   const SizedBox(height: 80)
                 ],
               )

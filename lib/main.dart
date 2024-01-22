@@ -90,7 +90,7 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
     const TENSSettings(),
     const TempSettings(),
     const VibrationSettings(),
-    // const RegisterState(),
+    const RegisterState(),
     const PresetSettings()
   ];
   @override
