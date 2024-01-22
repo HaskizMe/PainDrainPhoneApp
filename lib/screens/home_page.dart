@@ -77,11 +77,11 @@ class HomePage extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
-                  "Tens",
+                "Tens",
                 style: TextStyle(
-                  color: AppColors.offWhite,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold
+                    color: AppColors.offWhite,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold
                 ),
               ),
             ),
@@ -223,7 +223,7 @@ class CustomCircularBar extends StatelessWidget {
         Padding(
             padding: EdgeInsets.all(5.0),
             child: Text(
-                name,
+              name,
               style: const TextStyle(
                 color: AppColors.offWhite,
                 fontSize: 16.0,

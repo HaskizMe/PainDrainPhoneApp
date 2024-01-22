@@ -359,16 +359,16 @@ class _TENSSettingsState extends State<TENSSettings> with WidgetsBindingObserver
                         ],
                       ),
                     ),
-                    // const SizedBox(height: 5),
-                    // if(readValue.isNotEmpty)
-                    //   Text(
-                    //     readValue,
-                    //     style: const TextStyle(
-                    //       color: AppColors.offWhite,
-                    //       fontWeight: FontWeight.bold,
-                    //       fontSize: 20,
-                    //     ),
-                    //   ),
+                    const SizedBox(height: 5),
+                    if(readValue.isNotEmpty)
+                      Text(
+                        readValue,
+                        style: const TextStyle(
+                          color: AppColors.offWhite,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 80),
