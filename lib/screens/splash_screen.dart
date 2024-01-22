@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Shows splash screen for 5 seconds and points to the PageNavigation method
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (_) => const ConnectDevice()
+          builder: (_) => ConnectDevice()
           //builder: (_) => const PageNavigation()
         ),
       );

@@ -24,7 +24,7 @@ void main() {
   // in the app.
   Get.put(BluetoothController());
   runApp(DevicePreview(
-    enabled: false,
+    enabled: true,
     builder: (context) => const GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),

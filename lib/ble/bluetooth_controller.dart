@@ -72,11 +72,12 @@ class BluetoothController extends GetxController {
     });
 
     FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 5), androidUsesFineLocation: true);
+      timeout: const Duration(seconds: 5), androidUsesFineLocation: true
+    );
   }
 
-  void startScanning() {
-    _setupBluetooth();
+  Future<void> startScanning() async {
+    await _setupBluetooth();
   }
 
   Future<void> connectToDevice(BluetoothDevice device) async {

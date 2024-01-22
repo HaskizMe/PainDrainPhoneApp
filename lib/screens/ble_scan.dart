@@ -93,6 +93,7 @@ class _BleConnectState extends State<BleConnect> {
               color: AppColors.offWhite
             ),
           ),
+              automaticallyImplyLeading: true,
               backgroundColor: AppColors.darkerGrey,
       ),
       body: Padding(
