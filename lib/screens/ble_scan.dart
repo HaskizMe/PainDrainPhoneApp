@@ -47,7 +47,7 @@ class _BleConnectState extends State<BleConnect> {
       isScanning = true;
     });
 
-    bluetoothController.startScanning();
+    // bluetoothController.scanAndConnect();
 
     // Set a delay to return to the button state after 5 seconds
     Future.delayed(const Duration(seconds: 5), () {

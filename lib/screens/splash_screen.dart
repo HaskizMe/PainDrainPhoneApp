@@ -12,29 +12,38 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
 
+  // Store the context when the widget is created
+  late BuildContext storedContext;
+
   @override
   void initState() {
     super.initState();
-    // Gets rid top and bottom bar on phone
+
+    // Gets rid of top and bottom bars on the phone
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
-    // Shows splash screen for 5 seconds and points to the PageNavigation method
+    // Store the context for later use
+    storedContext = context;
+
+    // Shows the splash screen for 5 seconds and points to the ConnectDevice screen
     Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (_) => ConnectDevice()
-          //builder: (_) => const PageNavigation()
-        ),
-      );
+      // Check if the widget is still mounted before navigating
+      if (mounted) {
+        Navigator.of(storedContext).pushReplacement(MaterialPageRoute(
+          builder: (_) => const ConnectDevice(),
+        ));
+      }
     });
   }
 
   @override
   void dispose() {
-    // Brings back top and bottom bar on phone
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, 
+    // Brings back top and bottom bars on the phone
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,8 +51,8 @@ class _SplashScreenState extends State<SplashScreen>
         width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-              colors: [Colors.black, Colors.black54],
-              begin: Alignment.topRight,
+            colors: [Colors.black, Colors.black54],
+            begin: Alignment.topRight,
             end: Alignment.bottomLeft,
           ),
         ),
@@ -59,9 +68,9 @@ class _SplashScreenState extends State<SplashScreen>
             Text(
               'Pain Drain',
               style: TextStyle(
-              fontStyle: FontStyle.italic,
-              color: Colors.white60,
-              fontSize: 50,
+                fontStyle: FontStyle.italic,
+                color: Colors.white60,
+                fontSize: 50,
               ),
             ),
           ],
@@ -70,3 +79,4 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
+
