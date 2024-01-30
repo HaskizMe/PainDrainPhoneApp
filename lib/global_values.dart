@@ -12,6 +12,7 @@ class GlobalValues {
     'tensPeriod' : .5,
   };
 
+  bool deviceConnected = false;
   String waveType = "Sine";
   String presetType = "Select preset";
   List<String> presets = ["Select preset"];

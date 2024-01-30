@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/screens/TENS_settings.dart';
 import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
+import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import '../main.dart';
@@ -61,13 +62,13 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
         backgroundColor: AppColors.darkGrey,
-        leading: IconButton(
-          color: Colors.white,
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Get.to(() => const BleConnect());
-          },
-        ),
+        // leading: IconButton(
+        //   color: Colors.white,
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Get.to(() => const ConnectDevice());
+        //   },
+        // ),
       ),
       body: SingleChildScrollView(
         child: Column(

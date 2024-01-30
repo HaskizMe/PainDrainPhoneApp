@@ -1,25 +1,24 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pain_drain_mobile_app/main.dart';
 import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 
 DeviceIdentifier luna3Identifier = const DeviceIdentifier('E6:D8:E7:66:CB:0D');
 DeviceIdentifier painDrainIdentifier = const DeviceIdentifier('00:A0:50:00:00:03');
-BluetoothDevice luna3 = BluetoothDevice(
-    remoteId: luna3Identifier,
-    localName: 'Luna3',
-    type: BluetoothDeviceType.le
-);
+// BluetoothDevice luna3 = BluetoothDevice(
+//     remoteId: luna3Identifier,
+//     localName: 'Luna3',
+//     type: BluetoothDeviceType.le
+// );
 
-BluetoothDevice painDrain = BluetoothDevice(
-    remoteId: painDrainIdentifier,
-    localName: 'PainDrain',
-    type: BluetoothDeviceType.le
-);
+// BluetoothDevice painDrain = BluetoothDevice(
+//     remoteId: painDrainIdentifier,
+//     localName: 'PainDrain',
+//     type: BluetoothDeviceType.le
+// );
 
 class BluetoothController extends GetxController {
   Function? onDisconnectedCallback;
@@ -30,132 +29,176 @@ class BluetoothController extends GetxController {
   String batteryCharacteristicUUID = "00002a19-0000-1000-8000-00805f9b34fb";
   late BluetoothService customService;
   late BluetoothCharacteristic customCharacteristic;
-  late BluetoothService batteryService;
-  late BluetoothCharacteristic batteryCharacteristic;
-  late BluetoothDevice connectedDevice;
+  // late BluetoothService batteryService;
+  // late BluetoothCharacteristic batteryCharacteristic;
+  // late BluetoothDevice connectedDevice;
+  BluetoothDevice? myConnectedDevice;
+
   late List<BluetoothService> services;
 
   final RxList<BluetoothDevice> connectedDevices = RxList<BluetoothDevice>();
   final RxList<ScanResult> notConnectedDevices = RxList<ScanResult>();
 
+  List<ScanResult> scanResults = [];
+
+
   // @override
   // void onInit() {
   //   super.onInit();
-  //   _setupBluetooth();
+  //   // _setupBluetooth();
   // }
 
-  Future<void> _setupBluetooth() async {
-    //var locationStatus = await Permission.locationWhenInUse.status;
-    // continue testing if user dialogue to enable location isn't showing
-    if (await FlutterBluePlus.isAvailable == false) {
-      print("Bluetooth not supported by this device");
-      return;
-    }
+  Future<void> scanForDevices() async {
+    var subscription = FlutterBluePlus.onScanResults.listen((results) {
+      scanResults = results.toList(); // Store scan results in the list
+    },
+      onError: (e) => print(e),
+    );
 
-    if (Platform.isAndroid) {
-      await FlutterBluePlus.turnOn();
-    }
+    FlutterBluePlus.cancelWhenScanComplete(subscription);
+    await FlutterBluePlus.startScan(
+        withNames:["PainDrain"],
+        timeout: const Duration(seconds: 5)
+    );
 
-    await FlutterBluePlus.adapterState
-        .map((s) => s)
-        .where((s) => s == BluetoothAdapterState.on)
-        .first;
+    // wait for scanning to stop
+    await FlutterBluePlus.isScanning.where((val) => val == false).first;
 
-    FlutterBluePlus.connectedSystemDevices.then((devices) {
-      connectedDevices.clear();
-      connectedDevices.assignAll(devices);
-    });
-
-    FlutterBluePlus.scanResults.listen((results) {
-      notConnectedDevices.clear();
-      notConnectedDevices.assignAll(results);
-    });
-
-    FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 5), androidUsesFineLocation: true);
   }
 
-  void startScanning() {
-    _setupBluetooth();
-  }
-
-  Future<void> connectToDevice(BluetoothDevice device) async {
+  Future<bool> connectDevice(BluetoothDevice device) async {
+    bool success = false;
     try {
-      // This connects to the device and then navigates to the other pages
       await device.connect();
-      connectedDevice = device;
-      services = await connectedDevice.discoverServices();
-      // Reads all services and finds the custom service uuid
-      for (BluetoothService service in services) {
-        if(service.uuid.toString() == customServiceUUID){
-          print("Custom service found");
-          customService = service;
+      var connectionSubscription = device.connectionState.listen((BluetoothConnectionState state) async {
+        if (state == BluetoothConnectionState.disconnected) {
+          Get.to(() => const ConnectDevice());
+          print("Device Disconnected");
+          print("Error disconnection description: ${device.disconnectReason}");
+        } else if (state == BluetoothConnectionState.connected) {
+          success = true;
         }
-        if(service.uuid.toString() == batteryServiceUUID){
-          print("Battery service found");
-          batteryService = service;
-        }
-      }
-      // Reads all characteristics
-      var customServiceCharacteristics = customService.characteristics;
-      var batteryServiceCharacteristics = batteryService.characteristics;
-      for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
-        if(characteristic.uuid.toString() == customCharacteristicUUID){
-          print("Custom characteristic found");
-          customCharacteristic = characteristic;
-        }
-      }
-      for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
-        if(characteristic.uuid.toString() == batteryCharacteristicUUID){
-          print("Battery characteristic found");
-          batteryCharacteristic = characteristic;
-        }
-      }
 
-      // This listens to the device and if it gets connected it will return back
-      // to the connection page also, if its already connected it will navigate
-      // to the other pages.
-      late StreamSubscription<BluetoothConnectionState> connectionStateSubscription;
-      connectionStateSubscription = device.connectionState.listen((state) async {
-        if (state == BluetoothConnectionState.connected) {
-          print("Connected");
-          await Future.delayed(const Duration(seconds: 2));
-           Get.to(() => PageNavigation(activePage: 0, pageController: PageController(initialPage: 0),));
-          //Get.to(() => Test());
-        }
-        else if (state == BluetoothConnectionState.disconnected) {
-          print("Disconnected");
-          connectionStateSubscription.cancel();
-          reconnectToDevice(device);
-        }
       });
+      device.cancelWhenDisconnected(connectionSubscription, delayed: true, next: true);
+      await discoverServices(device);
+      success = true;
     } catch (e) {
-      print("Error connecting $e");
-      onDisconnectedCallback!();
-      Get.to(() => const BleConnect());
+      success = false;
+      print("Error Cannot Connect");
     }
 
-
-
-
+    return success;
   }
 
-  Future<void> reconnectToDevice(BluetoothDevice device) async {
-    try {
-      await device.disconnect();
-      await connectToDevice(device);
-    } catch (e) {
-      print(e);
+Future<void> discoverServices(BluetoothDevice connectedDevice) async {
+  services = await connectedDevice.discoverServices();
+
+  // Reads all services and finds the custom service uuid
+  for (BluetoothService service in services) {
+    if(service.uuid.toString() == customServiceUUID){
+      print("Custom service found");
+      customService = service;
     }
-
-
-
-
+    // if(service.uuid.toString() == batteryServiceUUID){
+    //   print("Battery service found");
+    //   batteryService = service;
+    // }
   }
+  // Reads all characteristics
+  var customServiceCharacteristics = customService.characteristics;
+  // var batteryServiceCharacteristics = batteryService.characteristics;
+  for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
+    if(characteristic.uuid.toString() == customCharacteristicUUID){
+      print("Custom characteristic found");
+      customCharacteristic = characteristic;
+    }
+  }
+  // for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
+  //   if(characteristic.uuid.toString() == batteryCharacteristicUUID){
+  //     print("Battery characteristic found");
+  //     batteryCharacteristic = characteristic;
+  //   }
+  // }
+
+}
+
+  // Future<void> connectToDevice(BluetoothDevice device) async {
+  //   try {
+  //     // This connects to the device and then navigates to the other pages
+  //     await device.connect();
+  //     connectedDevice = device;
+  //     services = await connectedDevice.discoverServices();
+  //     // Reads all services and finds the custom service uuid
+  //     for (BluetoothService service in services) {
+  //       if(service.uuid.toString() == customServiceUUID){
+  //         print("Custom service found");
+  //         customService = service;
+  //       }
+  //       if(service.uuid.toString() == batteryServiceUUID){
+  //         print("Battery service found");
+  //         batteryService = service;
+  //       }
+  //     }
+  //     // Reads all characteristics
+  //     var customServiceCharacteristics = customService.characteristics;
+  //     var batteryServiceCharacteristics = batteryService.characteristics;
+  //     for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
+  //       if(characteristic.uuid.toString() == customCharacteristicUUID){
+  //         print("Custom characteristic found");
+  //         customCharacteristic = characteristic;
+  //       }
+  //     }
+  //     for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
+  //       if(characteristic.uuid.toString() == batteryCharacteristicUUID){
+  //         print("Battery characteristic found");
+  //         batteryCharacteristic = characteristic;
+  //       }
+  //     }
+  //
+  //     // This listens to the device and if it gets connected it will return back
+  //     // to the connection page also, if its already connected it will navigate
+  //     // to the other pages.
+  //     late StreamSubscription<BluetoothConnectionState> connectionStateSubscription;
+  //     connectionStateSubscription = device.connectionState.listen((state) async {
+  //       if (state == BluetoothConnectionState.connected) {
+  //         print("Connected");
+  //         await Future.delayed(const Duration(seconds: 2));
+  //          Get.to(() => PageNavigation(activePage: 0, pageController: PageController(initialPage: 0),));
+  //       }
+  //       else if (state == BluetoothConnectionState.disconnected) {
+  //         print("Disconnected");
+  //         connectionStateSubscription.cancel();
+  //         reconnectToDevice(device);
+  //       }
+  //     });
+  //   } catch (e) {
+  //     print("Error connecting $e");
+  //     onDisconnectedCallback!();
+  //     Get.to(() => const BleConnect());
+  //   }
+  //
+  //
+  //
+  //
+  // }
+
+  // Future<void> reconnectToDevice(BluetoothDevice device) async {
+  //   try {
+  //     await device.disconnect();
+  //     await connectToDevice(device);
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  //
+  //
+  //
+  //
+  // }
   @override
   void onClose() {
-    luna3.disconnect();
-    painDrain.disconnect();
+    // luna3.disconnect();
+    // painDrain.disconnect();
     FlutterBluePlus.stopScan();
     super.onClose();
   }
@@ -223,12 +266,12 @@ class BluetoothController extends GetxController {
     return asciiString;
   }
 
-  Future<int> batteryLevelRead() async {
-    List<int> rspHexValues = [];
-    rspHexValues = await batteryCharacteristic.read();
-
-    return rspHexValues[0];
-  }
+  // Future<int> batteryLevelRead() async {
+  //   List<int> rspHexValues = [];
+  //   rspHexValues = await batteryCharacteristic.read();
+  //
+  //   return rspHexValues[0];
+  // }
 
 
 
