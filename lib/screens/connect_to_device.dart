@@ -4,11 +4,16 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
+import 'package:pain_drain_mobile_app/screens/icon_test.dart';
 import 'dart:io';
 import '../ble/bluetooth_controller.dart';
 import '../helper_files/clip_paths.dart';
 import '../main.dart';
+import '../widgets/bluetooth_icon_animation.dart';
+import '../widgets/check_mark_animation.dart';
 import '../widgets/custom_card.dart';
+import '../widgets/prompt_messages.dart';
+import '../widgets/x_mark_animation.dart';
 
 class ConnectDevice extends StatefulWidget {
   const ConnectDevice({Key? key}) : super(key: key);
@@ -17,16 +22,26 @@ class ConnectDevice extends StatefulWidget {
   State<ConnectDevice> createState() => _ConnectDeviceState();
 }
 
-class _ConnectDeviceState extends State<ConnectDevice> {
+class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
   BluetoothController bluetoothController = Get.find<BluetoothController>();
 
-  // bool isConnected = false;
+  bool showCheckMark = false;
+  bool showXMark =  false;
   bool isPulsing = false;
+  bool showErrorText = false;
 
   @override
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+            parent: _animationController, curve: Curves.easeInOutCirc
+        )
+    );
   }
 
 
@@ -41,18 +56,48 @@ class _ConnectDeviceState extends State<ConnectDevice> {
       BluetoothDevice device = results.first.device;
       bool success = await bluetoothController.connectDevice(device);
       if(success) {
+        setState(() {
+          isPulsing = false;
+          showCheckMark = true;
+          _animationController.forward();
+        });
+        await Future.delayed(const Duration(seconds: 2));
         Get.to(() => const HomePage());
         print("success");
       }
-      else{
-        print("Unsuccessful");
+      else {
+        setState(() {
+          isPulsing = false;
+          showXMark = true;
+          showErrorText = true;
+          _animationController.forward();
+        });
+
+        await Future.delayed(const Duration(seconds: 2));
+
+        setState(() {
+          showXMark = false;
+          _animationController.reset();
+        });
+        print("Unsuccessful Connection: Could not connect to PainDrain device");
       }
+    }
+    else {
+      setState(() {
+        isPulsing = false;
+        showXMark = true;
+        showErrorText = true;
+        _animationController.forward();
+      });
+      await Future.delayed(const Duration(seconds: 2));
+      setState(() {
+        showXMark = false;
+        _animationController.reset();
+      });
+      print("Unsuccessful Scan: No results for PainDrain found");
     }
     print("List ${bluetoothController.scanResults}");
 
-    setState(() {
-      isPulsing = false;
-    });
   }
 
   @override
@@ -61,17 +106,22 @@ class _ConnectDeviceState extends State<ConnectDevice> {
       backgroundColor: AppColors.offWhite,
       body: Stack(
         children: [
-          Align(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                PulseIcon(isPulsing: isPulsing,), // Use the PulseIcon widget
-                const SizedBox(height: 20),
-              ],
+          Positioned(
+            top: MediaQuery.of(context).size.height / 2 - 200, // Adjust the value as needed
+            left: (MediaQuery.of(context).size.width - 180) / 2, // Adjust the value as needed
+            child: SizedBox(
+              width: 180,
+              height: 180,
+              child: Center(
+                child: showCheckMark
+                    ? SuccessfulConnection(animation: _animation)
+                    : (showXMark
+                    ? UnsuccessfulConnection(animation: _animation)
+                    : PulseIcon(isPulsing: isPulsing)),
+              ),
             ),
           ),
+
           Align(
             alignment: Alignment.bottomCenter,
             child: ClipPath(
@@ -96,103 +146,48 @@ class _ConnectDeviceState extends State<ConnectDevice> {
           ),
           Positioned(
             bottom: 40,
-            left: (MediaQuery.of(context).size.width / 2) - 150,
+            // left: 0,
             child: SizedBox(
-              width: 300,
-              child: Column(
-                children: [
-                  const Text("Press 'CONNECT' to connect to device",
-                      style: TextStyle(fontSize: 16, color: Colors.white)),
-                  const SizedBox(height: 30,),
-                  SizedBox(
-                    width: 200,
-                    height: 60,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if(!isPulsing){
-                          await scanAndConnect();
-                        }
-
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.mintGreen.withOpacity(.1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
+              width: MediaQuery.of(context).size.width,
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                    Container(
+                      // color: Colors.green,
+                      child:
+                      showErrorText
+                          ? const ErrorPromptMessage()
+                          : const PromptMessage(),
+                    ),
+                    const SizedBox(height: 30,),
+                    SizedBox(
+                      width: 200,
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if(!isPulsing){
+                            await scanAndConnect();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.mintGreen.withOpacity(.1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'CONNECT',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
-                      child: const Text(
-                        'SCAN',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
                     ),
-                  ),
-                  Text(globalValues.deviceConnected ? "Connected" : "Disconnected"),
-
-                  // globalValues.deviceConnected ? Text("connected") : Text("disconnected"),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class PulseIcon extends StatefulWidget {
-  final bool isPulsing;
-  const PulseIcon({super.key, required this.isPulsing});
-
-  @override
-  _PulseIconState createState() => _PulseIconState();
-}
-
-class _PulseIconState extends State<PulseIcon> with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant PulseIcon oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Start or stop the animation based on the isPulsing state
-    if (widget.isPulsing) {
-      _pulseController.repeat(reverse: true);
-    } else {
-      _pulseController.stop();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: Tween<double>(begin: 0.8, end: 1.0).animate(
-        CurvedAnimation(
-          parent: _pulseController,
-          curve: Curves.easeInOut,
-        ),
-      ),
-      child: Container(
-        width: 130.0,
-        height: 130.0,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-        ),
-        child: const Icon(Icons.bluetooth_connected_rounded, size: 100.0, color: AppColors.mintGreen),
       ),
     );
   }

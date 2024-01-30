@@ -62,13 +62,13 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppColors.darkGrey,
       appBar: AppBar(
         backgroundColor: AppColors.darkGrey,
-        leading: IconButton(
-          color: Colors.white,
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Get.to(() => const ConnectDevice());
-          },
-        ),
+        // leading: IconButton(
+        //   color: Colors.white,
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Get.to(() => const ConnectDevice());
+        //   },
+        // ),
       ),
       body: SingleChildScrollView(
         child: Column(
