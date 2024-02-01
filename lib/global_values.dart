@@ -14,8 +14,12 @@ class GlobalValues {
 
   bool deviceConnected = false;
   String waveType = "Sine";
-  String presetType = "Select preset";
-  List<String> presets = ["Select preset"];
+  // String presetType = "Select preset";
+  String? presetType;
+
+  List<String> presets = ["TEST1" , "TEST2", "TEST3", "TEST4"];
+  // List<String> presets = [];
+
   String tensAmplitude = "tensAmplitude";
   String tensDurationCh1 = "tensDurationCh1";
   String tensPeriod = "tensPeriod";
@@ -58,18 +62,18 @@ class GlobalValues {
   String getWaveType(){
     return waveType;
   }
-  void setPresetValue(String preset) {
+  void setPresetValue(String? preset) {
     presetType = preset;
   }
 
-  String getPresetValue(){
+  String? getPresetValue(){
     return presetType;
   }
 
   Future<List<String>> getPresets() async {
     final SharedPreferences prefs = await _prefs;
     //await prefs.clear();
-    
+
     List<String> keys = prefs.getKeys().toList();
     for (String element in keys){
       if(element.contains("setting")){

@@ -127,7 +127,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
             child: ClipPath(
               clipper: ConnectBottomScreenClipper(),
               child: Container(
-                color: AppColors.amber.withOpacity(.7),
+                color: Colors.blueAccent, //AppColors.amber.withOpacity(.7),
                 height: 525,
                 width: MediaQuery.of(context).size.width,
               ),
@@ -138,7 +138,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
             child: ClipPath(
               clipper: ConnectBottomScreenClipper(),
               child: Container(
-                color: AppColors.mintGreen,
+                color: AppColors.brightGreen,
                 height: 500,
                 width: MediaQuery.of(context).size.width,
               ),
@@ -150,7 +150,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Padding(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   children: [
                     Container(

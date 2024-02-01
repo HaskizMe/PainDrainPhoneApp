@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
+import 'package:pain_drain_mobile_app/screens/home_page.dart';
+import 'package:pain_drain_mobile_app/screens/preset_settings.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -30,7 +32,8 @@ class _SplashScreenState extends State<SplashScreen>
       // Check if the widget is still mounted before navigating
       if (mounted) {
         Navigator.of(storedContext).pushReplacement(MaterialPageRoute(
-          builder: (_) => const ConnectDevice(),
+          builder: (_) => const ConnectDevice() //const ConnectDevice(),
+
         ));
       }
     });

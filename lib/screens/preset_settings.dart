@@ -1,5 +1,8 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pain_drain_mobile_app/widgets/custom_button.dart';
+import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ble/bluetooth_controller.dart';
 import '../main.dart';
@@ -15,13 +18,23 @@ class PresetSettings extends StatefulWidget {
 class _PresetSettingsState extends State<PresetSettings> {
   final BluetoothController bluetoothController = Get.find<BluetoothController>();
   late SharedPreferences _prefs;
-  String selectedItem = globalValues.getPresetValue();
+  // String? selectedItem = globalValues.getPresetValue();
   List<String> dropdownItems = []; // Initialize as an empty list
   TextEditingController textController = TextEditingController();
   FocusNode textFocusNode = FocusNode();
   bool isAddingItem = false; // Track whether we are in "add" mode
   bool isLoading = false;
-
+  String? selectedItem;
+  List<String> items = [
+    'A_Item1',
+    'A_Item2',
+    'A_Item3',
+    'A_Item4',
+    'B_Item1',
+    'B_Item2',
+    'B_Item3',
+    'B_Item4',
+  ];
   @override
   void dispose() {
     textController.dispose();
@@ -32,15 +45,16 @@ class _PresetSettingsState extends State<PresetSettings> {
   /*
   init state to grab the persistent storage of the presets
   and grab the preset names for the drop down list
-   */
+  */
   void initState() {
     super.initState();
-    init();
+    // init();
   }
 
   Future init() async {
     _prefs = await SharedPreferences.getInstance();
     List<String> items = await globalValues.getPresets();
+    dropdownItems = items;
     setState(() {
       dropdownItems = items;
     });
@@ -69,187 +83,427 @@ class _PresetSettingsState extends State<PresetSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.darkGrey,
+      backgroundColor: AppColors.offWhite,
       appBar: AppBar(
         title: const Text(
           'Presets',
           style: TextStyle(
-            fontSize: 50,
+            fontSize: 40,
             color: Colors.white
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.darkerGrey,
+        backgroundColor: AppColors.green,
         centerTitle: true,
         //toolbarHeight: 90,
       ),
-      body: Align(
-        alignment: const Alignment(0, -.25),
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Card(
-            elevation: 2.0,
-            color: AppColors.darkerGrey,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)
-            ),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * .3,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 150,
-                    decoration: BoxDecoration(
-                      color: AppColors.offWhite,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: DropdownButton<String>(
-                      focusColor: AppColors.offWhite,
-                      iconEnabledColor: AppColors.offWhite,
-                      isExpanded: true,
-                      value: selectedItem,
-                      underline: Container(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedItem = newValue!;
-                          globalValues.setPresetValue(selectedItem);
-                        });
-                      },
-                      items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      icon: const Icon(Icons.arrow_drop_down_outlined, color: Colors.grey,),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  if (isAddingItem)
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: SizedBox(
-                        //margin: const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
-                        width: 200,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                child: TextFormField(
-                                  controller: textController,
-                                  focusNode: textFocusNode, // Request focus on the text input field
-                                  decoration: const InputDecoration(
-                                    labelText: 'Add item:',
-                                    labelStyle: TextStyle(
-                                      color: Colors.white
-                                    ),
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.white)
-                                    ),
-                                  ),
-                                  onFieldSubmitted: (value) {
-                                    addNewItem();
-                                  },
-                                  textInputAction: TextInputAction.done, // Show "done" action button
-                                  onEditingComplete: () {
-                                    addNewItem();
-                                  },
-                                  maxLength: 15, // Set a max length of 10 characters
-                                  style: const TextStyle(fontSize: 26, color: AppColors.offWhite), // Set a smaller font size
-                                  cursorColor: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
+      body:
+      Column(
+        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          const SizedBox(height: 20,),
+          // DropDownBox(dropDownMenuItems: dropdownItems,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // DropDownBox(selectedItem: selectedItem,),
+              DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  isExpanded: true,
+                  hint: const Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'No Preset Selected',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black38,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    )
-                  else
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: dropdownItems.length <= 5 ? () {
-                            setState(() {
-                              isAddingItem = true;
-                              textController.clear();
-                              textFocusNode.requestFocus(); // Request focus when the "Add Item" button is pressed
-                            });
-                          } : null, // Disable the button when list length is greater than 5
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0)
-                            ),
-                            backgroundColor: Colors.blue
-                          ),
-                          child: const Text(
-                              'ADD',
-                            style: TextStyle(
-                              color: Colors.white
-                            ),
-                          ),
-                        ),
-
-
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              deleteItem();
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0)
-                            ),
-                            backgroundColor: Colors.blue
-                          ),
-                          child: const Text(
-                              'DELETE',
-                            style: TextStyle(
-                              color: Colors.white
-                            ),
-                          ),
-                        ),
-
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            backgroundColor: Colors.blue
-                          ),
-                            onPressed: isLoading ? null : _handleButtonPress,
-                            child: Container(
-                              child: isLoading
-                              ? const SizedBox(
-                                height: 15,
-                                width: 15,
-                                child: CircularProgressIndicator(
-                                  color: AppColors.offWhite,
-                                ),
-                              ) : const Text(
-                                  "LOAD",
-                                style: TextStyle(
-                                  color: Colors.white
-                                ),
-                              )
-                            )
-                        ),
-
-
-                      ]
-
+                    ],
                   ),
-                ],
+                  items: items.map((String item) => DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(
+                        item,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      )
+                  )).toList(),
+                  value: selectedItem,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedItem = value!;
+                      globalValues.setPresetValue(selectedItem!);
+                    });
+                  },
+                  buttonStyleData: ButtonStyleData(
+                    height: 50,
+                    width: 210,
+                    padding: const EdgeInsets.only(left: 14, right: 14),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: Colors.black26,
+                      ),
+                      color: Colors.white,
+                    ),
+                    elevation: 2,
+                  ),
+                  iconStyleData: const IconStyleData(
+                    icon: Icon(
+                      Icons.arrow_drop_down_outlined,
+                    ),
+                    iconSize: 30,
+                    iconEnabledColor: Colors.black,
+                    iconDisabledColor: Colors.grey,
+                  ),
+                  dropdownStyleData: DropdownStyleData(
+                    maxHeight: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: Colors.white,
+                    ),
+                    scrollbarTheme: ScrollbarThemeData(
+                      radius: const Radius.circular(40),
+                      thickness: MaterialStateProperty.all(6),
+                      thumbVisibility: MaterialStateProperty.all(true),
+                    ),
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    height: 40,
+                    padding: EdgeInsets.only(left: 14, right: 14),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5.0,),
+              IconButton(
+                icon: const Icon(
+                  Icons.add,
+                  color: Colors.black, // Change the icon color if needed
+                  size: 30.0,
+                ),
+                onPressed: () {
+                  setState(() {
+                    isAddingItem = true;
+                  });
+                },
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.sync,
+                  color: Colors.black, // Change the icon color if needed
+                  size: 25.0,
+                ),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.red, // Change the icon color if needed
+                  size: 25.0,
+                ),
+                onPressed: () {
+                  setState(() {
+                    items.remove(selectedItem);
+                    if (items.isEmpty) {
+                      // selectedItem = null;
+                    } else {
+                      selectedItem = items.first;
+                    }
+                  });
+                  print(items);
+                },
+              ),
+              // const SizedBox(width: 5.0,),
+              // TextButton(
+              //     onPressed: () async {
+              //       print("PRESSED");
+              //       setState(() {
+              //         selectedItem = null; // Select the first item in the list
+              //       });
+              //     },
+              //     child: Text("Clear Preset")
+              // )
+              // Ink(
+              //   width: 50,
+              //   height: 50,
+              //   decoration: const ShapeDecoration(
+              //     color: Colors.white,
+              //     shape: CircleBorder(),
+              //   ),
+              //   child: IconButton(
+              //     icon: const Icon(
+              //       Icons.add,
+              //       color: Colors.black, // Change the icon color if needed
+              //       size: 20.0,
+              //     ),
+              //     onPressed: () {},
+              //   ),
+              // ),
+              // IconButton(
+              //     onPressed: () {},
+              //     icon: Icon(Icons.add),
+              // )
+              // CustomButton(buttonTitle: 'ADD', handleFunction: () {},),
+              // CustomButton(buttonTitle: 'LOAD', handleFunction: () {},),
+              // CustomButton(buttonTitle: 'DELETE', handleFunction: () {},),
+
+            ],
+          ),
+
+          if (isAddingItem) // Show TextField when adding item
+            Expanded(
+              child: Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 200,
+                  child:
+                  TextField(
+                    controller: textController,
+                    focusNode: textFocusNode,
+                    decoration: const InputDecoration(
+                      labelText: 'Enter a new item',
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (value) {
+                      // Add the new item to the list
+                      if(value.isNotEmpty){
+                        setState(() {
+                          items.add(value);
+                          selectedItem = value;
+                          textController.clear();
+                        });
+                      }
+                      setState(() {
+                        isAddingItem = false;
+                      });
+                    },
+                  ),
+                ),
               ),
             ),
+          // ElevatedButton(
+          //     onPressed: () {
+          //       print(globalValues.getPresetValue());
+          //     },
+          //     child: Text("ADD"),
+          // ),
+          // DropdownButton<String>(
+          //   focusColor: AppColors.offWhite,
+          //   iconEnabledColor: AppColors.offWhite,
+          //   isExpanded: true,
+          //   value: selectedItem,
+          //   underline: Container(),
+          //   onChanged: (String? newValue) {
+          //     setState(() {
+          //       selectedItem = newValue!;
+          //       globalValues.setPresetValue(selectedItem);
+          //     });
+          //   },
+          //   items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
+          //     return DropdownMenuItem<String>(
+          //       value: value,
+          //       child: Text(value),
+          //     );
+          //   }).toList(),
+          //   icon: const Icon(Icons.arrow_drop_down_outlined, color: Colors.grey,),
+          // ),
+
+        ],
+      ),
+
+
+      // Align(
+      //   alignment: const Alignment(0, -.25),
+      //   child: Padding(
+      //     padding: EdgeInsets.all(10.0),
+      //     child: Card(
+      //       elevation: 2.0,
+      //       color: AppColors.darkerGrey,
+      //       shape: RoundedRectangleBorder(
+      //           borderRadius: BorderRadius.circular(20.0)
+      //       ),
+      //       child: SizedBox(
+      //         height: MediaQuery.of(context).size.height * .3,
+      //         child: Column(
+      //           mainAxisAlignment: MainAxisAlignment.center,
+      //           children: [
+      //             Container(
+      //               width: 150,
+      //               decoration: BoxDecoration(
+      //                 color: AppColors.offWhite,
+      //                 borderRadius: BorderRadius.circular(10),
+      //               ),
+      //               child: DropdownButton<String>(
+      //                 focusColor: AppColors.offWhite,
+      //                 iconEnabledColor: AppColors.offWhite,
+      //                 isExpanded: true,
+      //                 value: selectedItem,
+      //                 underline: Container(),
+      //                 onChanged: (String? newValue) {
+      //                   setState(() {
+      //                     selectedItem = newValue!;
+      //                     globalValues.setPresetValue(selectedItem);
+      //                   });
+      //                 },
+      //                 items: dropdownItems.map<DropdownMenuItem<String>>((String value) {
+      //                   return DropdownMenuItem<String>(
+      //                     value: value,
+      //                     child: Text(value),
+      //                   );
+      //                 }).toList(),
+      //                 icon: const Icon(Icons.arrow_drop_down_outlined, color: Colors.grey,),
+      //               ),
+      //             ),
+      //             const SizedBox(height: 40),
+      //             if (isAddingItem)
+      //               Padding(
+      //                 padding: const EdgeInsets.all(20.0),
+      //                 child: SizedBox(
+      //                   //margin: const EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 0.0),
+      //                   width: 200,
+      //                   child: Row(
+      //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                     children: [
+      //                       Expanded(
+      //                         child: SizedBox(
+      //                           child: TextFormField(
+      //                             controller: textController,
+      //                             focusNode: textFocusNode, // Request focus on the text input field
+      //                             decoration: const InputDecoration(
+      //                               labelText: 'Add item:',
+      //                               labelStyle: TextStyle(
+      //                                 color: Colors.white
+      //                               ),
+      //                               focusedBorder: UnderlineInputBorder(
+      //                                 borderSide: BorderSide(color: Colors.white)
+      //                               ),
+      //                             ),
+      //                             onFieldSubmitted: (value) {
+      //                               addNewItem();
+      //                             },
+      //                             textInputAction: TextInputAction.done, // Show "done" action button
+      //                             onEditingComplete: () {
+      //                               addNewItem();
+      //                             },
+      //                             maxLength: 15, // Set a max length of 10 characters
+      //                             style: const TextStyle(fontSize: 26, color: AppColors.offWhite), // Set a smaller font size
+      //                             cursorColor: Colors.white,
+      //                           ),
+      //                         ),
+      //                       ),
+      //                     ],
+      //                   ),
+      //                 ),
+      //               )
+      //             else
+      //               Row(
+      //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      //                 children: [
+      //                   ElevatedButton(
+      //                     onPressed: dropdownItems.length <= 5 ? () {
+      //                       setState(() {
+      //                         isAddingItem = true;
+      //                         textController.clear();
+      //                         textFocusNode.requestFocus(); // Request focus when the "Add Item" button is pressed
+      //                       });
+      //                     } : null, // Disable the button when list length is greater than 5
+      //                     style: ElevatedButton.styleFrom(
+      //                       padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+      //                       shape: RoundedRectangleBorder(
+      //                           borderRadius: BorderRadius.circular(15.0)
+      //                       ),
+      //                       backgroundColor: Colors.blue
+      //                     ),
+      //                     child: const Text(
+      //                         'ADD',
+      //                       style: TextStyle(
+      //                         color: Colors.white
+      //                       ),
+      //                     ),
+      //                   ),
+      //
+      //
+      //                   ElevatedButton(
+      //                     onPressed: () {
+      //                       setState(() {
+      //                         deleteItem();
+      //                       });
+      //                     },
+      //                     style: ElevatedButton.styleFrom(
+      //                       padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+      //                       shape: RoundedRectangleBorder(
+      //                         borderRadius: BorderRadius.circular(15.0)
+      //                       ),
+      //                       backgroundColor: Colors.blue
+      //                     ),
+      //                     child: const Text(
+      //                         'DELETE',
+      //                       style: TextStyle(
+      //                         color: Colors.white
+      //                       ),
+      //                     ),
+      //                   ),
+      //
+      //                   TextButton(
+      //                     style: TextButton.styleFrom(
+      //                       padding: const EdgeInsets.fromLTRB(25.0, 15.0, 25.0, 15.0),
+      //                       shape: RoundedRectangleBorder(
+      //                         borderRadius: BorderRadius.circular(15.0),
+      //                       ),
+      //                       backgroundColor: Colors.blue
+      //                     ),
+      //                       onPressed: isLoading ? null : _handleButtonPress,
+      //                       child: Container(
+      //                         child: isLoading
+      //                         ? const SizedBox(
+      //                           height: 15,
+      //                           width: 15,
+      //                           child: CircularProgressIndicator(
+      //                             color: AppColors.offWhite,
+      //                           ),
+      //                         ) : const Text(
+      //                             "LOAD",
+      //                           style: TextStyle(
+      //                             color: Colors.white
+      //                           ),
+      //                         )
+      //                       )
+      //                   ),
+      //
+      //
+      //                 ]
+      //
+      //             ),
+      //           ],
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        // onTap: () {},
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: "Home"
           ),
-        ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: "Settings"
+          ),
+
+        ],
+
       ),
     );
   }
@@ -283,12 +537,12 @@ class _PresetSettingsState extends State<PresetSettings> {
           dropdownItems.add(newItem);
         }
         selectedItem = newItem; // Select the newly added item
-        globalValues.setPresetValue(selectedItem);
+        globalValues.setPresetValue(selectedItem!);
         textController.clear(); // Clear the text input
         isAddingItem = false; // Exit "add" mode
         textFocusNode.unfocus(); // Clear focus from the text input field
         // Setting key value pair for persistent storage associated with name typed
-        prefs.setString("$selectedItem.setting", selectedItem);
+        prefs.setString("$selectedItem.setting", selectedItem!);
         prefs.setString("$selectedItem.${globalValues.vibeWaveType}", waveType);
         prefs.setDouble("$selectedItem.${globalValues.temperature}", temperatureSliderValue);
         prefs.setDouble("$selectedItem.${globalValues.tensAmplitude}", tensAmplitudeSliderValue);
@@ -332,7 +586,7 @@ class _PresetSettingsState extends State<PresetSettings> {
           dropdownItems.remove(selectedItem);
           selectedItem = dropdownItems.first;
           // Select the first item in the list
-          globalValues.setPresetValue(selectedItem);
+          globalValues.setPresetValue(selectedItem!);
         }
 
       }
