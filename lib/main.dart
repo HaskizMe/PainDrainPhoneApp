@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
+import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
 import 'package:pain_drain_mobile_app/screens/register_info.dart';
 import 'global_values.dart';
@@ -19,15 +20,16 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 final globalValues = GlobalValues();
 
-void main() {
+Future<void> main() async {
   // This initializes the Bluetooth controller class so we can use it wherever
   // in the app.
   Get.put(BluetoothController());
+  await globalValues.getPresets();
   runApp(DevicePreview(
     enabled: true,
     builder: (context) => const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: PresetSettings()//ConnectDevice(), //SplashScreen(),
     ),
   ));
   FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
@@ -86,12 +88,12 @@ class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObse
     });
   }
   final List<Widget> _pages = [
+    const PresetSettings(),
     const HomePage(),
     const TENSSettings(),
     const TempSettings(),
     const VibrationSettings(),
     const RegisterState(),
-    const PresetSettings()
   ];
   @override
   void initState() {
