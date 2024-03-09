@@ -6,13 +6,12 @@ import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
 import 'package:pain_drain_mobile_app/screens/icon_test.dart';
 import 'dart:io';
-import '../ble/bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/controllers//bluetooth_controller.dart';
 import '../helper_files/clip_paths.dart';
 import '../main.dart';
 import '../widgets/bluetooth_icon_animation.dart';
 import '../widgets/check_mark_animation.dart';
 import '../widgets/custom_card.dart';
-import '../widgets/prompt_messages.dart';
 import '../widgets/x_mark_animation.dart';
 
 class ConnectDevice extends StatefulWidget {
@@ -30,7 +29,6 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
   bool showCheckMark = false;
   bool showXMark =  false;
   bool isPulsing = false;
-  bool showErrorText = false;
 
   @override
   @override
@@ -46,6 +44,8 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
 
 
   Future<void> scanAndConnect() async {
+    String errorMessage;
+    String solution;
     setState(() {
       isPulsing = true;
     });
@@ -62,14 +62,15 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
           _animationController.forward();
         });
         await Future.delayed(const Duration(seconds: 2));
-        Get.to(() => const HomePage());
+        Get.off(() => const HomePage());
         print("success");
       }
       else {
+        errorMessage = "Connection Failed";
+        solution = "Please try again";
         setState(() {
           isPulsing = false;
           showXMark = true;
-          showErrorText = true;
           _animationController.forward();
         });
 
@@ -80,24 +81,47 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
           _animationController.reset();
         });
         print("Unsuccessful Connection: Could not connect to PainDrain device");
+        _showDialog(errorMessage, solution);
       }
     }
     else {
+      errorMessage = "Could not find device";
+      solution = "Make sure device is on and awake and then try again";
       setState(() {
         isPulsing = false;
         showXMark = true;
-        showErrorText = true;
         _animationController.forward();
       });
       await Future.delayed(const Duration(seconds: 2));
       setState(() {
         showXMark = false;
         _animationController.reset();
+
       });
       print("Unsuccessful Scan: No results for PainDrain found");
+      _showDialog(errorMessage, solution);
     }
     print("List ${bluetoothController.scanResults}");
 
+  }
+
+  void _showDialog(String errorMessage, String solution){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(errorMessage),
+            content: Text(solution),
+            actions: [
+              MaterialButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text("Ok"),
+              ),
+            ],
+          );
+        });
   }
 
   @override
@@ -121,6 +145,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
               ),
             ),
           ),
+          //ElevatedButton(onPressed: _showDialog, child: Text("Test")),
 
           Align(
             alignment: Alignment.bottomCenter,
@@ -145,21 +170,17 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
             ),
           ),
           Positioned(
-            bottom: 40,
+            bottom: 30,
             // left: 0,
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(5.0),
                 child: Column(
                   children: [
-                    Container(
-                      // color: Colors.green,
-                      child:
-                      showErrorText
-                          ? const ErrorPromptMessage()
-                          : const PromptMessage(),
-                    ),
+                    const Text("Press 'CONNECT' to connect", style: TextStyle(color: AppColors.offWhite, fontSize: 20),),
+                    const SizedBox(height: 3,),
+                    const Text("to Pain Drain device", style: TextStyle(color: AppColors.offWhite, fontSize: 20),),
                     const SizedBox(height: 30,),
                     SizedBox(
                       width: 200,

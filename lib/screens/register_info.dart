@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../ble/bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/controllers//bluetooth_controller.dart';
 import '../main.dart';
 import '../scheme_colors/app_colors.dart';
 
