@@ -49,6 +49,7 @@ class BluetoothController extends GetxController {
   // }
 
   Future<void> scanForDevices() async {
+
     var subscription = FlutterBluePlus.onScanResults.listen((results) {
       scanResults = results.toList(); // Store scan results in the list
     },

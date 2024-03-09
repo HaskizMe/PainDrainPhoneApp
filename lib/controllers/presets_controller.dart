@@ -3,11 +3,40 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 
 class SavedPresets{
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  late final SharedPreferences _prefs;
+  //final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   // void setPreferences() async{
   //   final SharedPreferences prefs = await _prefs;
   // }
+
+  SavedPresets() {
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    _prefs = await SharedPreferences.getInstance();
+
+
+    //deleteAllPresets();
+    // Store dummy data everytime in shared prefs
+    await _prefs.setStringList('presets', <String>[
+      'preset 1', 'preset 2', 'preset 3', 'preset 4', 'preset 5', 'preset 6'
+    ]);
+    getPresets();
+  }
+
+  List<String>? getPresets() {
+    final List<String>? presets = _prefs.getStringList('presets');
+    print("All presets: $presets");
+    return presets;
+  }
+
+  deleteAllPresets() async {
+    // Remove data for the 'counter' key.
+
+    await _prefs.remove('pesets');
+  }
 
   void addNewPreset(String name) {
 

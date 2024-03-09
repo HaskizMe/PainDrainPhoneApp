@@ -1,24 +1,26 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:pain_drain_mobile_app/persistent_storage/saved_presets.dart';
+import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
 import '../main.dart';
 
 
 
 class DropDownBox extends StatefulWidget {
+  // String? selectedItem;
+  // final List<String> items = [
+  //   'A_Item1',
+  //   'A_Item2',
+  //   'A_Item3',
+  //   'A_Item4',
+  //   'B_Item1',
+  //   'B_Item2',
+  //   'B_Item3',
+  //   'B_Item4',
+  // ];
+  final List<String> items;
   String? selectedItem;
-  final List<String> items = [
-    'A_Item1',
-    'A_Item2',
-    'A_Item3',
-    'A_Item4',
-    'B_Item1',
-    'B_Item2',
-    'B_Item3',
-    'B_Item4',
-  ];
   // SavedPreset pref = SavedPresets();
-  DropDownBox({super.key, this.selectedItem});
+  DropDownBox({super.key, required this.items, this.selectedItem});
 
   @override
   _DropDownBoxState createState() => _DropDownBoxState();
@@ -63,26 +65,6 @@ class _DropDownBoxState extends State<DropDownBox> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    color: Colors.grey,
-                    onPressed: () {
-                      // savedPresets.deletePreset(item);
-                      setState(() {
-
-                        widget.items.remove(widget.selectedItem);
-                        if(globalValues.presets.isEmpty) {
-                          widget.selectedItem = null;
-                        }
-                        else {
-                          widget.selectedItem = widget.items.first;
-                        }
-                        // widget.selectedItem = globalValues.presets.first;
-                      });
-                      print(widget.items);
-
-                    },
-                  )
                 ],
               )
           )).toList(),

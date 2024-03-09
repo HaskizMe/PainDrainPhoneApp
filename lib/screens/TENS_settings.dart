@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/controllers//bluetooth_controller.dart';
 import 'package:get/get.dart';
 import '../main.dart';
 import '../widgets/custom_card.dart';

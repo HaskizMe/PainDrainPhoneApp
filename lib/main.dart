@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
+import 'package:pain_drain_mobile_app/screens/new_home_page.dart';
 import 'package:pain_drain_mobile_app/screens/register_info.dart';
 import 'global_values.dart';
 import 'screens/TENS_settings.dart';
@@ -12,7 +14,6 @@ import 'screens/preset_settings.dart';
 import 'screens/splash_screen.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/ble/bluetooth_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -23,16 +24,18 @@ final globalValues = GlobalValues();
 Future<void> main() async {
   // This initializes the Bluetooth controller class so we can use it wherever
   // in the app.
-  Get.put(BluetoothController());
+  //Get.put(BluetoothController());
+
   await globalValues.getPresets();
   runApp(DevicePreview(
     enabled: true,
     builder: (context) => const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: PresetSettings()//ConnectDevice(), //SplashScreen(),
+      home: NewHomePage()//ConnectDevice(), //SplashScreen(),
+      //home: ConnectDevice()
     ),
   ));
-  FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
+  //FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp, // Allow portrait orientation
   ]);
@@ -57,7 +60,7 @@ class PageNavigation extends StatefulWidget with WidgetsBindingObserver {
 
 class _PageNavigationState extends State<PageNavigation> with WidgetsBindingObserver {
   // Declare and initialize the page controller
-  final BluetoothController bluetoothController = Get.find<BluetoothController>();
+  //final BluetoothController bluetoothController = Get.find<BluetoothController>();
   int batteryLevel = 0;
   PackageInfo _packageInfo = PackageInfo(
     appName: 'PainDrain2',
