@@ -1,36 +1,27 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
-import '../main.dart';
 
 
 
 class DropDownBox extends StatefulWidget {
-  // String? selectedItem;
-  // final List<String> items = [
-  //   'A_Item1',
-  //   'A_Item2',
-  //   'A_Item3',
-  //   'A_Item4',
-  //   'B_Item1',
-  //   'B_Item2',
-  //   'B_Item3',
-  //   'B_Item4',
-  // ];
-  final List<String> items;
   String? selectedItem;
-  // SavedPreset pref = SavedPresets();
-  DropDownBox({super.key, required this.items, this.selectedItem});
+  List<String>? items;
+  final double widthSize;
+  DropDownBox({super.key, required this.selectedItem, required this.items, required this.widthSize});
 
   @override
   _DropDownBoxState createState() => _DropDownBoxState();
 }
 
 class _DropDownBoxState extends State<DropDownBox> {
-  // SavedPresets savedPresets = SavedPresets();
-  // List<String> dropDownListItems = globalValues.presets;
+  SavedPresets preferences = Get.find();
 
 
+  @override void initState() {
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return DropdownButtonHideUnderline(
@@ -50,7 +41,7 @@ class _DropDownBoxState extends State<DropDownBox> {
             ),
           ],
         ),
-        items: widget.items.map((String item) => DropdownMenuItem<String>(
+        items: widget.items?.map((String item) => DropdownMenuItem<String>(
               value: item,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -70,14 +61,18 @@ class _DropDownBoxState extends State<DropDownBox> {
           )).toList(),
         value: widget.selectedItem,
         onChanged: (value) {
+          //print(widget.selectedItem);
           setState(() {
+            preferences.setCurrentPreset(value);
             widget.selectedItem = value!;
-            globalValues.setPresetValue(widget.selectedItem!);
+            print(widget.selectedItem);
+
+            //globalValues.setPresetValue(widget.selectedItem!);
           });
         },
         buttonStyleData: ButtonStyleData(
           height: 50,
-          width: 220,
+          width: widget.widthSize,
           padding: const EdgeInsets.only(left: 14, right: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
@@ -114,66 +109,5 @@ class _DropDownBoxState extends State<DropDownBox> {
         ),
       ),
     );
-
-      // SizedBox(
-      //   width: 300,
-      //   child: DropdownButtonFormField2<String>(
-      //     isExpanded: true,
-      //     decoration: InputDecoration(
-      //       // Add Horizontal padding using menuItemStyleData.padding so it matches
-      //       // the menu padding when button's width is not specified.
-      //       contentPadding: const EdgeInsets.symmetric(vertical: 16),
-      //       border: OutlineInputBorder(
-      //         borderRadius: BorderRadius.circular(15),
-      //       ),
-      //       // Add more decoration..
-      //     ),
-      //     hint: const Text(
-      //       'Select Your Gender',
-      //       style: TextStyle(fontSize: 14),
-      //     ),
-      //     items: items
-      //         .map((item) => DropdownMenuItem<String>(
-      //       value: item,
-      //       child: Text(
-      //         item,
-      //         style: const TextStyle(
-      //           fontSize: 14,
-      //         ),
-      //       ),
-      //     ))
-      //         .toList(),
-      //     validator: (value) {
-      //       if (value == null) {
-      //         return 'Please select gender.';
-      //       }
-      //       return null;
-      //     },
-      //     onChanged: (value) {
-      //       //Do something when selected item is changed.
-      //     },
-      //     onSaved: (value) {
-      //       selectedValue = value.toString();
-      //     },
-      //     buttonStyleData: const ButtonStyleData(
-      //       padding: EdgeInsets.only(right: 8),
-      //     ),
-      //     iconStyleData: const IconStyleData(
-      //       icon: Icon(
-      //         Icons.arrow_drop_down,
-      //         color: Colors.black45,
-      //       ),
-      //       iconSize: 24,
-      //     ),
-      //     dropdownStyleData: DropdownStyleData(
-      //       decoration: BoxDecoration(
-      //         borderRadius: BorderRadius.circular(15),
-      //       ),
-      //     ),
-      //     menuItemStyleData: const MenuItemStyleData(
-      //       padding: EdgeInsets.symmetric(horizontal: 16),
-      //     ),
-      //   ),
-      // );
   }
 }

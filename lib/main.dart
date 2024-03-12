@@ -6,6 +6,7 @@ import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
 import 'package:pain_drain_mobile_app/screens/new_home_page.dart';
 import 'package:pain_drain_mobile_app/screens/register_info.dart';
+import 'controllers/bluetooth_controller.dart';
 import 'global_values.dart';
 import 'screens/TENS_settings.dart';
 import 'screens/temp_settings.dart';
@@ -25,7 +26,8 @@ Future<void> main() async {
   // This initializes the Bluetooth controller class so we can use it wherever
   // in the app.
   //Get.put(BluetoothController());
-
+  Get.put(BluetoothController());
+  Get.put(SavedPresets());
   await globalValues.getPresets();
   runApp(DevicePreview(
     enabled: true,

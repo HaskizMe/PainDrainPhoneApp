@@ -1,12 +1,20 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
 import 'package:pain_drain_mobile_app/widgets/custom_button.dart';
 import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pain_drain_mobile_app/controllers//bluetooth_controller.dart';
 import '../main.dart';
 import '../scheme_colors/app_colors.dart';
+
+/*
+USE NEW HOME PAGE SCREEN FOR PRESETS FOR NOW!!!!!!!!!!!!!!!!!!!!!!!!
+ */
+
+
+
 
 class PresetSettings extends StatefulWidget {
   const PresetSettings({Key? key}) : super(key: key);
@@ -16,7 +24,8 @@ class PresetSettings extends StatefulWidget {
 }
 
 class _PresetSettingsState extends State<PresetSettings> {
-  final BluetoothController bluetoothController = Get.find<BluetoothController>();
+  final BluetoothController bluetoothController = Get.find();
+  final SavedPresets presets = Get.find();
   late SharedPreferences _prefs;
   // String? selectedItem = globalValues.getPresetValue();
   List<String> dropdownItems = []; // Initialize as an empty list
@@ -25,16 +34,7 @@ class _PresetSettingsState extends State<PresetSettings> {
   bool isAddingItem = false; // Track whether we are in "add" mode
   bool isLoading = false;
   String? selectedItem;
-  List<String> items = [
-    'A_Item1',
-    'A_Item2',
-    'A_Item3',
-    'A_Item4',
-    'B_Item1',
-    'B_Item2',
-    'B_Item3',
-    'B_Item4',
-  ];
+  List<String>? items;
   @override
   void dispose() {
     textController.dispose();
@@ -48,17 +48,18 @@ class _PresetSettingsState extends State<PresetSettings> {
   */
   void initState() {
     super.initState();
+    items = presets.getPresets();
     // init();
   }
 
-  Future init() async {
-    _prefs = await SharedPreferences.getInstance();
-    List<String> items = await globalValues.getPresets();
-    dropdownItems = items;
-    setState(() {
-      dropdownItems = items;
-    });
-  }
+  // Future init() async {
+  //   //_prefs = await SharedPreferences.getInstance();
+  //   //List<String> items = await globalValues.getPresets();
+  //   //dropdownItems = items;
+  //   // setState(() {
+  //   //   dropdownItems = items;
+  //   // });
+  // }
   void _handleButtonPress() {
     // Simulate loading for 2 seconds
     setState(() {
@@ -183,7 +184,7 @@ class _PresetSettingsState extends State<PresetSettings> {
               //     ),
               //   ),
               // ),
-              DropDownBox(items: items, selectedItem: selectedItem,),
+             // DropDownBox(items: items, selectedItem: selectedItem,),
               const SizedBox(width: 5.0,),
               Column(
                 children: [
@@ -217,11 +218,11 @@ class _PresetSettingsState extends State<PresetSettings> {
                 ),
                 onPressed: () {
                   setState(() {
-                    items.remove(selectedItem);
-                    if (items.isEmpty) {
+                    items?.remove(selectedItem);
+                    if (items!.isEmpty) {
                       // selectedItem = null;
                     } else {
-                      selectedItem = items.first;
+                      selectedItem = items?.first;
                     }
                   });
                   print(items);
@@ -282,7 +283,7 @@ class _PresetSettingsState extends State<PresetSettings> {
                       // Add the new item to the list
                       if(value.isNotEmpty){
                         setState(() {
-                          items.add(value);
+                          items?.add(value);
                           selectedItem = value;
                           textController.clear();
                         });
