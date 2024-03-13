@@ -16,8 +16,10 @@ class _VibrationSummaryState extends State<VibrationSummary> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      hoverColor: Colors.black.withOpacity(.1),
+      borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, NewVibrationScreen());
+        showScrollableSheet(context, const NewVibrationScreen());
       },
       child: Card(
         elevation: 10.0,

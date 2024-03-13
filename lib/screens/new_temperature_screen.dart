@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
+
+import 'package:pain_drain_mobile_app/widgets/new_custom_slider.dart';
+import 'package:pain_drain_mobile_app/widgets/new_temp_slider.dart';
+
+class NewTemperatureScreen extends StatefulWidget {
+  const NewTemperatureScreen({Key? key}) : super(key: key);
+
+  @override
+  State<NewTemperatureScreen> createState() => _NewTemperatureScreenState();
+}
+
+class _NewTemperatureScreenState extends State<NewTemperatureScreen> {
+  StimulusController stimController = Get.find();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 40.0),
+      child: Container(
+        //color: Colors.purple,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            //const SizedBox(height: 5,),
+            Container(
+              width: 150,
+              height: 10,
+              decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(.4),
+                  borderRadius: BorderRadius.circular(5.0)
+              ),
+            ),
+            //const SizedBox(height: 20,),
+            Text("TEMPERATURE", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
+
+            NewTempSlider(currentValue: stimController.getStimulus("temp"),),
+            const SizedBox(height: 20.0,),
+
+            ElevatedButton(
+                onPressed: () {
+                  stimController.setStimulus("temp", 0.0);
+                  setState(() {});
+                },
+                child: const Text("OFF", style: TextStyle(color: Colors.black),)
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+}

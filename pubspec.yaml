@@ -45,6 +45,7 @@ dependencies:
   package_info_plus: ^5.0.1
   dropdown_button2: ^2.3.8
   syncfusion_flutter_core: ^24.2.9
+  flutter_xlider: ^3.5.0
 
 
 dev_dependencies:

@@ -17,8 +17,10 @@ class _TensSummaryState extends State<TensSummary> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      hoverColor: Colors.black.withOpacity(.1),
+      borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, NewTensSettings());
+        showScrollableSheet(context, const NewTensSettings());
       },
       child: Card(
         elevation: 10.0,

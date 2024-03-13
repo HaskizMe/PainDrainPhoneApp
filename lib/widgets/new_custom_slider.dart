@@ -1,19 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
+import '../controllers/stimulus_controller.dart';
+
 class CustomSlider extends StatefulWidget {
   final String title;
-  const CustomSlider({Key? key, required this.title}) : super(key: key);
+  final double? minValue;
+  final double? maxValue;
+  final bool? isDecimal;
+  final String? measurementType;
+  double currentValue;
+  final String stimulus;
+
+  CustomSlider({
+    Key? key,
+    required this.title,
+    this.minValue,
+    this.maxValue,
+    this.isDecimal,
+    this.measurementType,
+    required this.currentValue,
+    required this.stimulus
+  }) : super(key: key);
 
   @override
   State<CustomSlider> createState() => _CustomSliderState();
 }
 
 class _CustomSliderState extends State<CustomSlider> {
+  StimulusController stimController = Get.find();
 
-  double _value = 00.0;
+  //double _value = 00.0;
 
   @override
   Widget build(BuildContext context) {
@@ -29,20 +50,32 @@ class _CustomSliderState extends State<CustomSlider> {
                   thumbColor: Colors.blue,
                   activeTrackHeight: 20,
                   inactiveTrackHeight: 10,
-                  thumbRadius: 17
+                  thumbRadius: 20
               ),
               child: Expanded(
                 child: SfSlider.vertical(
                   enableTooltip: false,
-                  min: 0.0,
-                  max: 100.0,
-                  value: _value,
-                  interval: 100,
-                  thumbIcon: Center(child: Text("$_value", style: TextStyle(color: Colors.white),)),
+                  min: widget.minValue ?? 0.0,
+                  max: widget.maxValue ?? 100.0,
+                  value: widget.currentValue,
+                  //interval: 100,
+                  thumbIcon: Center(
+                      child: Text(
+                        "${widget.currentValue}${widget.measurementType ?? '%'}",
+                        style: const TextStyle(color: Colors.white),
+                      )
+                  ),
                   showLabels: false,
                   onChanged: (dynamic value) {
                     setState(() {
-                      _value = value.round();
+                      if(widget.isDecimal == null || widget.isDecimal == false){
+                        widget.currentValue = value.round();
+                      }
+                      else {
+                        widget.currentValue = (value * 10).roundToDouble() / 10;
+                      }
+                      stimController.setStimulus(widget.stimulus, widget.currentValue);
+                      setState(() {});
                     });
                   },
                 ),

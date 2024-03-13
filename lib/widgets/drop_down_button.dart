@@ -1,7 +1,10 @@
+import 'dart:html';
+
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 
 
 
@@ -9,7 +12,8 @@ class DropDownBox extends StatefulWidget {
   String? selectedItem;
   List<String>? items;
   final double widthSize;
-  DropDownBox({super.key, required this.selectedItem, required this.items, required this.widthSize});
+  final String dropDownCategory;
+  DropDownBox({super.key, required this.selectedItem, required this.items, required this.widthSize, required this.dropDownCategory});
 
   @override
   _DropDownBoxState createState() => _DropDownBoxState();
@@ -17,6 +21,7 @@ class DropDownBox extends StatefulWidget {
 
 class _DropDownBoxState extends State<DropDownBox> {
   SavedPresets preferences = Get.find();
+  StimulusController stimulusController = Get.find();
 
 
   @override void initState() {
@@ -62,13 +67,33 @@ class _DropDownBoxState extends State<DropDownBox> {
         value: widget.selectedItem,
         onChanged: (value) {
           //print(widget.selectedItem);
-          setState(() {
-            preferences.setCurrentPreset(value);
-            widget.selectedItem = value!;
-            print(widget.selectedItem);
+          if(widget.dropDownCategory == "waveTypes"){
+            // preferences.setCurrentPreset(value);
+            print(value);
 
-            //globalValues.setPresetValue(widget.selectedItem!);
-          });
+            stimulusController.setCurrentWaveType(value!);
+            setState(() {
+              // preferences.setCurrentPreset(value);
+              widget.selectedItem = stimulusController.getCurrentWaveType();
+              print(widget.selectedItem);
+
+              //globalValues.setPresetValue(widget.selectedItem!);
+            });
+          } else if(widget.dropDownCategory == "presets"){
+            preferences.setCurrentPreset(value);
+            setState(() {
+              widget.selectedItem = preferences.getCurrentPreset();
+              print(widget.selectedItem);
+
+            });
+          }
+          // setState(() {
+          //   preferences.setCurrentPreset(value);
+          //   widget.selectedItem = value!;
+          //   print(widget.selectedItem);
+          //
+          //   //globalValues.setPresetValue(widget.selectedItem!);
+          // });
         },
         buttonStyleData: ButtonStyleData(
           height: 50,

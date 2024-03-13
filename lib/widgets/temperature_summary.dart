@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pain_drain_mobile_app/screens/new_temperature_screen.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+
+import '../screens/new_vibration_screen.dart';
+import 'custom_draggable_sheet.dart';
 
 class TemperatureSummary extends StatefulWidget {
   const TemperatureSummary({Key? key}) : super(key: key);
@@ -11,39 +15,35 @@ class TemperatureSummary extends StatefulWidget {
 class _TemperatureSummaryState extends State<TemperatureSummary> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 150,
-      decoration: BoxDecoration(
-          color: Colors.blue,
-          borderRadius: BorderRadius.circular(10.0)
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          CircularPercentIndicator(
-            radius: 50.0,
-            arcType: ArcType.FULL,
-            percent: 1,
-            animation: true,
-            animationDuration: 1000,
-            linearGradient: LinearGradient(
-                colors: [
-                  Colors.black,
-                  Colors.red
-                ]
-
-            ),
-            center: Text(
-                "70%"
-            ),
-            footer: Text(
-              "Amplitude",
-              style:
-              TextStyle(fontSize: 12.0),
-            ),
+    return InkWell(
+      hoverColor: Colors.black.withOpacity(.1),
+      borderRadius: BorderRadius.circular(13.0),
+      onTap: () {
+        showScrollableSheet(context, const NewTemperatureScreen());
+      },
+      child: Card(
+        elevation: 10.0,
+        child: Container(
+          height: 150,
+          decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(10.0)
           ),
-        ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CircularPercentIndicator(
+                radius: 50.0,
+                percent: 1,
+                arcType: ArcType.FULL,
+                linearGradient: const LinearGradient(colors: [Colors.black, Colors.red]),
+                center: Text("70%"),
+                footer: Text("Amplitude", style: TextStyle(fontSize: 12.0),),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

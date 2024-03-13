@@ -4,11 +4,7 @@ import 'package:pain_drain_mobile_app/widgets/custom_text_field.dart';
 import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/tens_summary.dart';
 import 'package:pain_drain_mobile_app/widgets/vibration_summary.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../controllers/bluetooth_controller.dart';
 import '../controllers/presets_controller.dart';
-import '../main.dart';
-
 import '../scheme_colors/app_colors.dart';
 import '../widgets/temperature_summary.dart';
 
@@ -37,15 +33,15 @@ class _NewHomePageState extends State<NewHomePage> {
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
-            title: const Text("Are you sure you want to delete this preset?"),
+            title: Text("Are you sure you want to delete preset '${preferences.getCurrentPreset()}'?"),
             actions: [
               ElevatedButton(
                   onPressed: () => Get.back(),
-                  child: Text("Cancel")
+                  child: const Text("Cancel", style: TextStyle(color: Colors.black),)
               ),
               ElevatedButton(
                   onPressed: handleDeleteButton,
-                  child: Text("Confirm")
+                  child: const Text("Delete", style: TextStyle(color: Colors.red),)
               )
             ],
           );
@@ -141,7 +137,7 @@ class _NewHomePageState extends State<NewHomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      DropDownBox(selectedItem: preferences.getCurrentPreset(), items: preferences.getPresets(), widthSize: 200,),
+                      DropDownBox(selectedItem: preferences.getCurrentPreset(), items: preferences.getPresets(), widthSize: 200, dropDownCategory: 'presets',),
                       const SizedBox(width: 5.0,),
                       IconButton(
                         icon: const Icon(

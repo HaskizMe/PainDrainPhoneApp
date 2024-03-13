@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
@@ -28,6 +29,7 @@ Future<void> main() async {
   //Get.put(BluetoothController());
   Get.put(BluetoothController());
   Get.put(SavedPresets());
+  Get.put(StimulusController());
   await globalValues.getPresets();
   runApp(DevicePreview(
     enabled: true,
