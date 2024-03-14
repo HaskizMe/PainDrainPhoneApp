@@ -105,6 +105,9 @@ class _NewHomePageState extends State<NewHomePage> {
     print("delay stop");
     controller.reset();
   }
+
+  void _updateProgress () => setState(() {});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +121,9 @@ class _NewHomePageState extends State<NewHomePage> {
           ),
         ),
         automaticallyImplyLeading: false,
-        backgroundColor: AppColors.green,
+        //backgroundColor: AppColors.offWhite,
+        backgroundColor: Colors.blue.shade800,
+
         centerTitle: true,
         //toolbarHeight: 90,
       ),
@@ -192,21 +197,22 @@ class _NewHomePageState extends State<NewHomePage> {
                     child: Text("TENS", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                   ),
                   const SizedBox(height: 5.0,),
-                  TensSummary(),
+                  TensSummary(update: _updateProgress,),
                   SizedBox(height: 10.0,),
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text("Temperature", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                   ),
                   const SizedBox(height: 5.0,),
-                  TemperatureSummary(),
+                  TemperatureSummary(update: _updateProgress,),
                   SizedBox(height: 10.0,),
                   const Align(
+
                     alignment: Alignment.centerLeft,
                     child: Text("VIBRATION", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                   ),
                   const SizedBox(height: 5.0,),
-                  VibrationSummary(),
+                  VibrationSummary(update: _updateProgress,),
 
                 ],
               ),

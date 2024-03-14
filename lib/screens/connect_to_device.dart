@@ -6,13 +6,14 @@ import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
 import 'package:pain_drain_mobile_app/screens/home_page.dart';
 import 'package:pain_drain_mobile_app/screens/icon_test.dart';
 import 'dart:io';
-import 'package:pain_drain_mobile_app/controllers//bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import '../helper_files/clip_paths.dart';
 import '../main.dart';
 import '../widgets/bluetooth_icon_animation.dart';
 import '../widgets/check_mark_animation.dart';
 import '../widgets/custom_card.dart';
 import '../widgets/x_mark_animation.dart';
+import 'new_home_page.dart';
 
 class ConnectDevice extends StatefulWidget {
   const ConnectDevice({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class ConnectDevice extends StatefulWidget {
 class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
-  BluetoothController bluetoothController = Get.find<BluetoothController>();
+  final BluetoothController _bleController = Get.find<BluetoothController>();
 
   bool showCheckMark = false;
   bool showXMark =  false;
@@ -50,11 +51,11 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
       isPulsing = true;
     });
 
-    await bluetoothController.scanForDevices();
-    List<ScanResult> results = bluetoothController.scanResults;
+    await _bleController.scanForDevices();
+    List<ScanResult> results = _bleController.scanResults;
     if(results.isNotEmpty){
       BluetoothDevice device = results.first.device;
-      bool success = await bluetoothController.connectDevice(device);
+      bool success = await _bleController.connectDevice(device);
       if(success) {
         setState(() {
           isPulsing = false;
@@ -62,7 +63,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
           _animationController.forward();
         });
         await Future.delayed(const Duration(seconds: 2));
-        Get.off(() => const HomePage());
+        Get.off(() => const NewHomePage());
         print("success");
       }
       else {
@@ -101,7 +102,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
       print("Unsuccessful Scan: No results for PainDrain found");
       _showDialog(errorMessage, solution);
     }
-    print("List ${bluetoothController.scanResults}");
+    print("List ${_bleController.scanResults}");
 
   }
 
@@ -152,7 +153,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
             child: ClipPath(
               clipper: ConnectBottomScreenClipper(),
               child: Container(
-                color: Colors.blueAccent, //AppColors.amber.withOpacity(.7),
+                color: Colors.lightBlue, //AppColors.amber.withOpacity(.7),
                 height: 525,
                 width: MediaQuery.of(context).size.width,
               ),
@@ -163,7 +164,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
             child: ClipPath(
               clipper: ConnectBottomScreenClipper(),
               child: Container(
-                color: AppColors.brightGreen,
+                color: Colors.blue.shade700,
                 height: 500,
                 width: MediaQuery.of(context).size.width,
               ),
@@ -192,7 +193,9 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.mintGreen.withOpacity(.1),
+                          // backgroundColor: AppColors.mintGreen.withOpacity(.1),
+                          backgroundColor: Colors.blue.shade900,
+
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),

@@ -1,8 +1,7 @@
-import 'dart:html';
-
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 
@@ -21,8 +20,8 @@ class DropDownBox extends StatefulWidget {
 
 class _DropDownBoxState extends State<DropDownBox> {
   SavedPresets preferences = Get.find();
-  StimulusController stimulusController = Get.find();
-
+  final StimulusController _stimulusController = Get.find();
+  final BluetoothController _bleController = Get.find();
 
   @override void initState() {
     super.initState();
@@ -68,24 +67,23 @@ class _DropDownBoxState extends State<DropDownBox> {
         onChanged: (value) {
           //print(widget.selectedItem);
           if(widget.dropDownCategory == "waveTypes"){
-            // preferences.setCurrentPreset(value);
-            print(value);
+            _stimulusController.setCurrentWaveType(value!);
+            widget.selectedItem = _stimulusController.getCurrentWaveType();
+            _bleController.newWriteToDevice("vibration");
+            //print(widget.selectedItem);
+            setState(() {});
 
-            stimulusController.setCurrentWaveType(value!);
-            setState(() {
-              // preferences.setCurrentPreset(value);
-              widget.selectedItem = stimulusController.getCurrentWaveType();
-              print(widget.selectedItem);
-
-              //globalValues.setPresetValue(widget.selectedItem!);
-            });
           } else if(widget.dropDownCategory == "presets"){
             preferences.setCurrentPreset(value);
-            setState(() {
-              widget.selectedItem = preferences.getCurrentPreset();
-              print(widget.selectedItem);
+            widget.selectedItem = preferences.getCurrentPreset();
 
-            });
+            setState(() {});
+
+            // setState(() {
+            //   widget.selectedItem = preferences.getCurrentPreset();
+            //   print(widget.selectedItem);
+            //
+            // });
           }
           // setState(() {
           //   preferences.setCurrentPreset(value);

@@ -1,8 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-
-import 'package:pain_drain_mobile_app/widgets/new_custom_slider.dart';
 import 'package:pain_drain_mobile_app/widgets/new_temp_slider.dart';
 
 class NewTemperatureScreen extends StatefulWidget {
@@ -13,10 +12,12 @@ class NewTemperatureScreen extends StatefulWidget {
 }
 
 class _NewTemperatureScreenState extends State<NewTemperatureScreen> {
-  StimulusController stimController = Get.find();
+  final StimulusController _stimController = Get.find();
 
   @override
   Widget build(BuildContext context) {
+    String temp = _stimController.temp;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 40.0),
       child: Container(
@@ -35,19 +36,36 @@ class _NewTemperatureScreenState extends State<NewTemperatureScreen> {
               ),
             ),
             //const SizedBox(height: 20,),
-            Text("TEMPERATURE", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
+            const Text("TEMPERATURE", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
 
-            NewTempSlider(currentValue: stimController.getStimulus("temp"),),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    CupertinoIcons.thermometer_snowflake,
+                    color: Colors.blue,
+                  ),
+                  Expanded(
+                    child: NewTempSlider(
+                      currentValue: _stimController.getStimulus(temp),
+                    ),
+                  ),
+                  const Icon(
+                    CupertinoIcons.flame,
+                    color: Colors.red,
+                  ),
+                ]
+            ),
+            // NewTempSlider(currentValue: stimController.getStimulus("temp"),),
             const SizedBox(height: 20.0,),
 
             ElevatedButton(
                 onPressed: () {
-                  stimController.setStimulus("temp", 0.0);
+                  _stimController.setStimulus("temp", 0.0);
                   setState(() {});
                 },
                 child: const Text("OFF", style: TextStyle(color: Colors.black),)
-            )
-
+            ),
           ],
         ),
       ),

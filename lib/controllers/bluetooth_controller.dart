@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/main.dart';
 import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +23,10 @@ DeviceIdentifier painDrainIdentifier = const DeviceIdentifier('00:A0:50:00:00:03
 // );
 
 class BluetoothController extends GetxController {
+  final StimulusController _stimulusController = Get.find();
   Function? onDisconnectedCallback;
   Function? onReconnectedCallback;
+  final Queue<List<int>> _queue = Queue<List<int>>();
   String customServiceUUID = "3bf00c21-d291-4688-b8e9-5a379e3d9874";
   String customCharacteristicUUID = "93c836a2-695a-42cc-95ac-1afa0eef6b0a";
   String batteryServiceUUID = "0000180f-0000-1000-8000-00805f9b34fb";
@@ -204,6 +208,7 @@ Future<void> discoverServices(BluetoothDevice connectedDevice) async {
     super.onClose();
   }
 
+
   Future writeToDevice(String stimulus, List<int> hexValues) async {
     switch (stimulus){
       case "tens":
@@ -228,6 +233,85 @@ Future<void> discoverServices(BluetoothDevice connectedDevice) async {
         print("error");
         break;
     }
+  }
+
+  Future<void> newWriteToDevice(String stimulus) async {
+    try {
+      String command = getCommand(stimulus);
+      List<int> hexValues = stringToHexList(command);
+
+      // Add the command to the queue
+      _queue.add(hexValues);
+      // Process each element in the queue until it's empty
+      while (_queue.isNotEmpty) {
+        print("Elements in queue: ${_queue.length}");
+        List<int> currentHexValues = _queue.removeFirst();
+        await customCharacteristic.write(currentHexValues);
+
+        // Remove the processed command from the queue
+
+        // Optionally, you can wait for a response from the device
+        List<int> readValues = await readFromDevice();
+        String read = hexToString(readValues);
+        print("Read Values: $read");
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  String getCommand(String stimulus){
+    String channel;
+    String command = "";
+
+    if(_stimulusController.getCurrentChannel() == 1){
+      channel = _stimulusController.tensDurCh1;
+    } else {
+      channel = _stimulusController.tensDurCh2;
+    }
+
+    switch (stimulus){
+      case "tens":
+        print("tens");
+        command = "T "
+            "${_stimulusController.getStimulus(_stimulusController.tensAmp)} "
+            "${_stimulusController.getStimulus(channel)} "
+            "${_stimulusController.getStimulus(_stimulusController.tensPeriod)} "
+            "${_stimulusController.getCurrentChannel()}";
+        print(command);
+        break;
+      case "phase":
+        command = "T p ${_stimulusController.getStimulus(_stimulusController.tensPhase)}";
+        print(command);
+
+        break;
+      case "temperature":
+        print("temperature");
+        command = "t "
+            "${_stimulusController.getStimulus(_stimulusController.temp)} ";
+        print(command);
+
+        break;
+      case "vibration":
+        print("vibration");
+        command = "v "
+            "${_stimulusController.getCurrentWaveType()} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeAmp)} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeFreq)} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeWaveform)} ";
+        print(command);
+        break;
+
+      case "register":
+      // This is for debugging. Not for users
+        print("register");
+        break;
+      default:
+        print("error: Stimulus doesn't exist. Use 'tens', 'vibration', 'phase', or 'temperature'");
+        break;
+    }
+    print("sending");
+    return command;
   }
 
   Future<List<int>> readFromDevice() async {

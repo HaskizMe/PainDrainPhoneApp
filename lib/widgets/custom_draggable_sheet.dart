@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-void showScrollableSheet(BuildContext context, Widget screen) {
+void showScrollableSheet(BuildContext context, Widget screen, Function updateFunction) {
   showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
@@ -11,8 +11,14 @@ void showScrollableSheet(BuildContext context, Widget screen) {
         ),
       );
     },
-  );
+  ).then((value) {
+    // This callback will be invoked when the bottom sheet is dismissed
+    // call function
+    updateFunction();
+    print('Bottom sheet closed');
+  });
 }
+
 
 // showModalBottomSheet(
 // constraints: BoxConstraints(

@@ -54,7 +54,11 @@ class _PulseIconState extends State<PulseIcon> with TickerProviderStateMixin {
           shape: BoxShape.circle,
           color: Colors.white,
         ),
-        child: const Icon(Icons.bluetooth_connected_rounded, size: 150.0, color: AppColors.mintGreen),
+        child: Icon(Icons.bluetooth_connected_rounded, size: 150.0,
+            // color: AppColors.mintGreen
+            color: Colors.blue.shade600
+
+        ),
       ),
     );
   }

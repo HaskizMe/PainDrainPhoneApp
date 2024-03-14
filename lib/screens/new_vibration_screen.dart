@@ -7,23 +7,23 @@ import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/new_custom_slider.dart';
 
 class NewVibrationScreen extends StatefulWidget {
-  const NewVibrationScreen({Key? key}) : super(key: key);
+  //final Function(void) update;
+
+  const NewVibrationScreen({Key? key,}) : super(key: key);
 
   @override
   State<NewVibrationScreen> createState() => _NewVibrationScreenState();
 }
 
 class _NewVibrationScreenState extends State<NewVibrationScreen> {
-  StimulusController stimController = Get.find();
-  String amp = "vibeAmp";
-  String freq = "vibeFreq";
-  String waveform = "vibeWaveform";
-
-  List<String>? waveForms = ["Sine", "Square", "Sawtooth", "Triangle"];
+  final StimulusController _stimController = Get.find();
+  String stimulus = "vibration";
 
   @override
   Widget build(BuildContext context) {
-    String? selectedItem = waveForms?.first;
+    String amp = _stimController.vibeAmp;
+    String freq = _stimController.vibeFreq;
+    String waveform = _stimController.vibeWaveform;
     return Padding(
       padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 40.0),
       child: Container(
@@ -49,10 +49,12 @@ class _NewVibrationScreenState extends State<NewVibrationScreen> {
               child: Container(
                 //color: Colors.blue,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
                   children: [
-                    CustomSlider(title: 'Amplitude', currentValue: stimController.getStimulus(amp), stimulus: amp,),
-                    CustomSlider(title: 'Frequency', currentValue: stimController.getStimulus(freq), stimulus: freq,),
-                    CustomSlider(title: 'Waveform', currentValue: stimController.getStimulus(waveform), stimulus: waveform,),
+                    CustomSlider(title: 'Amplitude', currentValue: _stimController.getStimulus(amp), stimulusType: amp, stimulus: stimulus,),
+                    CustomSlider(title: 'Frequency', currentValue: _stimController.getStimulus(freq), stimulusType: freq, stimulus: stimulus,),
+                    CustomSlider(title: 'Waveform', currentValue: _stimController.getStimulus(waveform), stimulusType: waveform, stimulus: stimulus,),
                   ],
                 ),
               ),
@@ -60,7 +62,7 @@ class _NewVibrationScreenState extends State<NewVibrationScreen> {
             const SizedBox(height: 20.0,),
             Align(
               alignment: Alignment(.9, 0),
-              child: DropDownBox(selectedItem: stimController.getCurrentWaveType(), items: stimController.getAllWaveTypes(), widthSize: 130, dropDownCategory: 'waveTypes',),
+              child: DropDownBox(selectedItem: _stimController.getCurrentWaveType(), items: _stimController.getAllWaveTypes(), widthSize: 130, dropDownCategory: 'waveTypes',),
             )
 
           ],

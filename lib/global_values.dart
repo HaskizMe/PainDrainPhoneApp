@@ -70,22 +70,22 @@ class GlobalValues {
     return presetType;
   }
 
-  Future<List<String>> getPresets() async {
-    final SharedPreferences prefs = await _prefs;
-    //await prefs.clear();
-
-    List<String> keys = prefs.getKeys().toList();
-    for (String element in keys){
-      if(element.contains("setting")){
-        final value = prefs.getString(element);
-        if(value != null && !presets.contains(value)){
-          presets.add(value);
-        }
-      }
-    }
-    print("My map ${prefs.getKeys()}");
-    print("My presets list $presets");
-    //presets.clear();
-    return presets;
-  }
+  // Future<List<String>> getPresets() async {
+  //   final SharedPreferences prefs = await _prefs;
+  //   //await prefs.clear();
+  //
+  //   List<String> keys = prefs.getKeys().toList();
+  //   for (String element in keys){
+  //     if(element.contains("setting")){
+  //       //final value = prefs.getString(element);
+  //       // if(value != null && !presets.contains(value)){
+  //       //   presets.add(value);
+  //       // }
+  //     }
+  //   }
+  //   print("My map ${prefs.getKeys()}");
+  //   print("My presets list $presets");
+  //   //presets.clear();
+  //   return presets;
+  // }
 }

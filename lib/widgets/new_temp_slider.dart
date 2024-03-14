@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -17,7 +18,9 @@ class NewTempSlider extends StatefulWidget {
 }
 
 class _NewTempSliderState extends State<NewTempSlider> {
-  StimulusController stimController = Get.find();
+  final StimulusController _stimController = Get.find();
+  final BluetoothController _bleController = Get.find();
+
   final double _minValue = -100;
   final double _maxValue = 100;
   Color trackBarColor = Colors.grey;
@@ -63,7 +66,7 @@ class _NewTempSliderState extends State<NewTempSlider> {
               inactiveDisabledTrackBarColor: Colors.blue
           ),
           handler: FlutterSliderHandler(
-            child: Text("${widget.currentValue}%", style: const TextStyle(color: Colors.white),),
+            child: Text("${widget.currentValue.toInt()}%", style: const TextStyle(color: Colors.white),),
             decoration: BoxDecoration(
               color: thumbSlider,
               borderRadius: BorderRadius.circular(50.0)
@@ -74,9 +77,7 @@ class _NewTempSliderState extends State<NewTempSlider> {
           ),
           onDragging: (handlerIndex, lowerValue, upperValue) {
             if(lowerValue == 0) {
-              setState(() {
-                thumbSlider = Colors.grey;
-              });
+              thumbSlider = Colors.grey;
             }
             else if (lowerValue < 0) {
               trackBarColor = Colors.blueAccent;
@@ -86,10 +87,13 @@ class _NewTempSliderState extends State<NewTempSlider> {
               trackBarColor = Colors.red;
               thumbSlider = Colors.red;
             }
-            stimController.setStimulus("temp", lowerValue);
+            _stimController.setStimulus("temp", lowerValue);
             setState(() {
               widget.currentValue = lowerValue;
             });
+          },
+          onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+            _bleController.newWriteToDevice("temperature");
           },
         ),
       );

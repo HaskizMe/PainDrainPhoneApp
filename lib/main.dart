@@ -27,16 +27,18 @@ Future<void> main() async {
   // This initializes the Bluetooth controller class so we can use it wherever
   // in the app.
   //Get.put(BluetoothController());
+  Get.put(StimulusController());
+
   Get.put(BluetoothController());
   Get.put(SavedPresets());
-  Get.put(StimulusController());
-  await globalValues.getPresets();
+  // Get.put(StimulusController());
+  //await globalValues.getPresets();
   runApp(DevicePreview(
     enabled: true,
     builder: (context) => const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: NewHomePage()//ConnectDevice(), //SplashScreen(),
-      //home: ConnectDevice()
+      // home: NewHomePage()//ConnectDevice(), //SplashScreen(),
+      home: ConnectDevice()
     ),
   ));
   //FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);
