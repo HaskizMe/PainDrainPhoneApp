@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
@@ -235,28 +236,49 @@ Future<void> discoverServices(BluetoothDevice connectedDevice) async {
     }
   }
 
-  Future<void> newWriteToDevice(String stimulus) async {
+  Future<void> newWriteToDevice(String command) async {
     try {
-      String command = getCommand(stimulus);
+      //String command = getCommand(stimulus);
       List<int> hexValues = stringToHexList(command);
-
       // Add the command to the queue
       _queue.add(hexValues);
       // Process each element in the queue until it's empty
       while (_queue.isNotEmpty) {
         print("Elements in queue: ${_queue.length}");
         List<int> currentHexValues = _queue.removeFirst();
-        await customCharacteristic.write(currentHexValues);
 
+        if(currentHexValues.length > 20){
+          print("Big data");
+          await customCharacteristic.write(currentHexValues, allowLongWrite: true);
+        } else {
+          await customCharacteristic.write(currentHexValues);
+        }
         // Remove the processed command from the queue
 
         // Optionally, you can wait for a response from the device
         List<int> readValues = await readFromDevice();
         String read = hexToString(readValues);
+        devDebugPrint(read);
         print("Read Values: $read");
       }
     } catch (e) {
       print("Error: $e");
+    }
+  }
+
+  void devDebugPrint(String readString) {
+    if(readString[0] == "T") {
+      if(readString[2] == "p"){
+        _stimulusController.readPhase = readString;
+      } else {
+        _stimulusController.readTens = readString;
+      }
+    } else if(readString[0] == "v"){
+      _stimulusController.readVibe = readString;
+    } else if(readString[0] == "t") {
+      _stimulusController.readTemp = readString;
+    } else {
+      print("no value");
     }
   }
 
@@ -274,31 +296,32 @@ Future<void> discoverServices(BluetoothDevice connectedDevice) async {
       case "tens":
         print("tens");
         command = "T "
-            "${_stimulusController.getStimulus(_stimulusController.tensAmp)} "
+            "${_stimulusController.getStimulus(_stimulusController.tensAmp).toInt()} "
             "${_stimulusController.getStimulus(channel)} "
-            "${_stimulusController.getStimulus(_stimulusController.tensPeriod)} "
+            "${_stimulusController.getStimulus(_stimulusController.tensPeriod).toInt()} "
             "${_stimulusController.getCurrentChannel()}";
         print(command);
         break;
       case "phase":
-        command = "T p ${_stimulusController.getStimulus(_stimulusController.tensPhase)}";
+        command = "T p ${_stimulusController.getStimulus(_stimulusController.tensPhase).toInt()}";
         print(command);
 
         break;
       case "temperature":
         print("temperature");
         command = "t "
-            "${_stimulusController.getStimulus(_stimulusController.temp)} ";
+            "${_stimulusController.getStimulus(_stimulusController.temp).toInt()} ";
         print(command);
 
         break;
       case "vibration":
         print("vibration");
+        String shortenedWaveType = _stimulusController.getAbbreviation(_stimulusController.getCurrentWaveType());
         command = "v "
-            "${_stimulusController.getCurrentWaveType()} "
-            "${_stimulusController.getStimulus(_stimulusController.vibeAmp)} "
-            "${_stimulusController.getStimulus(_stimulusController.vibeFreq)} "
-            "${_stimulusController.getStimulus(_stimulusController.vibeWaveform)} ";
+            "$shortenedWaveType "
+            "${_stimulusController.getStimulus(_stimulusController.vibeAmp).toInt()} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeFreq).toInt()} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeWaveform).toInt()} ";
         print(command);
         break;
 

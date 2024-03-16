@@ -106,9 +106,13 @@ class _CustomSliderState extends State<CustomSlider> {
                 onDragCompleted: (handlerIndex, lowerValue, upperValue) {
                   if(widget.channel != null){
                     _stimController.setCurrentChannel(widget.channel!);
-                    _bleController.newWriteToDevice(widget.stimulus);
+                    //_bleController.newWriteToDevice(widget.stimulus);
+                    String command = _bleController.getCommand(widget.stimulus);
+                    _bleController.newWriteToDevice(command);
                   } else{
-                    _bleController.newWriteToDevice(widget.stimulus);
+                    String command = _bleController.getCommand(widget.stimulus);
+                    _bleController.newWriteToDevice(command);
+                    //_bleController.newWriteToDevice(widget.stimulus);
                   }
                 },
               ),

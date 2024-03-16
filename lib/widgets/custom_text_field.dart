@@ -24,16 +24,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 250,
-      child:
-      TextField(
+      child: TextField(
         onTapOutside: (event) {
           FocusManager.instance.primaryFocus?.unfocus();
           widget.hideTextField();
         },
         autofocus: true,
         controller: widget.textController,
-        //focusNode: textFocusNode,
         cursorColor: Colors.grey,
+        maxLength: 15,
         decoration: const InputDecoration(
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(

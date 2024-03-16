@@ -69,30 +69,77 @@ class _TensSummaryState extends State<TensSummary> {
                 footer: const Text("Period", style: TextStyle(fontSize: 12.0, color: Colors.white),),
 
               ),
-              CircularPercentIndicator(
-                radius: 30.0,
-                animation: true,
-                animationDuration: 2000,
-                animateFromLastPercent: true,
-                circularStrokeCap: CircularStrokeCap.round,
-                percent: _stimController.getStimulus(ch1),
-                linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                arcType: ArcType.FULL,
-                center: Text("${_stimController.getStimulus(ch1)}s", style: const TextStyle(color: Colors.white)),
-                footer: const Text("Channel 1", style: TextStyle(fontSize: 12.0, color: Colors.white),),
-
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularPercentIndicator(
+                    radius: 30.0,
+                    animation: true,
+                    animationDuration: 2000,
+                    animateFromLastPercent: true,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    percent: _stimController.getStimulus(ch1),
+                    linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+                    arcType: ArcType.FULL,
+                    center: Text("${_stimController.getStimulus(ch1)}s", style: const TextStyle(color: Colors.white)),
+                    footer: const Text("Channel 1", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+                  ),
+                  if(_stimController.getCurrentChannel() == 1)
+                    Column(
+                      children: [
+                        SizedBox(height: 5.0,),
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: Colors.green
+                          ),
+                        )
+                      ],
+                    )
+                  // //SizedBox(height: 10.0,),
+                  // Container(
+                  //   width: 10,
+                  //   height: 10,
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(10.0),
+                  //     color: Colors.green
+                  //   ),
+                  // )
+                ],
               ),
-              CircularPercentIndicator(
-                radius: 30.0,
-                animation: true,
-                animationDuration: 2000,
-                animateFromLastPercent: true,
-                circularStrokeCap: CircularStrokeCap.round,
-                percent: _stimController.getStimulus(ch2),
-                linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                arcType: ArcType.FULL,
-                center: Text("${_stimController.getStimulus(ch2)}s", style: const TextStyle(color: Colors.white)),
-                footer: const Text("Channel 2", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+
+                children: [
+                  CircularPercentIndicator(
+                    radius: 30.0,
+                    animation: true,
+                    animationDuration: 2000,
+                    animateFromLastPercent: true,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    percent: _stimController.getStimulus(ch2),
+                    linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+                    arcType: ArcType.FULL,
+                    center: Text("${_stimController.getStimulus(ch2)}s", style: const TextStyle(color: Colors.white)),
+                    footer: const Text("Channel 2", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+                  ),
+                  if(_stimController.getCurrentChannel() == 2)
+                    Column(
+                      children: [
+                        SizedBox(height: 5.0,),
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.0),
+                              color: Colors.green
+                          ),
+                        )
+                      ],
+                    )
+                ],
               ),
             ],
           ),

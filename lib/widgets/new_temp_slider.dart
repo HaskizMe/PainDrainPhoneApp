@@ -93,7 +93,9 @@ class _NewTempSliderState extends State<NewTempSlider> {
             });
           },
           onDragCompleted: (handlerIndex, lowerValue, upperValue) {
-            _bleController.newWriteToDevice("temperature");
+            String command = _bleController.getCommand("temperature");
+            _bleController.newWriteToDevice(command);
+            //_bleController.newWriteToDevice("temperature");
           },
         ),
       );

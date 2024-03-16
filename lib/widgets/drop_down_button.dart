@@ -20,7 +20,7 @@ class DropDownBox extends StatefulWidget {
 
 class _DropDownBoxState extends State<DropDownBox> {
   SavedPresets preferences = Get.find();
-  final StimulusController _stimulusController = Get.find();
+  final StimulusController _stimController = Get.find();
   final BluetoothController _bleController = Get.find();
 
   @override void initState() {
@@ -67,10 +67,10 @@ class _DropDownBoxState extends State<DropDownBox> {
         onChanged: (value) {
           //print(widget.selectedItem);
           if(widget.dropDownCategory == "waveTypes"){
-            _stimulusController.setCurrentWaveType(value!);
-            widget.selectedItem = _stimulusController.getCurrentWaveType();
-            _bleController.newWriteToDevice("vibration");
-            //print(widget.selectedItem);
+            _stimController.setCurrentWaveType(value!);
+            widget.selectedItem = _stimController.getCurrentWaveType();
+            String command = _bleController.getCommand("vibration");
+            _bleController.newWriteToDevice(command);
             setState(() {});
 
           } else if(widget.dropDownCategory == "presets"){

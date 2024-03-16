@@ -14,11 +14,8 @@ import 'screens/temp_settings.dart';
 import 'screens/vibration_settings.dart';
 import 'screens/preset_settings.dart';
 import 'screens/splash_screen.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 final globalValues = GlobalValues();
@@ -28,7 +25,6 @@ Future<void> main() async {
   // in the app.
   //Get.put(BluetoothController());
   Get.put(StimulusController());
-
   Get.put(BluetoothController());
   Get.put(SavedPresets());
   // Get.put(StimulusController());
@@ -37,7 +33,7 @@ Future<void> main() async {
     enabled: true,
     builder: (context) => const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: NewHomePage()//ConnectDevice(), //SplashScreen(),
+      //home: NewHomePage()//ConnectDevice(), //SplashScreen(),
       home: ConnectDevice()
     ),
   ));

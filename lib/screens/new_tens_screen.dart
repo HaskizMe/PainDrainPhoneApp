@@ -9,7 +9,6 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import '../controllers/stimulus_controller.dart';
 
 class NewTensSettings extends StatefulWidget {
-  //final Function update;
   const NewTensSettings({Key? key}) : super(key: key);
 
   @override
@@ -18,10 +17,19 @@ class NewTensSettings extends StatefulWidget {
 
 class _NewTensSettingsState extends State<NewTensSettings> {
   final StimulusController _stimController = Get.find();
+  late bool _isOn;
   final BluetoothController _bleController = Get.find();
 
-  bool _isOn = false;
+  @override
+  void initState() {
+    super.initState();
+    _isOn = _stimController.isPhaseOn(); // Assign the value of _stimController.isPhaseOn() to _isOn
+
+  }
+  // late bool _isOn;
   String stimulus = "tens";
+  //bool _isOn = _stimController.isPhaseOn();
+
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +37,8 @@ class _NewTensSettingsState extends State<NewTensSettings> {
     String period = _stimController.tensPeriod;
     String ch1 = _stimController.tensDurCh1;
     String ch2 = _stimController.tensDurCh2;
+    String tensPhase = _stimController.tensPhase;
+    //_isOn = _stimController.isPhaseOn();
     return Padding(
       padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 40.0),
       child: Container(
@@ -103,24 +113,28 @@ class _NewTensSettingsState extends State<NewTensSettings> {
                 const SizedBox(width: 5.0,),
                 Switch(
                   activeColor: Colors.blue,
-                  value: _isOn,
-                  onChanged: (bool value) {
+                  //value: _isOn,
+                  value: _stimController.isPhaseOn(),
+                  onChanged: (bool value) async {
                     setState(() {
                       _isOn = value;
                     });
-
-                    if(_isOn){
-                      _stimController.setStimulus(_stimController.tensPhase, 180.0);
+                    if(value){
+                      //_stimController.setCurrentPhase(180);
+                      _stimController.setStimulus(tensPhase, 180.0);
                     } else {
-                      _stimController.setStimulus(_stimController.tensPhase, 0.0);
+                      //_stimController.setCurrentPhase(0);
+
+                      _stimController.setStimulus(tensPhase, 0.0);
                     }
-                    _bleController.newWriteToDevice("phase");
+                    String command = _bleController.getCommand("phase");
+                    await _bleController.newWriteToDevice(command);
                   },
                 ),
                 const SizedBox(width: 5.0,),
                 const Text("180")
               ],
-            )
+            ),
           ],
         ),
       ),

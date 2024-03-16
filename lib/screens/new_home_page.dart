@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/widgets/custom_text_field.dart';
 import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/tens_summary.dart';
@@ -15,47 +17,60 @@ class NewHomePage extends StatefulWidget {
   State<NewHomePage> createState() => _NewHomePageState();
 }
 
-class _NewHomePageState extends State<NewHomePage> {
-  SavedPresets preferences = Get.find();
+class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStateMixin {
+  final SavedPresets _prefs = Get.find();
+  final BluetoothController _bleController = Get.find();
+  final StimulusController _stimulusController = Get.find();
   TextEditingController textController = TextEditingController();
+  late AnimationController _controller;
   //FocusNode textFocusNode = FocusNode();
   bool isAddingItem = false; // Track whether we are in "add" mode
   bool isLoading = false;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2), // Duration for one complete cycle
+    );
+  }
   @override
   void dispose() {
     textController.dispose();
-    //textFocusNode.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   void showErrorDialog() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context){
-          return AlertDialog(
-            title: Text("Are you sure you want to delete preset '${preferences.getCurrentPreset()}'?"),
-            actions: [
-              ElevatedButton(
-                  onPressed: () => Get.back(),
-                  child: const Text("Cancel", style: TextStyle(color: Colors.black),)
-              ),
-              ElevatedButton(
-                  onPressed: handleDeleteButton,
-                  child: const Text("Delete", style: TextStyle(color: Colors.red),)
-              )
-            ],
-          );
-        }
-    );
+    if(_prefs.getCurrentPreset() != null) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context){
+            return AlertDialog(
+              title: Text("Are you sure you want to delete preset '${_prefs.getCurrentPreset()}'?"),
+              actions: [
+                ElevatedButton(
+                    onPressed: () => Get.back(),
+                    child: const Text("Cancel", style: TextStyle(color: Colors.black),)
+                ),
+                ElevatedButton(
+                    onPressed: handleDeleteButton,
+                    child: const Text("Delete", style: TextStyle(color: Colors.red),)
+                )
+              ],
+            );
+          }
+      );
+    }
   }
 
   void handleDeleteButton() {
     Get.back();
-    List<String>? presets = preferences.getPresets();
-    String? selectedPreset = preferences.getCurrentPreset();
+    List<String>? presets = _prefs.getPresets();
+    String? selectedPreset = _prefs.getCurrentPreset();
     if(presets != null) {
       print("selected Item: $selectedPreset");
-      preferences.deletePreset2(selectedPreset!);
+      _prefs.deletePreset2(selectedPreset!);
       if(presets.isNotEmpty) {
         // Find the index of the selected item
         int selectedIndex = presets.indexOf(selectedPreset);
@@ -63,12 +78,12 @@ class _NewHomePageState extends State<NewHomePage> {
         int nextIndex = (selectedIndex + 1) % presets.length;
         // Set the selectedItem to the item at the next index
         selectedPreset = presets[nextIndex];
-        preferences.setCurrentPreset(selectedPreset);
+        _prefs.setCurrentPreset(selectedPreset);
       }
     }
     setState(() {
-      presets = preferences.getPresets();
-      selectedPreset = preferences.getCurrentPreset();
+      presets = _prefs.getPresets();
+      selectedPreset = _prefs.getCurrentPreset();
     });
     print("new selected Item: $selectedPreset");
 
@@ -76,8 +91,8 @@ class _NewHomePageState extends State<NewHomePage> {
   }
 
   void _handleAddButtonPress(String newValue) {
-    preferences.addNewPreset(newValue);
-    preferences.setCurrentPreset(newValue);
+    _prefs.addNewPreset(newValue);
+    _prefs.setCurrentPreset(newValue);
     setState(() {
      textController.clear();
      isAddingItem = !isAddingItem;
@@ -88,23 +103,51 @@ class _NewHomePageState extends State<NewHomePage> {
     setState(() => isAddingItem = !isAddingItem);
   }
 
-  void _handleButtonPress() {
-    // Simulate loading for 2 seconds
-    setState(() => isLoading = true);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() => isLoading = false);
-
+  Future<void> _handleLoadPreset() async {
+    setState(() {
+      isLoading = true;
     });
-  }
+    _controller.repeat();
+    String? selectedPreset = _prefs.getCurrentPreset();
 
-  void loaderAnimation(AnimationController controller) async {
-    controller.forward();
-    print("delay start");
-    await Future.delayed(const Duration(seconds: 3), () {});
-    print("delay stop");
-    controller.reset();
+    if(selectedPreset != null){
+      String command;
+      _prefs.loadPreset(_prefs.getCurrentPreset()!);
+
+      command = _bleController.getCommand("tens");
+      await _bleController.newWriteToDevice(command);
+      command = _bleController.getCommand("phase");
+      await _bleController.newWriteToDevice(command);
+      command = _bleController.getCommand("temperature");
+      await _bleController.newWriteToDevice(command);
+      command = _bleController.getCommand("vibration");
+      await _bleController.newWriteToDevice(command);
+
+      //await Future.delayed(const Duration(seconds: 2));
+      _controller.stop();
+      _controller.reset();
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
+  // void _handleButtonPress() {
+  //   // Simulate loading for 2 seconds
+  //   setState(() => isLoading = true);
+  //
+  //   Future.delayed(const Duration(seconds: 2), () {
+  //     setState(() => isLoading = false);
+  //
+  //   });
+  // }
+  //
+  // void loaderAnimation(AnimationController controller) async {
+  //   controller.forward();
+  //   print("delay start");
+  //   await Future.delayed(const Duration(seconds: 3), () {});
+  //   print("delay stop");
+  //   controller.reset();
+  // }
 
   void _updateProgress () => setState(() {});
 
@@ -142,7 +185,7 @@ class _NewHomePageState extends State<NewHomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      DropDownBox(selectedItem: preferences.getCurrentPreset(), items: preferences.getPresets(), widthSize: 200, dropDownCategory: 'presets',),
+                      DropDownBox(selectedItem: _prefs.getCurrentPreset(), items: _prefs.getPresets(), widthSize: 200, dropDownCategory: 'presets',),
                       const SizedBox(width: 5.0,),
                       IconButton(
                         icon: const Icon(
@@ -157,12 +200,26 @@ class _NewHomePageState extends State<NewHomePage> {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(
-                          Icons.sync,
-                          color: Colors.black, // Change the icon color if needed
-                          size: 25.0,
+                        icon:
+                        // const Icon(
+                        //   Icons.sync,
+                        //   color: Colors.black, // Change the icon color if needed
+                        //   size: 25.0,
+                        // ),
+                        RotationTransition(
+                          turns: Tween(begin: 0.0, end: -1.0).animate(_controller),
+                          child: const Icon(
+                            Icons.sync,
+                            color: Colors.black,
+                            size: 25.0,
+                          ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          if(!isLoading) {
+                            print("Is not loading");
+                            _handleLoadPreset();
+                          }
+                        },
                       ),
                       IconButton(
                           icon: const Icon(
@@ -213,6 +270,11 @@ class _NewHomePageState extends State<NewHomePage> {
                   ),
                   const SizedBox(height: 5.0,),
                   VibrationSummary(update: _updateProgress,),
+
+                  Text("Tens: ${_stimulusController.readTens}"),
+                  Text("phase: ${_stimulusController.readPhase}"),
+                  Text("temperature: ${_stimulusController.readTemp}"),
+                  Text("Vibration: ${_stimulusController.readVibe}"),
 
                 ],
               ),

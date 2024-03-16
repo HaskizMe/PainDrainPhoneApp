@@ -1,3 +1,7 @@
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
@@ -5,8 +9,10 @@ import '../main.dart';
 class SavedPresets{
   // Attributes
   late final SharedPreferences _prefs;
-  List<String>? _presets;
+  //List<String>? _presets;
   String? _currentPreset;
+  late final StimulusController _stimController;
+
 
   // Constructor
   SavedPresets() {
@@ -15,25 +21,13 @@ class SavedPresets{
 
   // Methods
   Future<void> _initialize() async {
+    _stimController = Get.find();
     // Initialize shared preferences
     _prefs = await SharedPreferences.getInstance();
-    //deleteAllPresets();
-    // Store dummy data everytime in shared prefs
-    await _prefs.setStringList('presets', [
-      'preset 1', 'preset 2', 'preset 3', 'preset 4', 'preset 5', 'preset 6', 'preset 7'
-    ]);
-    if(getPresets() != null){
-      print(getPresets());
-      _presets = getPresets();
-      if(_presets!.isNotEmpty && _presets!.isNotEmpty){
-        _currentPreset = _presets!.first;
-      }
-      print(getKeys());
-    }
   }
 
-  List<String>? getPresets() {
-    final List<String>? presets = _prefs.getStringList('presets');
+  List<String> getPresets() {
+    List<String> presets = _prefs.getKeys().toList()..sort();
     return presets;
   }
   Set<String> getKeys() {
@@ -51,39 +45,48 @@ class SavedPresets{
 
 
   deleteAllPresets() async {
-    // Remove data for the 'counter' key.
-    await _prefs.remove('presets');
+    await _prefs.clear();
   }
 
   void addNewPreset(String presetName) async {
-    List<String>? presets = _prefs.getStringList('presets');
+    List<String> presetValues = _stimController.getAllStimulusValues();
 
-    if (presets == null || presets!.isEmpty) {
-      await _prefs.setStringList('presets', <String>[presetName]);
-    }
-    else if(presets.contains(presetName)) {
-      int index = presets!.indexOf(presetName);
-      presets[index] = presetName; // Update the existing value
-      await _prefs.setStringList('presets', presets);
-    }
-    else {
-      presets?.add(presetName);
-      await _prefs.setStringList('presets', presets!);
-    }
+    await _prefs.setStringList(presetName, presetValues);
+
+    print(_prefs.getStringList(presetName));
+    print(_prefs.getKeys());
+
   }
 
   Future<void> deletePreset2(String presetName) async {
-    List<String>? presets = _prefs.getStringList('presets');
-
     // Check if the list is not null and contains the presetName
-    if (presets != null && presets.contains(presetName)) {
+    if (_prefs.getKeys().contains(presetName)) {
       // Remove the desired value from the list
-      presets.remove(presetName);
+      await _prefs.remove(presetName);
+    }
+    print(_prefs.getKeys());
+  }
 
-      // Save the updated list back to SharedPreferences
-      await _prefs.setStringList('presets', presets);
+  void loadPreset(String presetName) {
+    if (_prefs.getKeys().contains(presetName) && _prefs.getStringList(presetName) != null) {
+      // Remove the desired value from the list
+      List<String> presetValues = _prefs.getStringList(presetName)!;
+      _stimController.setStimulus(_stimController.tensAmp, double.parse(presetValues[0]));
+      _stimController.setStimulus(_stimController.tensPeriod, double.parse(presetValues[1]));
+      _stimController.setStimulus(_stimController.tensDurCh1, double.parse(presetValues[2]));
+      _stimController.setStimulus(_stimController.tensDurCh2, double.parse(presetValues[3]));
+      _stimController.setStimulus(_stimController.tensPhase, double.parse(presetValues[4]));
+      _stimController.setCurrentChannel(int.parse(presetValues[5]));
+      _stimController.setStimulus(_stimController.temp, double.parse(presetValues[6]));
+      _stimController.setStimulus(_stimController.vibeAmp, double.parse(presetValues[7]));
+      _stimController.setStimulus(_stimController.vibeFreq, double.parse(presetValues[8]));
+      _stimController.setStimulus(_stimController.vibeWaveform, double.parse(presetValues[9]));
+      _stimController.setCurrentWaveType(presetValues[10]);
+      print(_prefs.getStringList(presetName));
     }
   }
+
+
 
   Future<void> deletePreset(String name) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
