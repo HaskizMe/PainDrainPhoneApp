@@ -12,6 +12,7 @@ class SavedPresets{
   //List<String>? _presets;
   String? _currentPreset;
   late final StimulusController _stimController;
+  late bool _isDevControls;
 
 
   // Constructor
@@ -24,23 +25,33 @@ class SavedPresets{
     _stimController = Get.find();
     // Initialize shared preferences
     _prefs = await SharedPreferences.getInstance();
+    _isDevControls = false;
+    //_prefs.clear();
   }
 
   List<String> getPresets() {
-    List<String> presets = _prefs.getKeys().toList()..sort();
+    //List<String> presets = _prefs.getKeys().toList()..sort();
+    //List<String> presets = _prefs.getKeys().where((key) => key.contains("preset")).toList()..sort();
+    //List<String> presets = _prefs.getKeys().where((key) => key.contains("preset.")).map((key) => key.replaceAll("preset.", "")).toList()..sort();
+    List<String> presets = _prefs.getKeys().where((key) => key.contains("preset.")).map((key) => key.substring(7)).toList()..sort();
+
+
+
     return presets;
   }
   Set<String> getKeys() {
-    final Set<String> allKeys = _prefs.getKeys();
+    final Set<String> allKeys = _prefs.getKeys().where((key) => key.contains("preset")).toSet();
     return allKeys;
   }
 
   String? getCurrentPreset() {
-    return _currentPreset;
+    // return _currentPreset?.replaceAll("preset.", "");
+    return _currentPreset?.substring(7);
+
   }
 
   void setCurrentPreset(String? newPreset){
-    _currentPreset = newPreset;
+    _currentPreset = "preset.$newPreset";
   }
 
 
@@ -51,26 +62,25 @@ class SavedPresets{
   void addNewPreset(String presetName) async {
     List<String> presetValues = _stimController.getAllStimulusValues();
 
-    await _prefs.setStringList(presetName, presetValues);
+    await _prefs.setStringList("preset.$presetName", presetValues);
 
-    print(_prefs.getStringList(presetName));
+    print(_prefs.getStringList("preset.$presetName"));
     print(_prefs.getKeys());
 
   }
 
   Future<void> deletePreset2(String presetName) async {
     // Check if the list is not null and contains the presetName
-    if (_prefs.getKeys().contains(presetName)) {
+    if (_prefs.getKeys().contains("preset.$presetName")) {
       // Remove the desired value from the list
-      await _prefs.remove(presetName);
+      await _prefs.remove("preset.$presetName");
     }
     print(_prefs.getKeys());
   }
 
   void loadPreset(String presetName) {
-    if (_prefs.getKeys().contains(presetName) && _prefs.getStringList(presetName) != null) {
-      // Remove the desired value from the list
-      List<String> presetValues = _prefs.getStringList(presetName)!;
+    if (_prefs.getKeys().contains("preset.$presetName") && _prefs.getStringList("preset.$presetName") != null) {
+      List<String> presetValues = _prefs.getStringList("preset.$presetName")!;
       _stimController.setStimulus(_stimController.tensAmp, double.parse(presetValues[0]));
       _stimController.setStimulus(_stimController.tensPeriod, double.parse(presetValues[1]));
       _stimController.setStimulus(_stimController.tensDurCh1, double.parse(presetValues[2]));
@@ -82,7 +92,7 @@ class SavedPresets{
       _stimController.setStimulus(_stimController.vibeFreq, double.parse(presetValues[8]));
       _stimController.setStimulus(_stimController.vibeWaveform, double.parse(presetValues[9]));
       _stimController.setCurrentWaveType(presetValues[10]);
-      print(_prefs.getStringList(presetName));
+      print(_prefs.getStringList("preset.$presetName"));
     }
   }
 
@@ -116,6 +126,14 @@ class SavedPresets{
       }
 
     }
+  }
+
+  bool getDevControls(){
+    return _isDevControls;
+  }
+
+  setDevControls(bool isEnabled) {
+    _isDevControls = isEnabled;
   }
 
 }

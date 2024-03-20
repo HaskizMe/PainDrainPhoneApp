@@ -30,11 +30,17 @@ Future<void> main() async {
   // Get.put(StimulusController());
   //await globalValues.getPresets();
   runApp(DevicePreview(
-    enabled: true,
-    builder: (context) => const GetMaterialApp(
+    //enabled: true,
+    enabled: false,
+
+    builder: (context) => GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      //home: NewHomePage()//ConnectDevice(), //SplashScreen(),
-      home: ConnectDevice()
+      initialRoute: '/', // Specify initial route
+      getPages: [
+        //GetPage(name: '/', page: () => const NewHomePage()), // Define route for "/"
+        GetPage(name: '/', page: () => const ConnectDevice()), // Define route for "/"
+
+      ],
     ),
   ));
   //FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);

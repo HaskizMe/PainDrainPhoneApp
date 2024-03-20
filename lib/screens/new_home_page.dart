@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
+import 'package:pain_drain_mobile_app/screens/onboarding.dart';
 import 'package:pain_drain_mobile_app/widgets/custom_text_field.dart';
 import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/tens_summary.dart';
@@ -26,6 +27,7 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
   //FocusNode textFocusNode = FocusNode();
   bool isAddingItem = false; // Track whether we are in "add" mode
   bool isLoading = false;
+
 
   @override
   void initState() {
@@ -91,6 +93,8 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
   }
 
   void _handleAddButtonPress(String newValue) {
+    print(newValue);
+    //newValue = "preset.$newValue";
     _prefs.addNewPreset(newValue);
     _prefs.setCurrentPreset(newValue);
     setState(() {
@@ -131,23 +135,6 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
       });
     }
   }
-  // void _handleButtonPress() {
-  //   // Simulate loading for 2 seconds
-  //   setState(() => isLoading = true);
-  //
-  //   Future.delayed(const Duration(seconds: 2), () {
-  //     setState(() => isLoading = false);
-  //
-  //   });
-  // }
-  //
-  // void loaderAnimation(AnimationController controller) async {
-  //   controller.forward();
-  //   print("delay start");
-  //   await Future.delayed(const Duration(seconds: 3), () {});
-  //   print("delay stop");
-  //   controller.reset();
-  // }
 
   void _updateProgress () => setState(() {});
 
@@ -157,7 +144,7 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
       backgroundColor: AppColors.offWhite,
       appBar: AppBar(
         title: const Text(
-          'Presets',
+          'Stimulus',
           style: TextStyle(
               fontSize: 40,
               color: Colors.white
@@ -168,6 +155,14 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
         backgroundColor: Colors.blue.shade800,
 
         centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => const OnBoarding());
+              },
+              icon: Icon(Icons.help_outline_rounded, color: Colors.grey.shade400,)
+          ),
+        ],
         //toolbarHeight: 90,
       ),
       body: SingleChildScrollView(
@@ -186,12 +181,12 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       DropDownBox(selectedItem: _prefs.getCurrentPreset(), items: _prefs.getPresets(), widthSize: 200, dropDownCategory: 'presets',),
-                      const SizedBox(width: 5.0,),
+                      const SizedBox(width: 2.0,),
                       IconButton(
                         icon: const Icon(
                           Icons.add,
                           color: Colors.black, // Change the icon color if needed
-                          size: 30.0,
+                          size: 25.0,
                         ),
                         onPressed: () {
                           setState(() {
@@ -255,14 +250,14 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
                   ),
                   const SizedBox(height: 5.0,),
                   TensSummary(update: _updateProgress,),
-                  SizedBox(height: 10.0,),
+                  const SizedBox(height: 10.0,),
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text("Temperature", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                   ),
                   const SizedBox(height: 5.0,),
                   TemperatureSummary(update: _updateProgress,),
-                  SizedBox(height: 10.0,),
+                  const SizedBox(height: 10.0,),
                   const Align(
 
                     alignment: Alignment.centerLeft,
@@ -270,11 +265,45 @@ class _NewHomePageState extends State<NewHomePage> with SingleTickerProviderStat
                   ),
                   const SizedBox(height: 5.0,),
                   VibrationSummary(update: _updateProgress,),
+                  const SizedBox(height: 10.0,),
 
-                  Text("Tens: ${_stimulusController.readTens}"),
-                  Text("phase: ${_stimulusController.readPhase}"),
-                  Text("temperature: ${_stimulusController.readTemp}"),
-                  Text("Vibration: ${_stimulusController.readVibe}"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Text("Debug Dev Info:"),
+                      const SizedBox(width: 10.0,),
+                      const Text("OFF"),
+
+                      Switch(
+                          value: _prefs.getDevControls(),
+                        onChanged: (bool value) async {
+                          setState(() {
+                            _prefs.setDevControls(value);
+                          });
+                        },
+                      ),
+                      const Text("ON"),
+
+                    ],
+                  ),
+
+                  if(_prefs.getDevControls())
+                    Column(
+                      children: [
+                        Text("Tens: ${_stimulusController.readTens}", style: TextStyle(fontSize: 18),),
+                        Text("phase: ${_stimulusController.readPhase}", style: TextStyle(fontSize: 18)),
+                        Text("temperature: ${_stimulusController.readTemp}", style: TextStyle(fontSize: 18)),
+                        Text("Vibration: ${_stimulusController.readVibe}", style: TextStyle(fontSize: 18)),
+                        const SizedBox(height: 10.0,),
+                        ElevatedButton(
+                            onPressed: () {
+                              setState(() {});
+                            },
+                            child: const Text("Refresh")
+                        ),
+                      ],
+                    )
+
 
                 ],
               ),

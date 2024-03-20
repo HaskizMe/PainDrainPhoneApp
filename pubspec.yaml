@@ -46,6 +46,7 @@ dependencies:
   dropdown_button2: ^2.3.8
   syncfusion_flutter_core: ^24.2.9
   flutter_xlider: ^3.5.0
+  introduction_screen: ^3.1.9
 
 
 dev_dependencies:
@@ -94,6 +95,16 @@ flutter:
     - assets/PainDrainDevice.PDF
     - assets/PainDrainDeviceWithoutBackground.png
     - assets/pawel-czerwinski-6lQDFGOB1iw-unsplash.jpg
+    - assets/move_sliders.gif
+    - assets/adjust_sliders.png
+    - assets/load_preset.png
+    - assets/add_preset.png
+    - assets/delete_preset.png
+    - assets/adjust_sliders2.png
+    - assets/adjust_sliders3.png
+    - assets/adjust_sliders4.png
+    - assets/adjust_sliders5.png
+    - assets/img1.jpg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

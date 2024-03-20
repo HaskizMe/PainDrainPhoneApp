@@ -74,6 +74,8 @@ class _DropDownBoxState extends State<DropDownBox> {
             setState(() {});
 
           } else if(widget.dropDownCategory == "presets"){
+            print(value);
+            //value = "preset.$value";
             preferences.setCurrentPreset(value);
             widget.selectedItem = preferences.getCurrentPreset();
 

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/widgets/new_temp_slider.dart';
 
@@ -13,6 +14,7 @@ class NewTemperatureScreen extends StatefulWidget {
 
 class _NewTemperatureScreenState extends State<NewTemperatureScreen> {
   final StimulusController _stimController = Get.find();
+  final BluetoothController _bleController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,8 @@ class _NewTemperatureScreenState extends State<NewTemperatureScreen> {
             ElevatedButton(
                 onPressed: () {
                   _stimController.setStimulus("temp", 0.0);
+                  String command = _bleController.getCommand("temperature");
+                  _bleController.newWriteToDevice(command);
                   setState(() {});
                 },
                 child: const Text("OFF", style: TextStyle(color: Colors.black),)
