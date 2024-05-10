@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:pain_drain_mobile_app/widgets/new_custom_slider.dart';
+import 'package:pain_drain_mobile_app/custom_widgets/new_custom_slider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 

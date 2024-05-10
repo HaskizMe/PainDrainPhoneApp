@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
-import 'package:pain_drain_mobile_app/screens/home_page.dart';
-import 'package:pain_drain_mobile_app/screens/icon_test.dart';
-import 'dart:io';
 import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import '../helper_files/clip_paths.dart';
-import '../main.dart';
-import '../widgets/bluetooth_icon_animation.dart';
-import '../widgets/check_mark_animation.dart';
-import '../widgets/custom_card.dart';
-import '../widgets/x_mark_animation.dart';
-import 'new_home_page.dart';
+import '../custom_widgets/bluetooth_icon_animation.dart';
+import '../custom_widgets/check_mark_animation.dart';
+import '../custom_widgets/x_mark_animation.dart';
+import 'home_screen.dart';
 
 class ConnectDevice extends StatefulWidget {
   const ConnectDevice({Key? key}) : super(key: key);

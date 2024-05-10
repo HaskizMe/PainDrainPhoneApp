@@ -5,8 +5,6 @@ import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 
-
-
 class DropDownBox extends StatefulWidget {
   String? selectedItem;
   List<String>? items;

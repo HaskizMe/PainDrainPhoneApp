@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-
-import '../screens/new_tens_screen.dart';
-import '../screens/new_vibration_screen.dart';
+import '../screens/vibration_popup_screen.dart';
 import 'custom_draggable_sheet.dart';
 
 class VibrationSummary extends StatefulWidget {

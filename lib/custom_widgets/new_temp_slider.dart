@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 
 import '../controllers/stimulus_controller.dart';

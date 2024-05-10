@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/screens/new_temperature_screen.dart';
+import 'package:pain_drain_mobile_app/screens/temperature_popup_screen.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-
-import '../screens/new_vibration_screen.dart';
 import 'custom_draggable_sheet.dart';
 
 class TemperatureSummary extends StatefulWidget {

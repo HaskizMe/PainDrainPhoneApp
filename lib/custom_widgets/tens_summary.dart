@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/screens/TENS_settings.dart';
-import 'package:pain_drain_mobile_app/screens/new_tens_screen.dart';
+import 'package:pain_drain_mobile_app/screens/tens_popup_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
 import 'custom_draggable_sheet.dart';
 
 class TensSummary extends StatefulWidget {

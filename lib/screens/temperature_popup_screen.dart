@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/widgets/new_temp_slider.dart';
+import 'package:pain_drain_mobile_app/custom_widgets/new_temp_slider.dart';
 
 class NewTemperatureScreen extends StatefulWidget {
   const NewTemperatureScreen({Key? key}) : super(key: key);
