@@ -32,18 +32,22 @@ dependencies:
     sdk: flutter
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  flutter_blue_plus: ^1.31.10   #^1.14.11
-  get: ^4.6.5
+  cupertino_icons: ^1.0.6
+  flutter_blue_plus: ^1.31.16   #^1.14.11
+  get: ^4.6.6
   async: ^2.11.0
-  shared_preferences: ^2.2.1
-  permission_handler: ^11.0.0
-  syncfusion_flutter_sliders: ^23.1.41
+  shared_preferences: ^2.2.2
+  permission_handler: ^11.3.0
+  syncfusion_flutter_sliders: ^24.2.9
   device_preview: ^1.1.0
   percent_indicator: ^4.2.3
   dots_indicator: ^3.0.0
   package_info_plus: ^5.0.1
   dropdown_button2: ^2.3.8
+  syncfusion_flutter_core: ^24.2.9
+  flutter_xlider: ^3.5.0
+  introduction_screen: ^3.1.9
+  font_awesome_flutter: ^10.7.0
 
 
 dev_dependencies:
@@ -56,7 +60,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^2.0.3
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
@@ -92,6 +96,16 @@ flutter:
     - assets/PainDrainDevice.PDF
     - assets/PainDrainDeviceWithoutBackground.png
     - assets/pawel-czerwinski-6lQDFGOB1iw-unsplash.jpg
+    - assets/move_sliders.gif
+    - assets/adjust_sliders.png
+    - assets/load_preset.png
+    - assets/add_preset.png
+    - assets/delete_preset.png
+    - assets/adjust_sliders2.png
+    - assets/adjust_sliders3.png
+    - assets/adjust_sliders4.png
+    - assets/adjust_sliders5.png
+    - assets/img1.jpg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

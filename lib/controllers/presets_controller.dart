@@ -1,75 +1,108 @@
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 
 class SavedPresets{
+  // Attributes
   late final SharedPreferences _prefs;
-  //final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  //List<String>? _presets;
+  String? _currentPreset;
+  late final StimulusController _stimController;
+  late bool _isDevControls;
 
-  // void setPreferences() async{
-  //   final SharedPreferences prefs = await _prefs;
-  // }
 
+  // Constructor
   SavedPresets() {
     _initialize();
   }
 
+  // Methods
   Future<void> _initialize() async {
+    _stimController = Get.find();
+    // Initialize shared preferences
     _prefs = await SharedPreferences.getInstance();
-
-
-    //deleteAllPresets();
-    // Store dummy data everytime in shared prefs
-    await _prefs.setStringList('presets', <String>[
-      'preset 1', 'preset 2', 'preset 3', 'preset 4', 'preset 5', 'preset 6'
-    ]);
-    getPresets();
+    _isDevControls = false;
+    //_prefs.clear();
   }
 
-  List<String>? getPresets() {
-    final List<String>? presets = _prefs.getStringList('presets');
-    print("All presets: $presets");
+  List<String> getPresets() {
+    //List<String> presets = _prefs.getKeys().toList()..sort();
+    //List<String> presets = _prefs.getKeys().where((key) => key.contains("preset")).toList()..sort();
+    //List<String> presets = _prefs.getKeys().where((key) => key.contains("preset.")).map((key) => key.replaceAll("preset.", "")).toList()..sort();
+    List<String> presets = _prefs.getKeys().where((key) => key.contains("preset.")).map((key) => key.substring(7)).toList()..sort();
+
+
+
     return presets;
   }
+  Set<String> getKeys() {
+    final Set<String> allKeys = _prefs.getKeys().where((key) => key.contains("preset")).toSet();
+    return allKeys;
+  }
+
+  String? getCurrentPreset() {
+    // return _currentPreset?.replaceAll("preset.", "");
+    return _currentPreset?.substring(7);
+
+  }
+
+  void setCurrentPreset(String? newPreset){
+    _currentPreset = "preset.$newPreset";
+  }
+
 
   deleteAllPresets() async {
-    // Remove data for the 'counter' key.
-
-    await _prefs.remove('pesets');
+    await _prefs.clear();
   }
 
-  void addNewPreset(String name) {
+  void addNewPreset(String presetName) async {
+    List<String> presetValues = _stimController.getAllStimulusValues();
+
+    await _prefs.setStringList("preset.$presetName", presetValues);
+
+    print(_prefs.getStringList("preset.$presetName"));
+    print(_prefs.getKeys());
 
   }
 
-  Future<void> deletePreset(String name) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // final SharedPreferences prefs = _prefs;
-    // Makes sure that the user can't delete the first element in the dropdown button
-    if(name != "Select preset"){
-      final String? settingName = prefs.getString("$name.setting");
-      // If the name is found in persistent storage then it will delete it
-      if(settingName != null) {
-        prefs.remove("$settingName.setting");
-        prefs.remove("$settingName.${globalValues.temperature}");
-        prefs.remove("$settingName.${globalValues.tensAmplitude}");
-        prefs.remove("$settingName.${globalValues.tensDurationCh1}");
-        prefs.remove("$settingName.${globalValues.tensPeriod}");
-        prefs.remove("$settingName.${globalValues.tensDurationCh2}");
-        prefs.remove("$settingName.${globalValues.tensPhase}");
-        prefs.remove("$settingName.${globalValues.vibeAmplitude}");
-        prefs.remove("$settingName.${globalValues.vibeFreq}");
-        prefs.remove("$settingName.${globalValues.vibeWaveform}");
-        prefs.remove("$settingName.${globalValues.vibeWaveType}");
-        print("removed $settingName");
-        // Remove string from dropdown button
-        // dropdownItems.remove(selectedItem);
-        // selectedItem = dropdownItems.first;
-        // Select the first item in the list
-        globalValues.setPresetValue(name!);
-      }
-
+  Future<void> deletePreset(String presetName) async {
+    print("delete Here 2");
+    // Check if the list is not null and contains the presetName
+    if (_prefs.getKeys().contains("preset.$presetName")) {
+      // Remove the desired value from the list
+      await _prefs.remove("preset.$presetName");
     }
+    print(_prefs.getKeys());
+  }
+
+  void loadPreset(String presetName) {
+    if (_prefs.getKeys().contains("preset.$presetName") && _prefs.getStringList("preset.$presetName") != null) {
+      List<String> presetValues = _prefs.getStringList("preset.$presetName")!;
+      _stimController.setStimulus(_stimController.tensAmp, double.parse(presetValues[0]));
+      _stimController.setStimulus(_stimController.tensPeriod, double.parse(presetValues[1]));
+      _stimController.setStimulus(_stimController.tensDurCh1, double.parse(presetValues[2]));
+      _stimController.setStimulus(_stimController.tensDurCh2, double.parse(presetValues[3]));
+      _stimController.setStimulus(_stimController.tensPhase, double.parse(presetValues[4]));
+      _stimController.setCurrentChannel(int.parse(presetValues[5]));
+      _stimController.setStimulus(_stimController.temp, double.parse(presetValues[6]));
+      _stimController.setStimulus(_stimController.vibeAmp, double.parse(presetValues[7]));
+      _stimController.setStimulus(_stimController.vibeFreq, double.parse(presetValues[8]));
+      _stimController.setStimulus(_stimController.vibeWaveform, double.parse(presetValues[9]));
+      _stimController.setCurrentWaveType(presetValues[10]);
+      print(_prefs.getStringList("preset.$presetName"));
+    }
+  }
+
+  bool getDevControls(){
+    return _isDevControls;
+  }
+
+  setDevControls(bool isEnabled) {
+    _isDevControls = isEnabled;
   }
 
 }

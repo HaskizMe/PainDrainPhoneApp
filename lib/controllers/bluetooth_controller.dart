@@ -1,52 +1,31 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:pain_drain_mobile_app/main.dart';
-import 'package:pain_drain_mobile_app/screens/ble_scan.dart';
-import 'package:flutter/material.dart';
+import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 
-DeviceIdentifier luna3Identifier = const DeviceIdentifier('E6:D8:E7:66:CB:0D');
-DeviceIdentifier painDrainIdentifier = const DeviceIdentifier('00:A0:50:00:00:03');
-// BluetoothDevice luna3 = BluetoothDevice(
-//     remoteId: luna3Identifier,
-//     localName: 'Luna3',
-//     type: BluetoothDeviceType.le
-// );
-
-// BluetoothDevice painDrain = BluetoothDevice(
-//     remoteId: painDrainIdentifier,
-//     localName: 'PainDrain',
-//     type: BluetoothDeviceType.le
-// );
 
 class BluetoothController extends GetxController {
+  final StimulusController _stimulusController = Get.find();
   Function? onDisconnectedCallback;
   Function? onReconnectedCallback;
+  final Queue<List<int>> _queue = Queue<List<int>>();
   String customServiceUUID = "3bf00c21-d291-4688-b8e9-5a379e3d9874";
   String customCharacteristicUUID = "93c836a2-695a-42cc-95ac-1afa0eef6b0a";
-  String batteryServiceUUID = "0000180f-0000-1000-8000-00805f9b34fb";
-  String batteryCharacteristicUUID = "00002a19-0000-1000-8000-00805f9b34fb";
+  // String batteryServiceUUID = "0000180f-0000-1000-8000-00805f9b34fb";
+  // String batteryCharacteristicUUID = "00002a19-0000-1000-8000-00805f9b34fb";
+  String batteryServiceUUID = "180f";
+  String batteryCharacteristicUUID = "2a19";
   late BluetoothService customService;
+  late BluetoothService batteryService;
   late BluetoothCharacteristic customCharacteristic;
-  // late BluetoothService batteryService;
-  // late BluetoothCharacteristic batteryCharacteristic;
-  // late BluetoothDevice connectedDevice;
+  late BluetoothCharacteristic batteryCharacteristic;
   BluetoothDevice? myConnectedDevice;
-
   late List<BluetoothService> services;
-
   final RxList<BluetoothDevice> connectedDevices = RxList<BluetoothDevice>();
   final RxList<ScanResult> notConnectedDevices = RxList<ScanResult>();
-
   List<ScanResult> scanResults = [];
-
-
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   // _setupBluetooth();
-  // }
 
   Future<void> scanForDevices() async {
 
@@ -65,6 +44,12 @@ class BluetoothController extends GetxController {
     // wait for scanning to stop
     await FlutterBluePlus.isScanning.where((val) => val == false).first;
 
+    if(scanResults.isNotEmpty){
+      print("not empty");
+    }
+    else{
+      print("empty");
+    }
   }
 
   Future<bool> connectDevice(BluetoothDevice device) async {
@@ -84,6 +69,21 @@ class BluetoothController extends GetxController {
       device.cancelWhenDisconnected(connectionSubscription, delayed: true, next: true);
       await discoverServices(device);
       success = true;
+
+      final batteryReadSubscription = batteryCharacteristic.onValueReceived.listen((value) {
+        /// This is where I will add the code to get the battery percentage.
+        print("Battery Characteristic received: $value");
+      });
+
+      // cleanup: cancel subscription when disconnected
+      device.cancelWhenDisconnected(batteryReadSubscription);
+
+      // subscribe
+      // Note: If a characteristic supports both **notifications** and **indications**,
+      // it will default to **notifications**. This matches how CoreBluetooth works on iOS.
+      // This causes an error right now
+      //await batteryCharacteristic.setNotifyValue(true);
+
     } catch (e) {
       success = false;
       print("Error Cannot Connect");
@@ -92,110 +92,40 @@ class BluetoothController extends GetxController {
     return success;
   }
 
-Future<void> discoverServices(BluetoothDevice connectedDevice) async {
-  services = await connectedDevice.discoverServices();
+  Future<void> discoverServices(BluetoothDevice connectedDevice) async {
+    services = await connectedDevice.discoverServices();
 
-  // Reads all services and finds the custom service uuid
-  for (BluetoothService service in services) {
-    if(service.uuid.toString() == customServiceUUID){
-      print("Custom service found");
-      customService = service;
+    // Reads all services and finds the custom service uuid
+    for (BluetoothService service in services) {
+      //print("Services: ${service.uuid.toString()}");
+      //print("Services: $service");
+      if(service.uuid.toString() == customServiceUUID){
+        print("Custom service found");
+        customService = service;
+      } else if(service.uuid.toString() == batteryServiceUUID){
+        batteryService = service;
+      }
+
     }
-    // if(service.uuid.toString() == batteryServiceUUID){
-    //   print("Battery service found");
-    //   batteryService = service;
-    // }
-  }
-  // Reads all characteristics
-  var customServiceCharacteristics = customService.characteristics;
-  // var batteryServiceCharacteristics = batteryService.characteristics;
-  for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
-    if(characteristic.uuid.toString() == customCharacteristicUUID){
-      print("Custom characteristic found");
-      customCharacteristic = characteristic;
+    // Reads all characteristics
+    var customServiceCharacteristics = customService.characteristics;
+    // var batteryServiceCharacteristics = batteryService.characteristics;
+    for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
+      if(characteristic.uuid.toString() == customCharacteristicUUID){
+        print("Custom characteristic found");
+        customCharacteristic = characteristic;
+      }
+    }
+    var batteryServiceCharacteristics = batteryService.characteristics;
+
+    for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
+      if(characteristic.uuid.toString() == batteryCharacteristicUUID){
+        print("Battery characteristic found");
+        batteryCharacteristic = characteristic;
+      }
     }
   }
-  // for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
-  //   if(characteristic.uuid.toString() == batteryCharacteristicUUID){
-  //     print("Battery characteristic found");
-  //     batteryCharacteristic = characteristic;
-  //   }
-  // }
 
-}
-
-  // Future<void> connectToDevice(BluetoothDevice device) async {
-  //   try {
-  //     // This connects to the device and then navigates to the other pages
-  //     await device.connect();
-  //     connectedDevice = device;
-  //     services = await connectedDevice.discoverServices();
-  //     // Reads all services and finds the custom service uuid
-  //     for (BluetoothService service in services) {
-  //       if(service.uuid.toString() == customServiceUUID){
-  //         print("Custom service found");
-  //         customService = service;
-  //       }
-  //       if(service.uuid.toString() == batteryServiceUUID){
-  //         print("Battery service found");
-  //         batteryService = service;
-  //       }
-  //     }
-  //     // Reads all characteristics
-  //     var customServiceCharacteristics = customService.characteristics;
-  //     var batteryServiceCharacteristics = batteryService.characteristics;
-  //     for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
-  //       if(characteristic.uuid.toString() == customCharacteristicUUID){
-  //         print("Custom characteristic found");
-  //         customCharacteristic = characteristic;
-  //       }
-  //     }
-  //     for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
-  //       if(characteristic.uuid.toString() == batteryCharacteristicUUID){
-  //         print("Battery characteristic found");
-  //         batteryCharacteristic = characteristic;
-  //       }
-  //     }
-  //
-  //     // This listens to the device and if it gets connected it will return back
-  //     // to the connection page also, if its already connected it will navigate
-  //     // to the other pages.
-  //     late StreamSubscription<BluetoothConnectionState> connectionStateSubscription;
-  //     connectionStateSubscription = device.connectionState.listen((state) async {
-  //       if (state == BluetoothConnectionState.connected) {
-  //         print("Connected");
-  //         await Future.delayed(const Duration(seconds: 2));
-  //          Get.to(() => PageNavigation(activePage: 0, pageController: PageController(initialPage: 0),));
-  //       }
-  //       else if (state == BluetoothConnectionState.disconnected) {
-  //         print("Disconnected");
-  //         connectionStateSubscription.cancel();
-  //         reconnectToDevice(device);
-  //       }
-  //     });
-  //   } catch (e) {
-  //     print("Error connecting $e");
-  //     onDisconnectedCallback!();
-  //     Get.to(() => const BleConnect());
-  //   }
-  //
-  //
-  //
-  //
-  // }
-
-  // Future<void> reconnectToDevice(BluetoothDevice device) async {
-  //   try {
-  //     await device.disconnect();
-  //     await connectToDevice(device);
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //
-  //
-  //
-  //
-  // }
   @override
   void onClose() {
     // luna3.disconnect();
@@ -203,6 +133,7 @@ Future<void> discoverServices(BluetoothDevice connectedDevice) async {
     FlutterBluePlus.stopScan();
     super.onClose();
   }
+
 
   Future writeToDevice(String stimulus, List<int> hexValues) async {
     switch (stimulus){
@@ -228,6 +159,107 @@ Future<void> discoverServices(BluetoothDevice connectedDevice) async {
         print("error");
         break;
     }
+  }
+
+  Future<void> newWriteToDevice(String command) async {
+    try {
+      //String command = getCommand(stimulus);
+      List<int> hexValues = stringToHexList(command);
+      // Add the command to the queue
+      _queue.add(hexValues);
+      // Process each element in the queue until it's empty
+      while (_queue.isNotEmpty) {
+        print("Elements in queue: ${_queue.length}");
+        List<int> currentHexValues = _queue.removeFirst();
+
+        if(currentHexValues.length > 20){
+          print("Big data");
+          await customCharacteristic.write(currentHexValues, allowLongWrite: true);
+        } else {
+          await customCharacteristic.write(currentHexValues);
+        }
+        // Remove the processed command from the queue
+
+        // Optionally, you can wait for a response from the device
+        List<int> readValues = await readFromDevice();
+        String read = hexToString(readValues);
+        devDebugPrint(read);
+        print("Read Values: $read");
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  void devDebugPrint(String readString) {
+    if(readString[0] == "T") {
+      if(readString[2] == "p"){
+        _stimulusController.readPhase = readString;
+      } else {
+        _stimulusController.readTens = readString;
+      }
+    } else if(readString[0] == "v"){
+      _stimulusController.readVibe = readString;
+    } else if(readString[0] == "t") {
+      _stimulusController.readTemp = readString;
+    } else {
+      print("no value");
+    }
+  }
+
+  String getCommand(String stimulus){
+    String channel;
+    String command = "";
+
+    if(_stimulusController.getCurrentChannel() == 1){
+      channel = _stimulusController.tensDurCh1;
+    } else {
+      channel = _stimulusController.tensDurCh2;
+    }
+
+    switch (stimulus){
+      case "tens":
+        print("tens");
+        command = "T "
+            "${_stimulusController.getStimulus(_stimulusController.tensAmp).toInt()} "
+            "${_stimulusController.getStimulus(channel)} "
+            "${_stimulusController.getStimulus(_stimulusController.tensPeriod).toInt()} "
+            "${_stimulusController.getCurrentChannel()}";
+        print(command);
+        break;
+      case "phase":
+        command = "T p ${_stimulusController.getStimulus(_stimulusController.tensPhase).toInt()}";
+        print(command);
+
+        break;
+      case "temperature":
+        print("temperature");
+        command = "t "
+            "${_stimulusController.getStimulus(_stimulusController.temp).toInt()} ";
+        print(command);
+
+        break;
+      case "vibration":
+        print("vibration");
+        String shortenedWaveType = _stimulusController.getAbbreviation(_stimulusController.getCurrentWaveType());
+        command = "v "
+            "$shortenedWaveType "
+            "${_stimulusController.getStimulus(_stimulusController.vibeAmp).toInt()} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeFreq).toInt()} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeWaveform).toInt()} ";
+        print(command);
+        break;
+
+      case "register":
+      // This is for debugging. Not for users
+        print("register");
+        break;
+      default:
+        print("error: Stimulus doesn't exist. Use 'tens', 'vibration', 'phase', or 'temperature'");
+        break;
+    }
+    print("sending");
+    return command;
   }
 
   Future<List<int>> readFromDevice() async {
