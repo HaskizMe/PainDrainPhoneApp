@@ -5,14 +5,14 @@ import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/custom_widgets/new_temp_slider.dart';
 
-class NewTemperatureScreen extends StatefulWidget {
-  const NewTemperatureScreen({Key? key}) : super(key: key);
+class TemperatureScreen extends StatefulWidget {
+  const TemperatureScreen({Key? key}) : super(key: key);
 
   @override
-  State<NewTemperatureScreen> createState() => _NewTemperatureScreenState();
+  State<TemperatureScreen> createState() => _TemperatureScreenState();
 }
 
-class _NewTemperatureScreenState extends State<NewTemperatureScreen> {
+class _TemperatureScreenState extends State<TemperatureScreen> {
   final StimulusController _stimController = Get.find();
   final BluetoothController _bleController = Get.find();
 

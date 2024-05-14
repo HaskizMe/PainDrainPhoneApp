@@ -26,7 +26,7 @@ class _VibrationSummaryState extends State<VibrationSummary> {
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, const NewVibrationScreen(), widget.update);
+        showScrollableSheet(context, const VibrationScreen(), widget.update);
       },
       child: Card(
         elevation: 10.0,

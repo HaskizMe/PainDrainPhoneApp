@@ -70,9 +70,16 @@ class BluetoothController extends GetxController {
       await discoverServices(device);
       success = true;
 
-      final batteryReadSubscription = batteryCharacteristic.onValueReceived.listen((value) {
-        /// This is where I will add the code to get the battery percentage.
-        print("Battery Characteristic received: $value");
+      final batteryReadSubscription = customCharacteristic.onValueReceived.listen((value) {
+        /// This is where I will add the code to get the battery percentage. Right now
+        /// this is only called when readFromDevice() is called anywhere in the program.
+        /// I need to add a notifier function to the Firmware
+        // print("Battery Characteristic received: $value");
+        // print("Battery Characteristic received String: ${hexToString(value)}");
+        // String read = hexToString(value);
+        // devDebugPrint(read);
+        // print("Read Values: $read");
+
       });
 
       // cleanup: cancel subscription when disconnected
