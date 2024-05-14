@@ -4,16 +4,16 @@ import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/custom_widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/custom_widgets/new_custom_slider.dart';
 
-class NewVibrationScreen extends StatefulWidget {
+class VibrationScreen extends StatefulWidget {
   //final Function(void) update;
 
-  const NewVibrationScreen({Key? key,}) : super(key: key);
+  const VibrationScreen({Key? key,}) : super(key: key);
 
   @override
-  State<NewVibrationScreen> createState() => _NewVibrationScreenState();
+  State<VibrationScreen> createState() => _VibrationScreenState();
 }
 
-class _NewVibrationScreenState extends State<NewVibrationScreen> {
+class _VibrationScreenState extends State<VibrationScreen> {
   final StimulusController _stimController = Get.find();
   String stimulus = "vibration";
 

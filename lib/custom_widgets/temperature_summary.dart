@@ -46,7 +46,7 @@ class _TemperatureSummaryState extends State<TemperatureSummary> {
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, const NewTemperatureScreen(), widget.update);
+        showScrollableSheet(context, const TemperatureScreen(), widget.update);
       },
       child: Card(
         elevation: 10.0,

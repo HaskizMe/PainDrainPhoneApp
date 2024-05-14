@@ -48,6 +48,7 @@ dependencies:
   flutter_xlider: ^3.5.0
   introduction_screen: ^3.1.9
   font_awesome_flutter: ^10.7.0
+  loading_animation_widget: ^1.2.1
 
 
 dev_dependencies:
@@ -91,21 +92,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/khamkeo-vilaysing-rpVQJbZMw8o-unsplash.jpg
-    - assets/PainDrainDevice.png
-    - assets/PainDrainDevice.PDF
-    - assets/PainDrainDeviceWithoutBackground.png
-    - assets/pawel-czerwinski-6lQDFGOB1iw-unsplash.jpg
-    - assets/move_sliders.gif
-    - assets/adjust_sliders.png
-    - assets/load_preset.png
-    - assets/add_preset.png
-    - assets/delete_preset.png
-    - assets/adjust_sliders2.png
-    - assets/adjust_sliders3.png
-    - assets/adjust_sliders4.png
-    - assets/adjust_sliders5.png
-    - assets/img1.jpg
+    - assets/
+#    - assets/PainDrainDevice.png
+#    - assets/PainDrainDevice.PDF
+#    - assets/PainDrainDeviceWithoutBackground.png
+#    - assets/move_sliders.gif
+#    - assets/adjust_sliders.png
+#    - assets/load_preset.png
+#    - assets/add_preset.png
+#    - assets/delete_preset.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -8,14 +8,14 @@ import 'package:syncfusion_flutter_core/theme.dart';
 
 import '../controllers/stimulus_controller.dart';
 
-class NewTensSettings extends StatefulWidget {
-  const NewTensSettings({Key? key}) : super(key: key);
+class TensSettings extends StatefulWidget {
+  const TensSettings({Key? key}) : super(key: key);
 
   @override
-  State<NewTensSettings> createState() => _NewTensSettingsState();
+  State<TensSettings> createState() => _TensSettingsState();
 }
 
-class _NewTensSettingsState extends State<NewTensSettings> {
+class _TensSettingsState extends State<TensSettings> {
   final StimulusController _stimController = Get.find();
   late bool _isOn;
   final BluetoothController _bleController = Get.find();

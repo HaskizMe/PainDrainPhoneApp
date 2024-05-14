@@ -57,7 +57,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
           _animationController.forward();
         });
         await Future.delayed(const Duration(seconds: 2));
-        Get.off(() => const NewHomePage());
+        Get.off(() => const HomeScreen());
         print("success");
       }
       else {
@@ -187,8 +187,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          // backgroundColor: AppColors.mintGreen.withOpacity(.1),
-                          backgroundColor: Colors.blue.shade900,
+                          backgroundColor: Colors.lightBlue,
 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),

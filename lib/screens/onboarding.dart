@@ -12,6 +12,27 @@ class OnBoarding extends StatelessWidget {
       pages: [
         PageViewModel(
           title: "",
+          bodyWidget: Column(
+            children: [
+              SizedBox(
+                //color: Colors.red,
+                width: MediaQuery.of(context).size.width * .9,
+                height: MediaQuery.of(context).size.height * .5,
+                child: Image.asset("assets/click_stimulus.png", fit: BoxFit.contain,),
+              ),
+              const SizedBox(height: 20,),
+              const Text("Open Stimulus Controls", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
+              const SizedBox(height: 20,),
+              const Text("Simply click on one of the", style: TextStyle(fontSize: 24),),
+              const Text("summary boxes to open up", style: TextStyle(fontSize: 24),),
+              const Text("the adjust sliders menu.", style: TextStyle(fontSize: 24),),
+
+            ],
+          ),
+        ),
+
+        PageViewModel(
+          title: "",
           //body: "This is a description on a page with a custom button below.",
           //image: Image.asset("assets/adjust_sliders.png", height: 300.0, width: 200,),
           bodyWidget: Column(
@@ -25,8 +46,8 @@ class OnBoarding extends StatelessWidget {
               const SizedBox(height: 20,),
               const Text("Stimulus Controls", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
               const SizedBox(height: 20,),
-              const Text("Use slider controls to adjust", style: TextStyle(fontSize: 24),),
-              const Text("stimulus to your comfort level", style: TextStyle(fontSize: 24),),
+              const Text("Use the slider controls to adjust", style: TextStyle(fontSize: 24),),
+              const Text("stimulus to your comfort level.", style: TextStyle(fontSize: 24),),
 
             ],
           ),
@@ -45,7 +66,7 @@ class OnBoarding extends StatelessWidget {
               const Text("Add Presets", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
               const SizedBox(height: 20,),
               const Text("Press the 'Add' button to add", style: TextStyle(fontSize: 24),),
-              const Text("a custom preset to your profile", style: TextStyle(fontSize: 24),),
+              const Text("a custom preset to your profile.", style: TextStyle(fontSize: 24),),
 
             ],
           ),
@@ -65,7 +86,7 @@ class OnBoarding extends StatelessWidget {
               const SizedBox(height: 20,),
               const Text("Select a preset from the drop", style: TextStyle(fontSize: 24),),
               const Text("down-box and press the 'Load'", style: TextStyle(fontSize: 24),),
-              const Text("button to load a custom preset", style: TextStyle(fontSize: 24),),
+              const Text("button to load a custom preset.", style: TextStyle(fontSize: 24),),
 
             ],
           ),
@@ -85,7 +106,7 @@ class OnBoarding extends StatelessWidget {
               const SizedBox(height: 20,),
               const Text("Select a preset from the drop", style: TextStyle(fontSize: 24),),
               const Text("down-box and press the 'Delete'", style: TextStyle(fontSize: 24),),
-              const Text("button to delete a custom preset", style: TextStyle(fontSize: 24),),
+              const Text("button to delete a custom preset.", style: TextStyle(fontSize: 24),),
             ],
           ),
         ),
@@ -95,7 +116,7 @@ class OnBoarding extends StatelessWidget {
       skip: const Text("Skip"),
       done: const Text("Done"),
       onDone: () {
-        Get.to(() => const NewHomePage());
+        Get.to(() => const HomeScreen());
       },
     );
   }

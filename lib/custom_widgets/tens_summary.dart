@@ -26,7 +26,7 @@ class _TensSummaryState extends State<TensSummary> {
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, const NewTensSettings(), widget.update);
+        showScrollableSheet(context, const TensSettings(), widget.update);
       },
       child: Card(
         elevation: 10.0,
