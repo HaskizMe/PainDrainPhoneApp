@@ -8,6 +8,7 @@ import '../main.dart';
 
 class SavedPresets{
   // Attributes
+  //late final SharedPreferences _prefs;
   late final SharedPreferences _prefs;
   //List<String>? _presets;
   String? _currentPreset;
@@ -89,7 +90,7 @@ class SavedPresets{
       _stimController.setStimulus(_stimController.tensPhase, double.parse(presetValues[4]));
       _stimController.setCurrentChannel(int.parse(presetValues[5]));
       _stimController.setStimulus(_stimController.temp, double.parse(presetValues[6]));
-      _stimController.setStimulus(_stimController.vibeAmp, double.parse(presetValues[7]));
+      _stimController.setStimulus(_stimController.vibeIntensity, double.parse(presetValues[7]));
       _stimController.setStimulus(_stimController.vibeFreq, double.parse(presetValues[8]));
       _stimController.setStimulus(_stimController.vibeWaveform, double.parse(presetValues[9]));
       _stimController.setCurrentWaveType(presetValues[10]);

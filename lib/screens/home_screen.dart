@@ -1,8 +1,8 @@
+import 'package:animated_icon/animate_icon.dart';
+import 'package:animated_icon/animate_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/screens/onboarding.dart';
@@ -10,9 +10,11 @@ import 'package:pain_drain_mobile_app/custom_widgets/custom_text_field.dart';
 import 'package:pain_drain_mobile_app/custom_widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/custom_widgets/tens_summary.dart';
 import 'package:pain_drain_mobile_app/custom_widgets/vibration_summary.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../controllers/presets_controller.dart';
 import '../scheme_colors/app_colors.dart';
 import '../custom_widgets/temperature_summary.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -37,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   void initState() {
-    decrementBattery();
+    //decrementBattery();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2), // Duration for one complete cycle
@@ -203,9 +205,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             backgroundColor: Colors.blue.shade800,
             centerTitle: true,
             actions: [
-              !isCharging ? batteryIcon : const Icon(Icons.battery_charging_full_rounded, color: Colors.green,),
-              //Icon(Icons.battery_charging_full_rounded, color: Colors.green, size: 25,),
-              //Text("100%", style: const TextStyle(color: Colors.white),),
+              Obx(() => _bleController.isCharging.value
+                  ? const Icon(Icons.battery_charging_full_rounded, color: Colors.green,)
+                  : batteryIcon),
               Text("${batteryLevel.toInt()}%", style: const TextStyle(color: Colors.white),),
               const SizedBox(width: 10.0,)
             ],
@@ -304,7 +306,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       const SizedBox(height: 5.0,),
                       VibrationSummary(update: _updateProgress,),
                       const SizedBox(height: 10.0,),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -324,7 +325,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
                         ],
                       ),
-
                       if(_prefs.getDevControls())
                         Column(
                           children: [
@@ -335,12 +335,46 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             const SizedBox(height: 10.0,),
                             ElevatedButton(
                                 onPressed: () {
-                                  setState(() {
-                                    isCharging = !isCharging;
-                                  });
+                                  setState(() {});
                                 },
                                 child: const Text("Refresh")
                             ),
+                            const SizedBox(height: 20.0,),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  await _bleController.newWriteToDevice("B 0");
+                                },
+                                child: const Text("Not Charging")
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  await _bleController.newWriteToDevice("B 1");
+                                },
+                                child: const Text("Charging")
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  await _bleController.newWriteToDevice("B 2");
+                                },
+                                child: const Text("Fully Charged")
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  await _bleController.newWriteToDevice("B 3");
+                                },
+                                child: const Text("Low Battery")
+                            ),
+                            const SizedBox(height: 20.0,),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  await _bleController.disconnectDevice();
+                                },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red
+                              ),
+                                child: const Text("Disconnect Device", style: TextStyle(color: Colors.white),),
+                            ),
+                            const SizedBox(height: 10.0,),
                           ],
                         )
                     ],
@@ -350,49 +384,73 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
         ),
-        if(isCharging)
-          ChargingAnimation(batteryLevel: batteryLevel,)
+        Obx(() => _bleController.showChargingAnimation.value
+            ? ChargingAnimation(batteryLevel: batteryLevel,)
+            : const SizedBox.shrink()),
       ],
     );
   }
 }
 
-class ChargingAnimation extends StatelessWidget {
+class ChargingAnimation extends StatefulWidget {
   final double batteryLevel;
   const ChargingAnimation({Key? key, required this.batteryLevel}) : super(key: key);
 
   @override
+  State<ChargingAnimation> createState() => _ChargingAnimationState();
+}
+
+class _ChargingAnimationState extends State<ChargingAnimation> {
+
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.5), // Adjust opacity to control the darkness of the overlay
+      color: Colors.black.withOpacity(0.5),
       child: Center(
         child: Stack(
           children: [
             Align(
               alignment: Alignment.center,
               child: Container(
-                width: 150,
-                height: 150,
+                width: 170,
+                height: 170,
                 decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(150)
                 ),
-                child: Center(
-                    child: DefaultTextStyle(
-                      style: const TextStyle(color: Colors.white, fontSize: 24),
-                      child: Text('$batteryLevel%'),
-                    )
+                child:
+                CircularPercentIndicator(
+                  radius: 70.0,
+                  animation: true,
+                  lineWidth: 10.0,
+                  animationDuration: 3000,
+                  animateFromLastPercent: true,
+                  circularStrokeCap: CircularStrokeCap.round,
+                  percent: widget.batteryLevel / 100,
+                  arcType: ArcType.FULL,
+                  linearGradient: LinearGradient(colors: [Colors.green, Colors.green.shade700]),
+                  center: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AnimateIcon(
+                          onTap: () {},
+                          iconType: IconType.continueAnimation,
+                          height: 60,
+                          width: 60,
+                          color: Colors.white,
+                          animateIcon: AnimateIcons.battery,
+                        ),
+                        Text("${widget.batteryLevel.toInt()}%", style: const TextStyle(color: Colors.white, fontSize: 18),),
+                      ]
+                  ),
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.center,
-              child: LoadingAnimationWidget.threeArchedCircle(color: Colors.white, size: 110),
-            ),
           ],
-        ), // Replace this with your charging animation
+        ),
       ),
     );
   }
 }
-

@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
 
 class StimulusController {
   // Attributes
   late final Map<String, double> _stimuli;
-  late final List<String> _waveTypes;
+  //late final List<String> _waveTypes;
   late String _currentWaveType;
   late int _currentChannel;
+  //late BluetoothController _bleController;
   String tensAmp = "tensAmp";
   String tensPeriod = "tensPeriod";
   String tensDurCh1 = "tensDurCh1";
   String tensDurCh2 = "tensDurCh2";
   String tensPhase = "tensPhase";
   String temp = "temp";
-  String vibeAmp = "vibeAmp";
+  String vibeIntensity = "vibeIntensity";
   String vibeFreq = "vibeFreq";
   String vibeWaveform = "vibeWaveform";
   String _readTens = "";
@@ -39,16 +43,17 @@ class StimulusController {
       tensDurCh2 : 0.0,
       tensPhase : 0.0,
       temp : 0.0,
-      vibeAmp : 0.0,
+      vibeIntensity : 0.0,
       vibeFreq : 0.0,
       vibeWaveform : 0.0,
     };
+    //BluetoothController _bleController = Get.find();
 
     // Initialize wave type list
-    _waveTypes = ["Sine", "Triangle", "Square", "Sawtooth"];
+    //_waveTypes = ["Sine", "Triangle", "Square", "Sawtooth"];
 
     // Initialize current wave type to the first element in the the wave type list
-    _currentWaveType = _waveTypes.first;
+    //_currentWaveType = _waveTypes.first;
 
     _currentChannel = 1;
 
@@ -79,13 +84,13 @@ class StimulusController {
   }
 
   // Get wave type value
-  String getCurrentWaveType(){
-    return _currentWaveType;
-  }
+  // String getCurrentWaveType(){
+  //   return _currentWaveType;
+  // }
 
-  List<String> getAllWaveTypes(){
-    return _waveTypes;
-  }
+  // List<String> getAllWaveTypes(){
+  //   return _waveTypes;
+  // }
 
   List<String> getAllStimulusValues(){
     List<String> values = [
@@ -96,7 +101,7 @@ class StimulusController {
       _stimuli[tensPhase].toString(),
       _currentChannel.toString(),
       _stimuli[temp].toString(),
-      _stimuli[vibeAmp].toString(),
+      _stimuli[vibeIntensity].toString(),
       _stimuli[vibeFreq].toString(),
       _stimuli[vibeWaveform].toString(),
       _currentWaveType,
@@ -129,6 +134,22 @@ class StimulusController {
         break;
     }
     return abbreviatedWaveType;
+  }
+
+  void disableAllStimuli(){
+    // Disable Tens
+    setStimulus(tensAmp, 0);
+    setStimulus(tensPeriod, 0);
+    setStimulus(tensDurCh1, 0);
+    setStimulus(tensDurCh2, 0);
+    setStimulus(tensDurCh1, 0);
+    setStimulus(tensPhase, 0);
+    setCurrentChannel(1);
+    // Disable Temperature
+    setStimulus(temp, 0);
+    // Disable Vibration
+    setStimulus(vibeIntensity, 0);
+    setStimulus(vibeFreq, 0);
   }
 
 

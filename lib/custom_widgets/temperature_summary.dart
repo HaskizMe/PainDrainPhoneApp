@@ -5,6 +5,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/screens/temperature_popup_screen.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import '../controllers/bluetooth_controller.dart';
 import 'custom_draggable_sheet.dart';
 
 class TemperatureSummary extends StatefulWidget {
@@ -17,6 +18,7 @@ class TemperatureSummary extends StatefulWidget {
 
 class _TemperatureSummaryState extends State<TemperatureSummary> {
   final StimulusController _stimulusController = Get.find();
+  final BluetoothController _bleController = Get.find();
   String temp = "temp";
   IconData? icon;
   Color? iconColor;
@@ -48,56 +50,60 @@ class _TemperatureSummaryState extends State<TemperatureSummary> {
       onTap: () {
         showScrollableSheet(context, const TemperatureScreen(), widget.update);
       },
-      child: Card(
-        elevation: 10.0,
-        child: Container(
-          height: 150,
-          decoration: BoxDecoration(
-            color: Colors.green,
-            borderRadius: BorderRadius.circular(10.0),
-            gradient: LinearGradient(colors: [Colors.blue, Colors.blue.shade700,Colors.blue.shade800]),
+      child: Obx(() {
+        _bleController.isCharging.value;
+          return Card(
+            elevation: 10.0,
+            child: Container(
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(10.0),
+                gradient: LinearGradient(colors: [Colors.blue, Colors.blue.shade700,Colors.blue.shade800]),
 
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              CircularPercentIndicator(
-                radius: 50.0,
-                animation: true,
-                animationDuration: 2000,
-                animateFromLastPercent: true,
-                circularStrokeCap: CircularStrokeCap.round,
-                percent: _stimulusController.getStimulus(temp).abs() / 100,
-                arcType: ArcType.FULL,
-                linearGradient: LinearGradient(colors: colorGradient),
-                center: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        icon,
-                        color: iconColor,
-                        // CupertinoIcons.thermometer_snowflake,
-                        // color: Colors.blue,
-                      ),
-                      const SizedBox(height: 5.0,),
-
-                      Text(
-                          "${_stimulusController.getStimulus(temp).toInt()}%",
-                        style: const TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                      // SizedBox(width: 3.0,),
-                      // const Icon(
-                      //   CupertinoIcons.thermometer_snowflake,
-                      //   color: Colors.blue,
-                      // ),
-                    ]
-                ),
-                footer: Text("Temperature", style: TextStyle(fontSize: 12.0, color: Colors.white),),
               ),
-            ],
-          ),
-        ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CircularPercentIndicator(
+                    radius: 50.0,
+                    animation: true,
+                    animationDuration: 2000,
+                    animateFromLastPercent: true,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    percent: _stimulusController.getStimulus(temp).abs() / 100,
+                    arcType: ArcType.FULL,
+                    linearGradient: LinearGradient(colors: colorGradient),
+                    center: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            icon,
+                            color: iconColor,
+                            // CupertinoIcons.thermometer_snowflake,
+                            // color: Colors.blue,
+                          ),
+                          const SizedBox(height: 5.0,),
+
+                          Text(
+                              "${_stimulusController.getStimulus(temp).toInt()}%",
+                            style: const TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          // SizedBox(width: 3.0,),
+                          // const Icon(
+                          //   CupertinoIcons.thermometer_snowflake,
+                          //   color: Colors.blue,
+                          // ),
+                        ]
+                    ),
+                    footer: Text("Temperature", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
       ),
     );
   }
