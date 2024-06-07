@@ -14,15 +14,15 @@ Future<void> main() async {
   Get.put(BluetoothController());
   Get.put(SavedPresets());
   runApp(DevicePreview(
-    enabled: true,
-    //enabled: false,
+    //enabled: true,
+    enabled: false,
 
     builder: (context) => GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/', // Specify initial route
       getPages: [
-        //GetPage(name: '/', page: () => const ConnectDevice()), // Define route for "/"
-        GetPage(name: '/', page: () => const HomeScreen()), // Define route for "/"
+        GetPage(name: '/', page: () => const ConnectDevice()), // Define route for "/"
+        //GetPage(name: '/', page: () => const HomeScreen()), // Define route for "/"
       ],
     ),
   ));

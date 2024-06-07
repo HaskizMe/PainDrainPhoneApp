@@ -87,7 +87,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
         showXMark = true;
         _animationController.forward();
       });
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 1));
       setState(() {
         showXMark = false;
         _animationController.reset();

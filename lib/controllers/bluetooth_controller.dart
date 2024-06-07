@@ -17,6 +17,11 @@ class BluetoothController extends GetxController {
   // String batteryCharacteristicUUID = "00002a19-0000-1000-8000-00805f9b34fb";
   String batteryServiceUUID = "180f";
   String batteryCharacteristicUUID = "2a19";
+  String characteristicConfigurationUUID = "2902";
+  //String batteryConfigurationUUID = "2902";
+  //late BluetoothCharacteristic customConfigurationCharacteristic;
+  late BluetoothDescriptor customConfigurationDescriptor;
+
   late BluetoothService customService;
   late BluetoothService batteryService;
   late BluetoothCharacteristic customCharacteristic;
@@ -26,6 +31,8 @@ class BluetoothController extends GetxController {
   final RxList<BluetoothDevice> connectedDevices = RxList<BluetoothDevice>();
   final RxList<ScanResult> notConnectedDevices = RxList<ScanResult>();
   List<ScanResult> scanResults = [];
+  var isCharging = false.obs;
+  var showChargingAnimation = false.obs;
 
   Future<void> scanForDevices() async {
 
@@ -55,6 +62,7 @@ class BluetoothController extends GetxController {
   Future<bool> connectDevice(BluetoothDevice device) async {
     bool success = false;
     try {
+      myConnectedDevice = device;
       await device.connect();
       var connectionSubscription = device.connectionState.listen((BluetoothConnectionState state) async {
         if (state == BluetoothConnectionState.disconnected) {
@@ -70,33 +78,25 @@ class BluetoothController extends GetxController {
       await discoverServices(device);
       success = true;
 
-      final batteryReadSubscription = customCharacteristic.onValueReceived.listen((value) {
-        /// This is where I will add the code to get the battery percentage. Right now
-        /// this is only called when readFromDevice() is called anywhere in the program.
-        /// I need to add a notifier function to the Firmware
-        // print("Battery Characteristic received: $value");
-        // print("Battery Characteristic received String: ${hexToString(value)}");
-        // String read = hexToString(value);
-        // devDebugPrint(read);
-        // print("Read Values: $read");
-
-      });
-
-      // cleanup: cancel subscription when disconnected
-      device.cancelWhenDisconnected(batteryReadSubscription);
-
-      // subscribe
-      // Note: If a characteristic supports both **notifications** and **indications**,
-      // it will default to **notifications**. This matches how CoreBluetooth works on iOS.
-      // This causes an error right now
-      //await batteryCharacteristic.setNotifyValue(true);
-
+      setupListeners(device);
     } catch (e) {
       success = false;
-      print("Error Cannot Connect");
+      print("Error Cannot Connect $e");
     }
 
     return success;
+  }
+
+  Future<bool> disconnectDevice() async {
+    if(myConnectedDevice != null){
+      try{
+        await myConnectedDevice!.disconnect();
+        return true;
+      } catch(e){
+        print("Couldn't disconnect $e");
+      }
+    }
+    return false;
   }
 
   Future<void> discoverServices(BluetoothDevice connectedDevice) async {
@@ -118,16 +118,23 @@ class BluetoothController extends GetxController {
     var customServiceCharacteristics = customService.characteristics;
     // var batteryServiceCharacteristics = batteryService.characteristics;
     for(BluetoothCharacteristic characteristic in customServiceCharacteristics) {
+      //print(characteristic);
       if(characteristic.uuid.toString() == customCharacteristicUUID){
         print("Custom characteristic found");
         customCharacteristic = characteristic;
+        for(BluetoothDescriptor descriptor in customCharacteristic.descriptors){
+          if(descriptor.uuid.toString() == characteristicConfigurationUUID){
+            customConfigurationDescriptor = descriptor;
+            print("Descriptor found");
+          }
+        }
       }
     }
     var batteryServiceCharacteristics = batteryService.characteristics;
 
     for(BluetoothCharacteristic characteristic in batteryServiceCharacteristics) {
       if(characteristic.uuid.toString() == batteryCharacteristicUUID){
-        print("Battery characteristic found");
+        print("Battery characteristic found: $characteristic");
         batteryCharacteristic = characteristic;
       }
     }
@@ -138,6 +145,7 @@ class BluetoothController extends GetxController {
     // luna3.disconnect();
     // painDrain.disconnect();
     FlutterBluePlus.stopScan();
+    print("on close");
     super.onClose();
   }
 
@@ -162,6 +170,11 @@ class BluetoothController extends GetxController {
         await customCharacteristic.write(hexValues);
         print("register");
         break;
+      case "notifications":
+        await customCharacteristic.write(hexValues);
+        break;
+      case "B":
+        await customCharacteristic.write(hexValues);
       default:
         print("error");
         break;
@@ -188,10 +201,11 @@ class BluetoothController extends GetxController {
         // Remove the processed command from the queue
 
         // Optionally, you can wait for a response from the device
-        List<int> readValues = await readFromDevice();
-        String read = hexToString(readValues);
-        devDebugPrint(read);
-        print("Read Values: $read");
+        //List<int> readValues = await readFromDevice();
+        // String read = hexToString(readValues);
+        // devDebugPrint(read);
+        //print("Read Values: $read");
+        //print("Read Values: $readValues");
       }
     } catch (e) {
       print("Error: $e");
@@ -248,19 +262,14 @@ class BluetoothController extends GetxController {
         break;
       case "vibration":
         print("vibration");
-        String shortenedWaveType = _stimulusController.getAbbreviation(_stimulusController.getCurrentWaveType());
+        //String shortenedWaveType = _stimulusController.getAbbreviation(_stimulusController.getCurrentWaveType());
         command = "v "
-            "$shortenedWaveType "
-            "${_stimulusController.getStimulus(_stimulusController.vibeAmp).toInt()} "
-            "${_stimulusController.getStimulus(_stimulusController.vibeFreq).toInt()} "
-            "${_stimulusController.getStimulus(_stimulusController.vibeWaveform).toInt()} ";
+            "${_stimulusController.getStimulus(_stimulusController.vibeIntensity).toInt()} "
+            "${_stimulusController.getStimulus(_stimulusController.vibeFreq).toInt()} ";
+            //"${_stimulusController.getStimulus(_stimulusController.vibeWaveform).toInt()} ";
         print(command);
         break;
 
-      case "register":
-      // This is for debugging. Not for users
-        print("register");
-        break;
       default:
         print("error: Stimulus doesn't exist. Use 'tens', 'vibration', 'phase', or 'temperature'");
         break;
@@ -306,11 +315,56 @@ class BluetoothController extends GetxController {
     return asciiString;
   }
 
-  // Future<int> batteryLevelRead() async {
-  //   List<int> rspHexValues = [];
-  //   rspHexValues = await batteryCharacteristic.read();
-  //
-  //   return rspHexValues[0];
+  setupListeners(BluetoothDevice device) async {
+    // This sends a command to the device to enable notifications. So that the below code can read value changes
+    await customConfigurationDescriptor.write([1]);
+    print("subscribing to custom characteristic");
+
+
+    final customCharacteristicSubscription = customCharacteristic.onValueReceived.listen((value) {
+      /// This is where I will add the code to get the battery percentage. Right now
+      /// this is only called when readFromDevice() is called anywhere in the program.
+      /// I need to add a notifier function to the Firmware
+      print("Battery Characteristic received: $value");
+      print("Battery Characteristic received String: ${hexToString(value)}");
+      String read = hexToString(value);
+      devDebugPrint(read);
+      print("Read Values: $read");
+      print("Value received!!!!!!!!!!");
+
+      if(read == "charging 0"){
+        _stimulusController.disableAllStimuli();
+        //sendDisableCommand();
+        //update();
+        isCharging.value = true; // Update the state variable when the device is charging
+        showChargingAnimation.value = true;
+        Future.delayed(const Duration(seconds: 5), () {
+          showChargingAnimation.value = false;
+        });
+      } else if(read == "charging 1") {
+        isCharging.value = false; // Update the state variable when the device is not charging
+      }
+    });
+
+    // cleanup: cancel subscription when disconnected
+    device.cancelWhenDisconnected(customCharacteristicSubscription);
+
+
+    // This enables notifications
+    // Note: If a characteristic supports both **notifications** and **indications**,
+    // it will default to **notifications**. This matches how CoreBluetooth works on iOS.
+    await customCharacteristic.setNotifyValue(true);
+  }
+
+  // void sendDisableCommand(){
+  //   String command = getCommand("tens");
+  //   newWriteToDevice(command);
+  //   command = getCommand("phase");
+  //   newWriteToDevice(command);
+  //   command = getCommand("temperature");
+  //   newWriteToDevice(command);
+  //   command = getCommand("vibration");
+  //   newWriteToDevice(command);
   // }
 
 
