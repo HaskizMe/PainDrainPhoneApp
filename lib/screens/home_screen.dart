@@ -293,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       const SizedBox(height: 10.0,),
                       const Align(
                         alignment: Alignment.centerLeft,
-                        child: Text("Temperature", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                        child: Text("TEMPERATURE", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
                       ),
                       const SizedBox(height: 5.0,),
                       TemperatureSummary(update: _updateProgress,),
@@ -340,18 +340,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 child: const Text("Refresh")
                             ),
                             const SizedBox(height: 20.0,),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  await _bleController.newWriteToDevice("B 0");
-                                },
-                                child: const Text("Not Charging")
-                            ),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  await _bleController.newWriteToDevice("B 1");
-                                },
-                                child: const Text("Charging")
-                            ),
+                            // ElevatedButton(
+                            //     onPressed: () async {
+                            //       await _bleController.newWriteToDevice("B 0");
+                            //     },
+                            //     child: const Text("Not Charging")
+                            // ),
+                            // ElevatedButton(
+                            //     onPressed: () async {
+                            //       await _bleController.newWriteToDevice("B 1");
+                            //     },
+                            //     child: const Text("Charging")
+                            // ),
                             ElevatedButton(
                                 onPressed: () async {
                                   await _bleController.newWriteToDevice("B 2");
@@ -364,6 +364,36 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 },
                                 child: const Text("Low Battery")
                             ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  await _bleController.newWriteToDevice("B 4");
+                                },
+                                child: const Text("Medium Battery")
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  await _bleController.newWriteToDevice("B 5");
+                                },
+                                child: const Text("Normal Operation")
+                            ),
+                            // ElevatedButton(
+                            //     onPressed: () async {
+                            //       await _bleController.newWriteToDevice("B 6");
+                            //     },
+                            //     child: const Text("Warning")
+                            // ),
+                            // ElevatedButton(
+                            //     onPressed: () async {
+                            //       await _bleController.newWriteToDevice("B 7");
+                            //     },
+                            //     child: const Text("Advertising")
+                            // ),
+                            // ElevatedButton(
+                            //     onPressed: () async {
+                            //       await _bleController.newWriteToDevice("B 8");
+                            //     },
+                            //     child: const Text("Connected")
+                            // ),
                             const SizedBox(height: 20.0,),
                             ElevatedButton(
                                 onPressed: () async {
