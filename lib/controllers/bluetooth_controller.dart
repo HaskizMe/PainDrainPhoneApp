@@ -332,16 +332,12 @@ class BluetoothController extends GetxController {
       print("Read Values: $read");
       print("Value received!!!!!!!!!!");
 
-      if(read == "charging 0"){
+      if(read == "charge"){
         _stimulusController.disableAllStimuli();
-        //sendDisableCommand();
-        //update();
         isCharging.value = true; // Update the state variable when the device is charging
         showChargingAnimation.value = true;
-        Future.delayed(const Duration(seconds: 5), () {
-          showChargingAnimation.value = false;
-        });
-      } else if(read == "charging 1") {
+        Future.delayed(const Duration(seconds: 5), () => showChargingAnimation.value = false);
+      } else if(read == "no charge" || read == "normal") {
         isCharging.value = false; // Update the state variable when the device is not charging
       }
     });
