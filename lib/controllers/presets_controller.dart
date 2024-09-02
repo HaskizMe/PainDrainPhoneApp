@@ -62,7 +62,7 @@ class SavedPresets{
 
   void addNewPreset(String presetName) async {
     List<String> presetValues = _stimController.getAllStimulusValues();
-
+    print("All stim values $presetValues");
     await _prefs.setStringList("preset.$presetName", presetValues);
 
     print(_prefs.getStringList("preset.$presetName"));
@@ -83,18 +83,17 @@ class SavedPresets{
   void loadPreset(String presetName) {
     if (_prefs.getKeys().contains("preset.$presetName") && _prefs.getStringList("preset.$presetName") != null) {
       List<String> presetValues = _prefs.getStringList("preset.$presetName")!;
-      _stimController.setStimulus(_stimController.tensAmp, double.parse(presetValues[0]));
-      _stimController.setStimulus(_stimController.tensPeriod, double.parse(presetValues[1]));
-      _stimController.setStimulus(_stimController.tensDurCh1, double.parse(presetValues[2]));
-      _stimController.setStimulus(_stimController.tensDurCh2, double.parse(presetValues[3]));
-      _stimController.setStimulus(_stimController.tensPhase, double.parse(presetValues[4]));
-      _stimController.setCurrentChannel(int.parse(presetValues[5]));
+      print("load preset: ${presetValues}");
+      _stimController.setStimulus(_stimController.tensIntensity, double.parse(presetValues[0]));
+      _stimController.setStimulus(_stimController.tensModeChannel1, double.parse(presetValues[1]));
+      _stimController.setStimulus(_stimController.tensModeChannel2, double.parse(presetValues[2]));
+      _stimController.setStimulus(_stimController.tensPlayButtonChannel1, double.parse(presetValues[3]));
+      _stimController.setStimulus(_stimController.tensPlayButtonChannel2, double.parse(presetValues[4]));
+      _stimController.setStimulus(_stimController.currentChannel, double.parse(presetValues[5]));
       _stimController.setStimulus(_stimController.temp, double.parse(presetValues[6]));
       _stimController.setStimulus(_stimController.vibeIntensity, double.parse(presetValues[7]));
       _stimController.setStimulus(_stimController.vibeFreq, double.parse(presetValues[8]));
-      _stimController.setStimulus(_stimController.vibeWaveform, double.parse(presetValues[9]));
-      _stimController.setCurrentWaveType(presetValues[10]);
-      print(_prefs.getStringList("preset.$presetName"));
+      //print(_prefs.getStringList("preset.$presetName"));
     }
   }
 

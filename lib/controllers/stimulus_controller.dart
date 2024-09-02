@@ -7,14 +7,21 @@ class StimulusController {
   // Attributes
   late final Map<String, double> _stimuli;
   //late final List<String> _waveTypes;
-  late String _currentWaveType;
-  late int _currentChannel;
+  //late String _currentWaveType;
+  //late int _currentChannel;
+  int _currentMode = 1;
   //late BluetoothController _bleController;
-  String tensAmp = "tensAmp";
+  String tensIntensity = "tensAmp";
+  String tensModeChannel1 = "tensModeChannel1";
+  String tensModeChannel2 = "tensModeChannel2";
+  String tensPlayButtonChannel1 = "tensPlayButtonChannel1";
+  String tensPlayButtonChannel2 = "tensPlayButtonChannel2";
+  String currentChannel = "currentChannel";
   String tensPeriod = "tensPeriod";
   String tensDurCh1 = "tensDurCh1";
   String tensDurCh2 = "tensDurCh2";
   String tensPhase = "tensPhase";
+  String tensPlayPause = "tensPlayPause";
   String temp = "temp";
   String vibeIntensity = "vibeIntensity";
   String vibeFreq = "vibeFreq";
@@ -37,15 +44,15 @@ class StimulusController {
 
     // Initialize stimuli map
     _stimuli = {
-      tensAmp : 0.0,
-      tensPeriod : 0.0,
-      tensDurCh1 : 0.0,
-      tensDurCh2 : 0.0,
-      tensPhase : 0.0,
-      temp : 0.0,
-      vibeIntensity : 0.0,
-      vibeFreq : 0.0,
-      vibeWaveform : 0.0,
+      tensIntensity : 0,
+      tensModeChannel1 : 1,
+      tensModeChannel2 : 1,
+      tensPlayButtonChannel1 : 0,
+      tensPlayButtonChannel2 : 0,
+      currentChannel : 1,
+      temp : 0,
+      vibeIntensity : 0,
+      vibeFreq : 0,
     };
     //BluetoothController _bleController = Get.find();
 
@@ -55,7 +62,7 @@ class StimulusController {
     // Initialize current wave type to the first element in the the wave type list
     //_currentWaveType = _waveTypes.first;
 
-    _currentChannel = 1;
+    //_currentChannel = 1;
 
     //_currentPhase = 0;
   }
@@ -71,17 +78,25 @@ class StimulusController {
   }
 
   // Sets wave type string value
-  void setCurrentWaveType(String waveType) {
-    _currentWaveType = waveType;
-  }
+  // void setCurrentWaveType(String waveType) {
+  //   _currentWaveType = waveType;
+  // }
 
-  void setCurrentChannel(int channel) {
-    _currentChannel = channel;
-  }
+  // void setCurrentChannel(int channel) {
+  //   _currentChannel = channel;
+  // }
 
-  int getCurrentChannel() {
-    return _currentChannel;
-  }
+  // int getCurrentChannel() {
+  //   return _currentChannel;
+  // }
+
+  // void setCurrentMode(int mode) {
+  //   _currentMode = mode;
+  // }
+  //
+  // int getCurrentMode() {
+  //   return _currentMode;
+  // }
 
   // Get wave type value
   // String getCurrentWaveType(){
@@ -94,17 +109,15 @@ class StimulusController {
 
   List<String> getAllStimulusValues(){
     List<String> values = [
-      _stimuli[tensAmp].toString(),
-      _stimuli[tensPeriod].toString(),
-      _stimuli[tensDurCh1].toString(),
-      _stimuli[tensDurCh2].toString(),
-      _stimuli[tensPhase].toString(),
-      _currentChannel.toString(),
+      _stimuli[tensIntensity].toString(),
+      _stimuli[tensModeChannel1].toString(),
+      _stimuli[tensModeChannel2].toString(),
+      _stimuli[tensPlayButtonChannel1].toString(),
+      _stimuli[tensPlayButtonChannel2].toString(),
+      _stimuli[currentChannel].toString(),
       _stimuli[temp].toString(),
       _stimuli[vibeIntensity].toString(),
       _stimuli[vibeFreq].toString(),
-      _stimuli[vibeWaveform].toString(),
-      _currentWaveType,
     ];
 
     return values;
@@ -138,13 +151,13 @@ class StimulusController {
 
   void disableAllStimuli(){
     // Disable Tens
-    setStimulus(tensAmp, 0);
+    setStimulus(tensIntensity, 0);
     setStimulus(tensPeriod, 0);
-    setStimulus(tensDurCh1, 0);
-    setStimulus(tensDurCh2, 0);
-    setStimulus(tensDurCh1, 0);
-    setStimulus(tensPhase, 0);
-    setCurrentChannel(1);
+    //setStimulus(tensDurCh1, 0);
+    //setStimulus(tensDurCh2, 0);
+    //setStimulus(tensDurCh1, 0);
+    //setStimulus(tensPhase, 0);
+    //setCurrentChannel(1);
     // Disable Temperature
     setStimulus(temp, 0);
     // Disable Vibration

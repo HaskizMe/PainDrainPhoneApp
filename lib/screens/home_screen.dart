@@ -144,8 +144,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _prefs.loadPreset(_prefs.getCurrentPreset()!);
       command = _bleController.getCommand("tens");
       await _bleController.newWriteToDevice(command);
-      command = _bleController.getCommand("phase");
-      await _bleController.newWriteToDevice(command);
       command = _bleController.getCommand("temperature");
       await _bleController.newWriteToDevice(command);
       command = _bleController.getCommand("vibration");
@@ -251,7 +249,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                             onPressed: () {
                               if(!isLoading) {
-                                print("Is not loading");
                                 _handleLoadPreset();
                               }
                             },

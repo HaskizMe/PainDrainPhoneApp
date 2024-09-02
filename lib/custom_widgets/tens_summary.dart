@@ -56,93 +56,94 @@ class _TensSummaryState extends State<TensSummary> {
                   arcType: ArcType.FULL,
                   linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
                   center: Text("${_stimController.getStimulus(amp).toInt()}%", style: const TextStyle(color: Colors.white),),
-                  footer: const Text("Amplitude", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+                  footer: const Text("Intensity", style: TextStyle(fontSize: 12.0, color: Colors.white),),
                 ),
-                CircularPercentIndicator(
-                  radius: 30.0,
-                  animation: true,
-                  animationDuration: 2000,
-                  animateFromLastPercent: true,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  percent: _stimController.getStimulus(period) / 100,
-                  linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                  arcType: ArcType.FULL,
-                  center: Text("${_stimController.getStimulus(period).toInt()}%", style: const TextStyle(color: Colors.white)),
-                  footer: const Text("Period", style: TextStyle(fontSize: 12.0, color: Colors.white),),
-
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularPercentIndicator(
-                      radius: 30.0,
-                      animation: true,
-                      animationDuration: 2000,
-                      animateFromLastPercent: true,
-                      circularStrokeCap: CircularStrokeCap.round,
-                      percent: _stimController.getStimulus(ch1),
-                      linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                      arcType: ArcType.FULL,
-                      center: Text("${_stimController.getStimulus(ch1)}s", style: const TextStyle(color: Colors.white)),
-                      footer: const Text("Channel 1", style: TextStyle(fontSize: 12.0, color: Colors.white),),
-                    ),
-                    if(_stimController.getCurrentChannel() == 1)
-                      Column(
-                        children: [
-                          const SizedBox(height: 5.0,),
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                color: Colors.green
-                            ),
-                          )
-                        ],
-                      )
-                    // //SizedBox(height: 10.0,),
-                    // Container(
-                    //   width: 10,
-                    //   height: 10,
-                    //   decoration: BoxDecoration(
-                    //     borderRadius: BorderRadius.circular(10.0),
-                    //     color: Colors.green
-                    //   ),
-                    // )
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-
-                  children: [
-                    CircularPercentIndicator(
-                      radius: 30.0,
-                      animation: true,
-                      animationDuration: 2000,
-                      animateFromLastPercent: true,
-                      circularStrokeCap: CircularStrokeCap.round,
-                      percent: _stimController.getStimulus(ch2),
-                      linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                      arcType: ArcType.FULL,
-                      center: Text("${_stimController.getStimulus(ch2)}s", style: const TextStyle(color: Colors.white)),
-                      footer: const Text("Channel 2", style: TextStyle(fontSize: 12.0, color: Colors.white),),
-                    ),
-                    if(_stimController.getCurrentChannel() == 2)
-                      Column(
-                        children: [
-                          SizedBox(height: 5.0,),
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                color: Colors.green
-                            ),
-                          )
-                        ],
-                      )
-                  ],
-                ),
+                //Text("Mode ${_stimController.getStimulus(_stimController.tensMode).toInt()}", style: TextStyle(fontSize: 16, color: Colors.white),)
+                // CircularPercentIndicator(
+                //   radius: 30.0,
+                //   animation: true,
+                //   animationDuration: 2000,
+                //   animateFromLastPercent: true,
+                //   circularStrokeCap: CircularStrokeCap.round,
+                //   percent: _stimController.getStimulus(period) / 100,
+                //   linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+                //   arcType: ArcType.FULL,
+                //   center: Text("${_stimController.getStimulus(period).toInt()}%", style: const TextStyle(color: Colors.white)),
+                //   footer: const Text("Period", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+                //
+                // ),
+                // Column(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     CircularPercentIndicator(
+                //       radius: 30.0,
+                //       animation: true,
+                //       animationDuration: 2000,
+                //       animateFromLastPercent: true,
+                //       circularStrokeCap: CircularStrokeCap.round,
+                //       percent: _stimController.getStimulus(ch1),
+                //       linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+                //       arcType: ArcType.FULL,
+                //       center: Text("${_stimController.getStimulus(ch1)}s", style: const TextStyle(color: Colors.white)),
+                //       footer: const Text("Channel 1", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+                //     ),
+                //     if(_stimController.getCurrentChannel() == 1)
+                //       Column(
+                //         children: [
+                //           const SizedBox(height: 5.0,),
+                //           Container(
+                //             width: 10,
+                //             height: 10,
+                //             decoration: BoxDecoration(
+                //                 borderRadius: BorderRadius.circular(10.0),
+                //                 color: Colors.green
+                //             ),
+                //           )
+                //         ],
+                //       )
+                //     // //SizedBox(height: 10.0,),
+                //     // Container(
+                //     //   width: 10,
+                //     //   height: 10,
+                //     //   decoration: BoxDecoration(
+                //     //     borderRadius: BorderRadius.circular(10.0),
+                //     //     color: Colors.green
+                //     //   ),
+                //     // )
+                //   ],
+                // ),
+                // Column(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //
+                //   children: [
+                //     CircularPercentIndicator(
+                //       radius: 30.0,
+                //       animation: true,
+                //       animationDuration: 2000,
+                //       animateFromLastPercent: true,
+                //       circularStrokeCap: CircularStrokeCap.round,
+                //       percent: _stimController.getStimulus(ch2),
+                //       linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+                //       arcType: ArcType.FULL,
+                //       center: Text("${_stimController.getStimulus(ch2)}s", style: const TextStyle(color: Colors.white)),
+                //       footer: const Text("Channel 2", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+                //     ),
+                //     if(_stimController.getCurrentChannel() == 2)
+                //       Column(
+                //         children: [
+                //           SizedBox(height: 5.0,),
+                //           Container(
+                //             width: 10,
+                //             height: 10,
+                //             decoration: BoxDecoration(
+                //                 borderRadius: BorderRadius.circular(10.0),
+                //                 color: Colors.green
+                //             ),
+                //           )
+                //         ],
+                //       )
+                //   ],
+                // ),
               ],
             ),
           ),

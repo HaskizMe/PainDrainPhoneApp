@@ -4,6 +4,7 @@ import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
 import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
 import 'package:pain_drain_mobile_app/screens/home_screen.dart';
+import 'package:pain_drain_mobile_app/screens/test.dart';
 import 'controllers/bluetooth_controller.dart';
 import 'package:get/get.dart';
 import 'package:device_preview/device_preview.dart';

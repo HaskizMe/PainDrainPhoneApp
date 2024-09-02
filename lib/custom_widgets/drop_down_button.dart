@@ -65,7 +65,7 @@ class _DropDownBoxState extends State<DropDownBox> {
         onChanged: (value) {
           //print(widget.selectedItem);
           if(widget.dropDownCategory == "waveTypes"){
-            _stimController.setCurrentWaveType(value!);
+            //_stimController.setCurrentWaveType(value!);
             //widget.selectedItem = _stimController.getCurrentWaveType();
             String command = _bleController.getCommand("vibration");
             _bleController.newWriteToDevice(command);

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
@@ -17,6 +20,9 @@ class ConnectDevice extends StatefulWidget {
 }
 
 class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProviderStateMixin {
+  BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
+
+  late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
   late AnimationController _animationController;
   late Animation<double> _animation;
   final BluetoothController _bleController = Get.find<BluetoothController>();
@@ -29,12 +35,21 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
+    _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
+      _adapterState = state;
+    });
     _animationController = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _animation = Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
             parent: _animationController, curve: Curves.easeInOutCirc
         )
     );
+  }
+
+  @override
+  void dispose() {
+    _adapterStateStateSubscription.cancel();
+    super.dispose();
   }
 
 
@@ -45,59 +60,71 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
       isPulsing = true;
     });
 
-    await _bleController.scanForDevices();
-    List<ScanResult> results = _bleController.scanResults;
-    if(results.isNotEmpty){
-      BluetoothDevice device = results.first.device;
-      bool success = await _bleController.connectDevice(device);
-      if(success) {
-        setState(() {
-          isPulsing = false;
-          showCheckMark = true;
-          _animationController.forward();
-        });
-        await Future.delayed(const Duration(seconds: 2));
-        Get.off(() => const HomeScreen());
-        print("success");
+    if(_adapterState == BluetoothAdapterState.on){
+      await _bleController.scanForDevices();
+      List<ScanResult> results = _bleController.scanResults;
+      if(results.isNotEmpty){
+        BluetoothDevice device = results.first.device;
+        bool success = await _bleController.connectDevice(device);
+        if(success) {
+          setState(() {
+            isPulsing = false;
+            showCheckMark = true;
+            _animationController.forward();
+          });
+          await Future.delayed(const Duration(seconds: 2));
+          Get.off(() => const HomeScreen());
+          print("success");
+        }
+        else {
+          errorMessage = "Connection Failed";
+          solution = "Please try again";
+          setState(() {
+            isPulsing = false;
+            showXMark = true;
+            _animationController.forward();
+          });
+
+          await Future.delayed(const Duration(seconds: 2));
+
+          setState(() {
+            showXMark = false;
+            _animationController.reset();
+          });
+          print("Unsuccessful Connection: Could not connect to PainDrain device");
+          _showDialog(errorMessage, solution);
+        }
       }
       else {
-        errorMessage = "Connection Failed";
-        solution = "Please try again";
+        errorMessage = "Could not find device";
+        solution = "Make sure device is on and awake and then try again";
         setState(() {
           isPulsing = false;
           showXMark = true;
           _animationController.forward();
         });
-
-        await Future.delayed(const Duration(seconds: 2));
-
+        await Future.delayed(const Duration(seconds: 1));
         setState(() {
           showXMark = false;
           _animationController.reset();
+
         });
-        print("Unsuccessful Connection: Could not connect to PainDrain device");
+        print("Unsuccessful Scan: No results for PainDrain found");
         _showDialog(errorMessage, solution);
       }
-    }
-    else {
-      errorMessage = "Could not find device";
-      solution = "Make sure device is on and awake and then try again";
+      print("List ${_bleController.scanResults}");
+    } else{
+      errorMessage = "Bluetooth not enabled";
+      solution = "Please make sure to enable bluetooth on your device";
+      _showDialog(errorMessage, solution);
+
       setState(() {
         isPulsing = false;
-        showXMark = true;
-        _animationController.forward();
       });
-      await Future.delayed(const Duration(seconds: 1));
-      setState(() {
-        showXMark = false;
-        _animationController.reset();
-
-      });
-      print("Unsuccessful Scan: No results for PainDrain found");
-      _showDialog(errorMessage, solution);
+      if (Platform.isAndroid) {
+        await FlutterBluePlus.turnOn();
+      }
     }
-    print("List ${_bleController.scanResults}");
-
   }
 
   void _showDialog(String errorMessage, String solution){
@@ -144,25 +171,35 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
 
           Align(
             alignment: Alignment.bottomCenter,
-            child: ClipPath(
-              clipper: ConnectBottomScreenClipper(),
-              child: Container(
-                color: Colors.lightBlue, //AppColors.amber.withOpacity(.7),
-                height: 525,
-                width: MediaQuery.of(context).size.width,
-              ),
-            ),
+              child: CustomPaint(
+                size: Size(MediaQuery.of(context).size.width, 270),
+                painter: CurvePainter(color: Colors.lightBlue),
+              )
+            // child:
+            //
+            // ClipPath(
+            //   clipper: ConnectBottomScreenClipper(),
+            //   child: Container(
+            //     color: Colors.lightBlue, //AppColors.amber.withOpacity(.7),
+            //     height: 525,
+            //     width: MediaQuery.of(context).size.width,
+            //   ),
+            // ),
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: ClipPath(
-              clipper: ConnectBottomScreenClipper(),
-              child: Container(
-                color: Colors.blue.shade700,
-                height: 500,
-                width: MediaQuery.of(context).size.width,
-              ),
-            ),
+            child: CustomPaint(
+              size: Size(MediaQuery.of(context).size.width, 250),
+              painter: CurvePainter(color: Colors.blue.shade700),
+            )
+            // ClipPath(
+            //   clipper: ConnectBottomScreenClipper(),
+            //   child: Container(
+            //     color: Colors.blue.shade700,
+            //     height: 500,
+            //     width: MediaQuery.of(context).size.width,
+            //   ),
+            // ),
           ),
           Positioned(
             bottom: 30,
@@ -210,3 +247,32 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
   }
 }
 
+class CurvePainter extends CustomPainter {
+  final Color color;
+
+  CurvePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    double leftXPoint = size.width * .2;
+    double leftYPoint = size.height * .3;
+    double rightXPoint = size.width - (size.width * .2);
+    double rightYPoint = size.height * -.3;
+    double centerXPoint = size.width / 2;
+    var paint = Paint()..color = color;
+
+    var path = Path()
+      ..moveTo(0, 0) // Top left point of the container
+      ..quadraticBezierTo(leftXPoint, leftYPoint, centerXPoint, 0)
+      ..quadraticBezierTo(rightXPoint, rightYPoint, size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}

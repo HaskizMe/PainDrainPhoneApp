@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
@@ -35,14 +36,15 @@ class BluetoothController extends GetxController {
   var showChargingAnimation = false.obs;
 
   Future<void> scanForDevices() async {
-
-    var subscription = FlutterBluePlus.onScanResults.listen((results) {
+    print("Scanning for devices");
+    var scanSubscription = FlutterBluePlus.onScanResults.listen((results) {
       scanResults = results.toList(); // Store scan results in the list
     },
       onError: (e) => print(e),
     );
 
-    FlutterBluePlus.cancelWhenScanComplete(subscription);
+    FlutterBluePlus.cancelWhenScanComplete(scanSubscription);
+
     await FlutterBluePlus.startScan(
         withNames:["PainDrain"],
         timeout: const Duration(seconds: 5)
@@ -214,11 +216,12 @@ class BluetoothController extends GetxController {
 
   void devDebugPrint(String readString) {
     if(readString[0] == "T") {
-      if(readString[2] == "p"){
-        _stimulusController.readPhase = readString;
-      } else {
-        _stimulusController.readTens = readString;
-      }
+      // if(readString[2] == "p"){
+      //   _stimulusController.readPhase = readString;
+      // } else {
+      //   _stimulusController.readTens = readString;
+      // }
+      _stimulusController.readTens = readString;
     } else if(readString[0] == "v"){
       _stimulusController.readVibe = readString;
     } else if(readString[0] == "t") {
@@ -229,35 +232,62 @@ class BluetoothController extends GetxController {
   }
 
   String getCommand(String stimulus){
-    String channel;
     String command = "";
 
-    if(_stimulusController.getCurrentChannel() == 1){
-      channel = _stimulusController.tensDurCh1;
-    } else {
-      channel = _stimulusController.tensDurCh2;
-    }
+    // if(_stimulusController.getStimulus(_stimulusController.currentChannel).toInt() == 1){
+    //   channel = 1;
+    //   mode = _stimulusController.getStimulus(_stimulusController.tensModeChannel1).toInt();
+    //   playButton = _stimulusController.getStimulus(_stimulusController.tensPlayButtonChannel1).toInt();
+    // } else if(_stimulusController.getStimulus(_stimulusController.currentChannel).toInt() == 2) {
+    //   channel = 2;
+    //   mode = _stimulusController.getStimulus(_stimulusController.tensModeChannel2).toInt();
+    //   playButton = _stimulusController.getStimulus(_stimulusController.tensPlayButtonChannel2).toInt();
+    // } else{
+    //   print("ERROR!");
+    //   //return command;
+    // }
+
 
     switch (stimulus){
       case "tens":
+        String mode = "";
+        String playButton = "";
+        String channel = "";
+
+        if(_stimulusController.getStimulus(_stimulusController.currentChannel).toInt() == 1){
+          channel = "1";
+          mode = _stimulusController.getStimulus(_stimulusController.tensModeChannel1).toInt().toString();
+          playButton = _stimulusController.getStimulus(_stimulusController.tensPlayButtonChannel1).toInt().toString();
+        } else if(_stimulusController.getStimulus(_stimulusController.currentChannel).toInt() == 2) {
+          channel = "2";
+          mode = _stimulusController.getStimulus(_stimulusController.tensModeChannel2).toInt().toString();
+          playButton = _stimulusController.getStimulus(_stimulusController.tensPlayButtonChannel2).toInt().toString();
+        } else{
+          print("ERROR!");
+        }
         print("tens");
         command = "T "
-            "${_stimulusController.getStimulus(_stimulusController.tensAmp).toInt()} "
-            "${_stimulusController.getStimulus(channel)} "
-            "${_stimulusController.getStimulus(_stimulusController.tensPeriod).toInt()} "
-            "${_stimulusController.getCurrentChannel()}";
-        print(command);
-        break;
-      case "phase":
-        command = "T p ${_stimulusController.getStimulus(_stimulusController.tensPhase).toInt()}";
-        print(command);
+            "${_stimulusController.getStimulus(_stimulusController.tensIntensity).toInt()} "
+            "$mode "
+            "$playButton "
+            "$channel ";
 
+
+            //"${_stimulusController.getStimulus(_stimulusController.tensMode).toInt()} ";
+            //"${_stimulusController.getStimulus(channel)} "
+            //"${_stimulusController.getStimulus(_stimulusController.tensPeriod).toInt()} "
+            //"${_stimulusController.getCurrentChannel()}";
+        print("Command: stimulus: T, Intensity: ${_stimulusController.getStimulus(_stimulusController.tensIntensity).toInt()}, Mode: $mode, Play/pause: $playButton, Channel: $channel");
         break;
+      // case "phase":
+      //   command = "T p ${_stimulusController.getStimulus(_stimulusController.tensPhase).toInt()}";
+      //   print(command);
+
+      //  break;
       case "temperature":
         print("temperature");
         command = "t "
             "${_stimulusController.getStimulus(_stimulusController.temp).toInt()} ";
-        print(command);
 
         break;
       case "vibration":
@@ -267,13 +297,13 @@ class BluetoothController extends GetxController {
             "${_stimulusController.getStimulus(_stimulusController.vibeIntensity).toInt()} "
             "${_stimulusController.getStimulus(_stimulusController.vibeFreq).toInt()} ";
             //"${_stimulusController.getStimulus(_stimulusController.vibeWaveform).toInt()} ";
-        print(command);
         break;
 
       default:
         print("error: Stimulus doesn't exist. Use 'tens', 'vibration', 'phase', or 'temperature'");
         break;
     }
+    print(command);
     print("sending");
     return command;
   }
