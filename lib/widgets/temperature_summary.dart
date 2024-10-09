@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/screens/temperature_popup_screen.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:pain_drain_mobile_app/screens/home/local_widgets/temperature_popup.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import '../controllers/bluetooth_controller.dart';
+import '../models/bluetooth.dart';
 import 'custom_draggable_sheet.dart';
 
 class TemperatureSummary extends StatefulWidget {
@@ -17,8 +17,8 @@ class TemperatureSummary extends StatefulWidget {
 }
 
 class _TemperatureSummaryState extends State<TemperatureSummary> {
-  final StimulusController _stimulusController = Get.find();
-  final BluetoothController _bleController = Get.find();
+  final Stimulus _stimulusController = Get.find();
+  final Bluetooth _bleController = Get.find();
   String temp = "temp";
   IconData? icon;
   Color? iconColor;
@@ -48,7 +48,7 @@ class _TemperatureSummaryState extends State<TemperatureSummary> {
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, const TemperatureScreen(), widget.update);
+        showScrollableSheet(context, const TemperaturePopup(), widget.update);
       },
       child: Obx(() {
         _bleController.isCharging.value;

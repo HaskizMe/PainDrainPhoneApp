@@ -3,17 +3,17 @@ import 'package:animated_icon/animate_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/screens/onboarding.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/custom_text_field.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/drop_down_button.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/tens_summary.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/vibration_summary.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:pain_drain_mobile_app/screens/home/local_widgets/onboarding.dart';
+import 'package:pain_drain_mobile_app/widgets/custom_text_field.dart';
+import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
+import 'package:pain_drain_mobile_app/widgets/tens_summary.dart';
+import 'package:pain_drain_mobile_app/widgets/vibration_summary.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import '../controllers/presets_controller.dart';
-import '../scheme_colors/app_colors.dart';
-import '../custom_widgets/temperature_summary.dart';
+import '../../models/presets.dart';
+import '../../utils/app_colors.dart';
+import '../../widgets/temperature_summary.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -24,9 +24,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  final SavedPresets _prefs = Get.find();
-  final BluetoothController _bleController = Get.find();
-  final StimulusController _stimulusController = Get.find();
+  final Presets _prefs = Get.find();
+  final Bluetooth _bleController = Get.find();
+  final Stimulus _stimulusController = Get.find();
   final TextEditingController _textController = TextEditingController();
   late AnimationController _controller;
   bool isAddingItem = false; // Track whether we are in "add" mode
@@ -144,8 +144,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       _prefs.loadPreset(_prefs.getCurrentPreset()!);
       command = _bleController.getCommand("tens");
       await _bleController.newWriteToDevice(command);
-      command = _bleController.getCommand("phase");
-      await _bleController.newWriteToDevice(command);
       command = _bleController.getCommand("temperature");
       await _bleController.newWriteToDevice(command);
       command = _bleController.getCommand("vibration");
@@ -251,7 +249,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                             onPressed: () {
                               if(!isLoading) {
-                                print("Is not loading");
                                 _handleLoadPreset();
                               }
                             },

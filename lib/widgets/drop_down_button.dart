@@ -1,9 +1,9 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:pain_drain_mobile_app/controllers/presets_controller.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/models/presets.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
 
 class DropDownBox extends StatefulWidget {
   String? selectedItem;
@@ -17,9 +17,9 @@ class DropDownBox extends StatefulWidget {
 }
 
 class _DropDownBoxState extends State<DropDownBox> {
-  SavedPresets preferences = Get.find();
-  final StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+  Presets preferences = Get.find();
+  final Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
 
   @override void initState() {
     super.initState();
@@ -65,7 +65,7 @@ class _DropDownBoxState extends State<DropDownBox> {
         onChanged: (value) {
           //print(widget.selectedItem);
           if(widget.dropDownCategory == "waveTypes"){
-            _stimController.setCurrentWaveType(value!);
+            //_stimController.setCurrentWaveType(value!);
             //widget.selectedItem = _stimController.getCurrentWaveType();
             String command = _bleController.getCommand("vibration");
             _bleController.newWriteToDevice(command);

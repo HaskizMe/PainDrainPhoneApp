@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../scheme_colors/app_colors.dart';
+import '../utils/app_colors.dart';
 class PulseIcon extends StatefulWidget {
   final bool isPulsing;
   const PulseIcon({super.key, required this.isPulsing});
