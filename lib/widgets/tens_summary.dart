@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/screens/tens_popup_screen.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:pain_drain_mobile_app/screens/home/local_widgets/tens_popup.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'custom_draggable_sheet.dart';
 
@@ -15,8 +15,8 @@ class TensSummary extends StatefulWidget {
 }
 
 class _TensSummaryState extends State<TensSummary> {
-  final StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+  final Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
   String amp = "tensAmp";
   String period = "tensPeriod";
   String ch1 = "tensDurCh1";
@@ -28,7 +28,7 @@ class _TensSummaryState extends State<TensSummary> {
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, const TensSettings(), widget.update);
+        showScrollableSheet(context, const TensPopup(), widget.update);
       },
       child: Obx ((){
         _bleController.isCharging.value;

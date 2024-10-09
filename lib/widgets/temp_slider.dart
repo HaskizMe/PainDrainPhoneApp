@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 
-import '../controllers/bluetooth_controller.dart';
-import '../controllers/stimulus_controller.dart';
+import '../models/bluetooth.dart';
+import '../models/stimulus.dart';
 
 class TempSlider extends StatefulWidget {
   double currentValue;
@@ -15,8 +15,8 @@ class TempSlider extends StatefulWidget {
 }
 
 class _TempSliderState extends State<TempSlider> {
-  final StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+  final Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
 
   final double _minValue = -100;
   final double _maxValue = 100;

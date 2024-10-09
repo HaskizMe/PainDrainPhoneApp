@@ -1,20 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/temp_slider.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:pain_drain_mobile_app/widgets/temp_slider.dart';
 
-class TemperatureScreen extends StatefulWidget {
-  const TemperatureScreen({Key? key}) : super(key: key);
+class TemperaturePopup extends StatefulWidget {
+  const TemperaturePopup({Key? key}) : super(key: key);
 
   @override
-  State<TemperatureScreen> createState() => _TemperatureScreenState();
+  State<TemperaturePopup> createState() => _TemperaturePopupState();
 }
 
-class _TemperatureScreenState extends State<TemperatureScreen> {
-  final StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+class _TemperaturePopupState extends State<TemperaturePopup> {
+  final Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
 
 
   @override

@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/scheme_colors/app_colors.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import '../helper_files/clip_paths.dart';
-import '../custom_widgets/bluetooth_icon_animation.dart';
-import '../custom_widgets/check_mark_animation.dart';
-import '../custom_widgets/x_mark_animation.dart';
-import 'home_screen.dart';
+import 'package:pain_drain_mobile_app/utils/app_colors.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import '../../utils/clip_paths.dart';
+import '../../utils/globals.dart';
+import '../../widgets/bluetooth_icon_animation.dart';
+import '../../widgets/check_mark_animation.dart';
+import '../../widgets/x_mark_animation.dart';
+import '../home/home_screen.dart';
 
 class ConnectDevice extends StatefulWidget {
   const ConnectDevice({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
   late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
   late AnimationController _animationController;
   late Animation<double> _animation;
-  final BluetoothController _bleController = Get.find<BluetoothController>();
+  final Bluetooth _bleController = Get.find<Bluetooth>();
 
   bool showCheckMark = false;
   bool showXMark =  false;
@@ -54,6 +54,10 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
 
 
   Future<void> scanAndConnect() async {
+    if(isDebug){
+      Get.off(() => const HomeScreen());
+      return;
+    }
     String errorMessage;
     String solution;
     setState(() {
@@ -65,6 +69,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
       List<ScanResult> results = _bleController.scanResults;
       if(results.isNotEmpty){
         BluetoothDevice device = results.first.device;
+        print(device);
         bool success = await _bleController.connectDevice(device);
         if(success) {
           setState(() {
@@ -77,6 +82,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
           print("success");
         }
         else {
+
           errorMessage = "Connection Failed";
           solution = "Please try again";
           setState(() {
@@ -219,7 +225,9 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
                       height: 60,
                       child: ElevatedButton(
                         onPressed: () async {
+                          print("Connect pressed");
                           if(!isPulsing){
+
                             await scanAndConnect();
                           }
                         },

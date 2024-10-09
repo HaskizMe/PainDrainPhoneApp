@@ -1,3 +1,7 @@
+# Ignore the key.properties file in the Android directory
+# This contains information for signing and building an apk
+/android/key.properties
+
 # Miscellaneous
 *.class
 *.log

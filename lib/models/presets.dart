@@ -1,23 +1,23 @@
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 
-class SavedPresets{
+class Presets{
   // Attributes
   //late final SharedPreferences _prefs;
   late final SharedPreferences _prefs;
   //List<String>? _presets;
   String? _currentPreset;
-  late final StimulusController _stimController;
+  late final Stimulus _stimController;
   late bool _isDevControls;
 
 
   // Constructor
-  SavedPresets() {
+  Presets() {
     _initialize();
   }
 
@@ -90,9 +90,10 @@ class SavedPresets{
       _stimController.setStimulus(_stimController.tensPlayButtonChannel1, double.parse(presetValues[3]));
       _stimController.setStimulus(_stimController.tensPlayButtonChannel2, double.parse(presetValues[4]));
       _stimController.setStimulus(_stimController.currentChannel, double.parse(presetValues[5]));
-      _stimController.setStimulus(_stimController.temp, double.parse(presetValues[6]));
-      _stimController.setStimulus(_stimController.vibeIntensity, double.parse(presetValues[7]));
-      _stimController.setStimulus(_stimController.vibeFreq, double.parse(presetValues[8]));
+      _stimController.setStimulus(_stimController.tensPhase, double.parse(presetValues[6]));
+      _stimController.setStimulus(_stimController.temp, double.parse(presetValues[7]));
+      _stimController.setStimulus(_stimController.vibeIntensity, double.parse(presetValues[8]));
+      _stimController.setStimulus(_stimController.vibeFreq, double.parse(presetValues[9]));
       //print(_prefs.getStringList("preset.$presetName"));
     }
   }

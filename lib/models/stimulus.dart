@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
 
-class StimulusController {
+class Stimulus {
   // Attributes
   late final Map<String, double> _stimuli;
   //late final List<String> _waveTypes;
@@ -33,7 +33,7 @@ class StimulusController {
 
 
   // Constructor
-  StimulusController() {
+  Stimulus() {
     _initialize();
   }
 
@@ -50,9 +50,10 @@ class StimulusController {
       tensPlayButtonChannel1 : 0,
       tensPlayButtonChannel2 : 0,
       currentChannel : 1,
+      tensPhase: 0,
       temp : 0,
       vibeIntensity : 0,
-      vibeFreq : 0,
+      vibeFreq : 0
     };
     //BluetoothController _bleController = Get.find();
 
@@ -115,6 +116,7 @@ class StimulusController {
       _stimuli[tensPlayButtonChannel1].toString(),
       _stimuli[tensPlayButtonChannel2].toString(),
       _stimuli[currentChannel].toString(),
+      _stimuli[tensPhase].toString(),
       _stimuli[temp].toString(),
       _stimuli[vibeIntensity].toString(),
       _stimuli[vibeFreq].toString(),
@@ -124,6 +126,7 @@ class StimulusController {
   }
 
   bool isPhaseOn() {
+    print(_stimuli[tensPhase]);
     if(_stimuli[tensPhase] == 0){
       return false;
     }
@@ -156,7 +159,7 @@ class StimulusController {
     //setStimulus(tensDurCh1, 0);
     //setStimulus(tensDurCh2, 0);
     //setStimulus(tensDurCh1, 0);
-    //setStimulus(tensPhase, 0);
+    setStimulus(tensPhase, 0);
     //setCurrentChannel(1);
     // Disable Temperature
     setStimulus(temp, 0);

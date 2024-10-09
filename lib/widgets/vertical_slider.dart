@@ -3,8 +3,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import '../controllers/stimulus_controller.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import '../models/stimulus.dart';
 
 class CustomVerticalSlider extends StatefulWidget {
   final String title;
@@ -36,8 +36,8 @@ class CustomVerticalSlider extends StatefulWidget {
 }
 
 class _CustomVerticalSliderState extends State<CustomVerticalSlider> {
-  final StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+  final Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
 
 
   @override

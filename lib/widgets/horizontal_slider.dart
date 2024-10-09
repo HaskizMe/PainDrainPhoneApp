@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
-import '../controllers/bluetooth_controller.dart';
-import '../controllers/stimulus_controller.dart';
+import '../models/bluetooth.dart';
+import '../models/stimulus.dart';
 
 class CustomHorizontalSlider extends StatefulWidget {
   final String title;
@@ -35,8 +35,8 @@ class CustomHorizontalSlider extends StatefulWidget {
 }
 
 class _CustomHorizontalSliderState extends State<CustomHorizontalSlider> {
-  final StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+  final Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
 
   @override
   Widget build(BuildContext context) {

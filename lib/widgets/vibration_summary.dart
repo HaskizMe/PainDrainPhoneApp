@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import '../controllers/bluetooth_controller.dart';
-import '../screens/vibration_popup_screen.dart';
+import '../models/bluetooth.dart';
+import '../screens/home/local_widgets/vibration_popup.dart';
 import 'custom_draggable_sheet.dart';
 
 class VibrationSummary extends StatefulWidget {
@@ -15,8 +15,8 @@ class VibrationSummary extends StatefulWidget {
 }
 
 class _VibrationSummaryState extends State<VibrationSummary> {
-  StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+  Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
 
   //String amp = "vibeIntensity";
   String freq = "vibeFreq";
@@ -28,7 +28,7 @@ class _VibrationSummaryState extends State<VibrationSummary> {
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
       onTap: () {
-        showScrollableSheet(context, const VibrationScreen(), widget.update);
+        showScrollableSheet(context, const VibrationPopup(), widget.update);
       },
       child: Obx(() {
         _bleController.isCharging.value;

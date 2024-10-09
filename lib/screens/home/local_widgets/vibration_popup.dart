@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/drop_down_button.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/vertical_slider.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
+import 'package:pain_drain_mobile_app/widgets/vertical_slider.dart';
 
-import '../controllers/bluetooth_controller.dart';
+import '../../../models/bluetooth.dart';
 
-class VibrationScreen extends StatefulWidget {
+class VibrationPopup extends StatefulWidget {
   //final Function(void) update;
 
-  const VibrationScreen({Key? key,}) : super(key: key);
+  const VibrationPopup({Key? key,}) : super(key: key);
 
   @override
-  State<VibrationScreen> createState() => _VibrationScreenState();
+  State<VibrationPopup> createState() => _VibrationPopupState();
 }
 
-class _VibrationScreenState extends State<VibrationScreen> {
-  final StimulusController _stimController = Get.find();
-  final BluetoothController _bleController = Get.find();
+class _VibrationPopupState extends State<VibrationPopup> {
+  final Stimulus _stimController = Get.find();
+  final Bluetooth _bleController = Get.find();
   String stimulus = "vibration";
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-import 'package:pain_drain_mobile_app/screens/home_screen.dart';
+import 'package:pain_drain_mobile_app/screens/home/home_screen.dart';
 
 class OnBoarding extends StatelessWidget {
   const OnBoarding({Key? key}) : super(key: key);
@@ -113,21 +113,21 @@ class OnBoarding extends StatelessWidget {
       ],
       showSkipButton: true,
       showNextButton: false,
-      skip: const Text("Skip"),
-      done: const Text("Done"),
+      skip: const Text("Skip", style: TextStyle(color: Colors.blue),),
+      done: const Text("Done", style: TextStyle(color: Colors.blue),),
       onDone: () {
         Get.to(() => const HomeScreen());
       },
+      skipStyle: TextButton.styleFrom(
+          overlayColor: Colors.blue
+      ),
+      doneStyle: TextButton.styleFrom(
+          overlayColor: Colors.blue
+      ),
+      dotsDecorator: const DotsDecorator(
+        activeColor: Colors.blue
+      ),
     );
   }
 }
-
-// class FirstPage extends StatelessWidget {
-//   const FirstPage({Key? key}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Placeholder();
-//   }
-// }
 

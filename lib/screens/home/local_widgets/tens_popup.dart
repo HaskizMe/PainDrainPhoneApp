@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:pain_drain_mobile_app/controllers/bluetooth_controller.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/vertical_slider.dart';
-import 'package:pain_drain_mobile_app/custom_widgets/horizontal_slider.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/widgets/vertical_slider.dart';
+import 'package:pain_drain_mobile_app/widgets/horizontal_slider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
 
-import '../controllers/stimulus_controller.dart';
-import '../scheme_colors/app_colors.dart';
+import '../../../models/stimulus.dart';
+import '../../../utils/app_colors.dart';
 
-class TensSettings extends StatefulWidget {
-  const TensSettings({Key? key}) : super(key: key);
+class TensPopup extends StatefulWidget {
+  const TensPopup({Key? key}) : super(key: key);
 
   @override
-  State<TensSettings> createState() => _TensSettingsState();
+  State<TensPopup> createState() => _TensPopupState();
 }
 
-class _TensSettingsState extends State<TensSettings> with TickerProviderStateMixin{
-  final StimulusController _stimController = Get.find();
+class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
+  final Stimulus _stimController = Get.find();
   late AnimationController controller1;
   late AnimationController controller2;
 
@@ -28,11 +28,12 @@ class _TensSettingsState extends State<TensSettings> with TickerProviderStateMix
 
 
   late bool _isOn;
+  int selectedIndex = 0;
   late int _mode;
   late int playButtonChannel1;
   late int playButtonChannel2;
 
-  final BluetoothController _bleController = Get.find();
+  final Bluetooth _bleController = Get.find();
   //int tabIndex = 0;
   bool isPlayingChannel1 = false;
   bool isPlayingChannel2 = false;
@@ -42,6 +43,11 @@ class _TensSettingsState extends State<TensSettings> with TickerProviderStateMix
   void initState() {
     super.initState();
     _isOn = _stimController.isPhaseOn(); // Assign the value of _stimController.isPhaseOn() to _isOn
+    if(_isOn){
+      selectedIndex = 1;
+    } else {
+      selectedIndex = 0;
+    }
     controller1 = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -112,7 +118,46 @@ class _TensSettingsState extends State<TensSettings> with TickerProviderStateMix
             Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                 child: CustomHorizontalSlider(title: "", currentValue: _stimController.getStimulus(amp), stimulusType: amp, stimulus: stimulus)
             ),
-            const SizedBox(height: 20,),
+
+            // Phase switch
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Phase:', style: TextStyle(fontSize: 18),),
+                const SizedBox(width: 5,),
+                FlutterToggleTab(
+                  width: 30,
+                  height: 40,
+                  labels: const ['0', '180'],
+                  selectedTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600
+                  ),
+                  unSelectedTextStyle: const TextStyle(
+                      color: Colors.blue,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400
+                  ),
+                  selectedBackgroundColors: const [Colors.blue],
+                  selectedIndex: selectedIndex,
+                  selectedLabelIndex:(index) async {
+                    setState(() {
+                      if(selectedIndex == 1){
+                        selectedIndex = 0;
+                        _stimController.setStimulus(_stimController.tensPhase, 0);
+                      } else{
+                        selectedIndex = 1;
+                        _stimController.setStimulus(_stimController.tensPhase, 180);
+                      }
+                    });
+                    String command = _bleController.getCommand("tens");
+                    await _bleController.newWriteToDevice(command);
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10,),
             Container(
               //width: 2,
               height: 2,
@@ -153,7 +198,7 @@ class _TensSettingsState extends State<TensSettings> with TickerProviderStateMix
                         labels: const ["Mode 1", "Mode 2"],
                         marginSelected: const EdgeInsets.fromLTRB(2.0, 2.0, 0.0, 2.0),
                         selectedIndex: _stimController.getStimulus(_stimController.tensModeChannel1).toInt() - 1, // -1 to make number an index
-                        selectedLabelIndex: (index) {
+                        selectedLabelIndex: (index) async {
                           setState(() {
                             // Sets the mode for channel 1
                             _stimController.setStimulus(_stimController.tensModeChannel1, index + 1); // +1 to index to make it a number. index 1 means mode 2
@@ -161,7 +206,7 @@ class _TensSettingsState extends State<TensSettings> with TickerProviderStateMix
                             _stimController.setStimulus(_stimController.currentChannel, 1);
                           });
                           String command = _bleController.getCommand("tens");
-                          _bleController.newWriteToDevice(command);
+                          await _bleController.newWriteToDevice(command);
                         },
                       ),
 

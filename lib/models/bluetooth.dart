@@ -3,12 +3,13 @@ import 'dart:collection';
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:pain_drain_mobile_app/controllers/stimulus_controller.dart';
-import 'package:pain_drain_mobile_app/screens/connect_to_device.dart';
+//import 'package:pain_drain_mobile_app/controllers/stimulus.dart';
+import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:pain_drain_mobile_app/screens/connect_device/connect_to_device.dart';
 
 
-class BluetoothController extends GetxController {
-  final StimulusController _stimulusController = Get.find();
+class Bluetooth extends GetxController {
+  final Stimulus _stimulusController = Get.find();
   Function? onDisconnectedCallback;
   Function? onReconnectedCallback;
   final Queue<List<int>> _queue = Queue<List<int>>();
@@ -62,10 +63,12 @@ class BluetoothController extends GetxController {
   }
 
   Future<bool> connectDevice(BluetoothDevice device) async {
+    print("Here");
     bool success = false;
     try {
       myConnectedDevice = device;
       await device.connect();
+      print("after connection");
       var connectionSubscription = device.connectionState.listen((BluetoothConnectionState state) async {
         if (state == BluetoothConnectionState.disconnected) {
           Get.to(() => const ConnectDevice());
@@ -77,7 +80,9 @@ class BluetoothController extends GetxController {
 
       });
       device.cancelWhenDisconnected(connectionSubscription, delayed: true, next: true);
+      print("before discovering services");
       await discoverServices(device);
+      print("after discovering services");
       success = true;
 
       setupListeners(device);
@@ -103,6 +108,8 @@ class BluetoothController extends GetxController {
 
   Future<void> discoverServices(BluetoothDevice connectedDevice) async {
     services = await connectedDevice.discoverServices();
+
+    print("after actually discovering services");
 
     // Reads all services and finds the custom service uuid
     for (BluetoothService service in services) {
@@ -198,6 +205,7 @@ class BluetoothController extends GetxController {
           print("Big data");
           await customCharacteristic.write(currentHexValues, allowLongWrite: true);
         } else {
+          print("not big data");
           await customCharacteristic.write(currentHexValues);
         }
         // Remove the processed command from the queue
@@ -253,6 +261,7 @@ class BluetoothController extends GetxController {
         String mode = "";
         String playButton = "";
         String channel = "";
+        //String phase = '';
 
         if(_stimulusController.getStimulus(_stimulusController.currentChannel).toInt() == 1){
           channel = "1";
@@ -270,14 +279,20 @@ class BluetoothController extends GetxController {
             "${_stimulusController.getStimulus(_stimulusController.tensIntensity).toInt()} "
             "$mode "
             "$playButton "
-            "$channel ";
+            "$channel "
+            "${_stimulusController.getStimulus(_stimulusController.tensPhase).toInt().toString()}";
 
 
             //"${_stimulusController.getStimulus(_stimulusController.tensMode).toInt()} ";
             //"${_stimulusController.getStimulus(channel)} "
             //"${_stimulusController.getStimulus(_stimulusController.tensPeriod).toInt()} "
             //"${_stimulusController.getCurrentChannel()}";
-        print("Command: stimulus: T, Intensity: ${_stimulusController.getStimulus(_stimulusController.tensIntensity).toInt()}, Mode: $mode, Play/pause: $playButton, Channel: $channel");
+        print("Command: stimulus: T, "
+            "Intensity: ${_stimulusController.getStimulus(_stimulusController.tensIntensity).toInt()}, "
+            "Mode: $mode, "
+            "Play/pause: $playButton, "
+            "Channel: $channel, "
+            "Phase: ${_stimulusController.getStimulus(_stimulusController.tensPhase).toInt().toString()}");
         break;
       // case "phase":
       //   command = "T p ${_stimulusController.getStimulus(_stimulusController.tensPhase).toInt()}";
