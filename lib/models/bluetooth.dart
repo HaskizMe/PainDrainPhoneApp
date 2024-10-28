@@ -71,7 +71,7 @@ class Bluetooth extends GetxController {
       print("after connection");
       var connectionSubscription = device.connectionState.listen((BluetoothConnectionState state) async {
         if (state == BluetoothConnectionState.disconnected) {
-          Get.to(() => const ConnectDevice());
+          Get.to(() => const ConnectDevice(wasDisconnected: true,));
           print("Device Disconnected");
           print("Error disconnection description: ${device.disconnectReason}");
         } else if (state == BluetoothConnectionState.connected) {
@@ -209,13 +209,6 @@ class Bluetooth extends GetxController {
           await customCharacteristic.write(currentHexValues);
         }
         // Remove the processed command from the queue
-
-        // Optionally, you can wait for a response from the device
-        //List<int> readValues = await readFromDevice();
-        // String read = hexToString(readValues);
-        // devDebugPrint(read);
-        //print("Read Values: $read");
-        //print("Read Values: $readValues");
       }
     } catch (e) {
       print("Error: $e");
@@ -379,9 +372,9 @@ class Bluetooth extends GetxController {
 
       if(read == "charge"){
         _stimulusController.disableAllStimuli();
-        isCharging.value = true; // Update the state variable when the device is charging
-        showChargingAnimation.value = true;
-        Future.delayed(const Duration(seconds: 5), () => showChargingAnimation.value = false);
+        //isCharging.value = true; // Update the state variable when the device is charging
+        //showChargingAnimation.value = true;
+        //Future.delayed(const Duration(seconds: 5), () => showChargingAnimation.value = false);
       } else if(read == "no charge" || read == "normal") {
         isCharging.value = false; // Update the state variable when the device is not charging
       }
