@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
@@ -35,6 +37,8 @@ class CustomHorizontalSlider extends StatefulWidget {
 }
 
 class _CustomHorizontalSliderState extends State<CustomHorizontalSlider> {
+  Timer? _throttleTimer; // Timer to throttle the updates
+  double? _lastSentValue; // To keep track of the last sent value
   final Stimulus _stimController = Get.find();
   final Bluetooth _bleController = Get.find();
 
@@ -88,19 +92,38 @@ class _CustomHorizontalSliderState extends State<CustomHorizontalSlider> {
               disabled: true
           ),
           onDragging: (handlerIndex, lowerValue, upperValue) {
-            _stimController.setStimulus(widget.stimulusType, lowerValue);
-            // _bleController.newWriteToDevice(widget.stimulus);
-            setState(() {
-              widget.currentValue = _stimController.getStimulus(widget.stimulusType);
-            });
+            // Throttle updates to avoid sending too many values
+            if (_throttleTimer == null || !_throttleTimer!.isActive) {
+              // Check if the value is the same as the last sent value to avoid redundancy
+              if (_lastSentValue == null || _lastSentValue != lowerValue) {
+                _stimController.setStimulus(widget.stimulusType, lowerValue);
+                setState(() {
+                  widget.currentValue = _stimController.getStimulus(widget.stimulusType);
+                });
+
+                // Set the last sent value
+                _lastSentValue = lowerValue;
+
+                // Optional: Send the command if needed in real time
+                String command = _bleController.getCommand(widget.stimulus);
+                _bleController.newWriteToDevice(command);
+              }
+
+              // Set the throttle timer to delay the next update
+              _throttleTimer = Timer(const Duration(milliseconds: 100), () {
+                // This allows updates after the throttle duration has passed
+              });
+            }
           },
           onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+            // Send the final value once dragging is completed
             String command = _bleController.getCommand(widget.stimulus);
             _bleController.newWriteToDevice(command);
+            _lastSentValue = null; // Reset the last sent value for the next drag event
           },
         ),
         ),
-        Text(widget.title, style: TextStyle(fontSize: 20),)
+        Text(widget.title, style: const TextStyle(fontSize: 20),)
       ],
     );
   }

@@ -5,11 +5,10 @@ import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/vertical_slider.dart';
 
 import '../../../models/bluetooth.dart';
+import '../../../widgets/horizontal_slider.dart';
 
 class VibrationPopup extends StatefulWidget {
-  //final Function(void) update;
-
-  const VibrationPopup({Key? key,}) : super(key: key);
+  const VibrationPopup({Key? key}) : super(key: key);
 
   @override
   State<VibrationPopup> createState() => _VibrationPopupState();
@@ -26,47 +25,49 @@ class _VibrationPopupState extends State<VibrationPopup> {
     String freq = _stimController.vibeFreq;
     String waveform = _stimController.vibeWaveform;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 40.0),
+      padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 40.0),
       child: Obx(() {
         _bleController.isCharging.value;
         return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 10,),
-
-            Container(
-              width: 150,
-              height: 5,
-              decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(.4),
-                  borderRadius: BorderRadius.circular(5.0)
-              ),
+            // Container and Title at the Top
+            Column(
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 150,
+                  height: 5,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(.4),
+                      borderRadius: BorderRadius.circular(5.0)),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "VIBRATION",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-            const SizedBox(height: 20,),
-            const Text("VIBRATION", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
-            const SizedBox(height: 20,),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 
+            // Spacer to push slider to the middle
+            const Spacer(),
+
+            // Slider in the middle
+            Align(
+              alignment: Alignment.center,
+              child: Column(
                 children: [
-                  CustomVerticalSlider(title: 'Intensity', currentValue: _stimController.getStimulus(amp), stimulusType: amp, stimulus: stimulus,),
-                  CustomVerticalSlider(title: 'Frequency', currentValue: _stimController.getStimulus(freq), stimulusType: freq, stimulus: stimulus,),
-                  //CustomSlider(title: 'Waveform', currentValue: _stimController.getStimulus(waveform), stimulusType: waveform, stimulus: stimulus,),
+                  CustomHorizontalSlider(title: "Frequency", currentValue: _stimController.getStimulus(freq), stimulusType: freq, stimulus: stimulus,
+                  ),
                 ],
               ),
             ),
-            // const SizedBox(height: 20.0,),
-            // Align(
-            //   alignment: Alignment(.9, 0),
-            //   child: DropDownBox(selectedItem: _stimController.getCurrentWaveType(), items: _stimController.getAllWaveTypes(), widthSize: 130, dropDownCategory: 'waveTypes',),
-            // )
 
+            // Spacer below slider if needed
+            const Spacer(),
           ],
         );
-      }
-      ),
+      }),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/models/bluetooth.dart';
 import 'package:pain_drain_mobile_app/models/stimulus.dart';
 import 'package:pain_drain_mobile_app/screens/home/local_widgets/onboarding.dart';
+import 'package:pain_drain_mobile_app/utils/globals.dart';
 import 'package:pain_drain_mobile_app/widgets/custom_text_field.dart';
 import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/tens_summary.dart';
@@ -193,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               ],
             ),
             title: const Text(
-              'Stimulus',
+              'Pain Drain',
               style: TextStyle(
                   fontSize: 40,
                   color: Colors.white
@@ -202,13 +203,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             automaticallyImplyLeading: false,
             backgroundColor: Colors.blue.shade800,
             centerTitle: true,
-            actions: [
-              Obx(() => _bleController.isCharging.value
-                  ? const Icon(Icons.battery_charging_full_rounded, color: Colors.green,)
-                  : batteryIcon),
-              Text("${batteryLevel.toInt()}%", style: const TextStyle(color: Colors.white),),
-              const SizedBox(width: 10.0,)
-            ],
+            // actions: [
+            //   Obx(() => _bleController.isCharging.value
+            //       ? const Icon(Icons.battery_charging_full_rounded, color: Colors.green,)
+            //       : batteryIcon),
+            //   Text("${batteryLevel.toInt()}%", style: const TextStyle(color: Colors.white),),
+            //   const SizedBox(width: 10.0,)
+            // ],
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -303,25 +304,26 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       const SizedBox(height: 5.0,),
                       VibrationSummary(update: _updateProgress,),
                       const SizedBox(height: 10.0,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text("Debug Dev Info:"),
-                          const SizedBox(width: 10.0,),
-                          const Text("OFF"),
+                      if(showDebugTools)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            const Text("Debug Dev Info:"),
+                            const SizedBox(width: 10.0,),
+                            const Text("OFF"),
 
-                          Switch(
-                            value: _prefs.getDevControls(),
-                            onChanged: (bool value) async {
-                              setState(() {
-                                _prefs.setDevControls(value);
-                              });
-                            },
-                          ),
-                          const Text("ON"),
+                            Switch(
+                              value: _prefs.getDevControls(),
+                              onChanged: (bool value) async {
+                                setState(() {
+                                  _prefs.setDevControls(value);
+                                });
+                              },
+                            ),
+                            const Text("ON"),
 
-                        ],
-                      ),
+                          ],
+                        ),
                       if(_prefs.getDevControls())
                         Column(
                           children: [

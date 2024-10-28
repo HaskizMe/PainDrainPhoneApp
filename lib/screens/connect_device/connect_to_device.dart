@@ -5,6 +5,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get/get.dart';
 import 'package:pain_drain_mobile_app/utils/app_colors.dart';
 import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import '../../models/stimulus.dart';
 import '../../utils/clip_paths.dart';
 import '../../utils/globals.dart';
 import '../../widgets/bluetooth_icon_animation.dart';
@@ -13,7 +14,8 @@ import '../../widgets/x_mark_animation.dart';
 import '../home/home_screen.dart';
 
 class ConnectDevice extends StatefulWidget {
-  const ConnectDevice({Key? key}) : super(key: key);
+  final bool? wasDisconnected;
+  const ConnectDevice({Key? key, this.wasDisconnected}) : super(key: key);
 
   @override
   State<ConnectDevice> createState() => _ConnectDeviceState();
@@ -26,15 +28,25 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
   late AnimationController _animationController;
   late Animation<double> _animation;
   final Bluetooth _bleController = Get.find<Bluetooth>();
+  final Stimulus _stimulusController = Get.find();
 
   bool showCheckMark = false;
   bool showXMark =  false;
   bool isPulsing = false;
 
+
+
   @override
   @override
   void initState() {
     super.initState();
+    // Check if `wasDisconnected` is true and show the SnackBar after the first frame is built
+    if (widget.wasDisconnected == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showSnackBar(context);
+      });
+    }
+
     _adapterStateStateSubscription = FlutterBluePlus.adapterState.listen((state) {
       _adapterState = state;
     });
@@ -50,6 +62,22 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
   void dispose() {
     _adapterStateStateSubscription.cancel();
     super.dispose();
+  }
+
+  void _showSnackBar(BuildContext context) {
+    const snackBar = SnackBar(
+      backgroundColor: Colors.black45,
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Device was disconnected!', style: TextStyle(fontSize: 18),),
+            Icon(Icons.warning_amber, color: Colors.yellow,)
+          ]
+      ),
+      duration: Duration(seconds: 4), // Optional: duration for how long it shows
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
 
@@ -78,6 +106,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
             _animationController.forward();
           });
           await Future.delayed(const Duration(seconds: 2));
+          _stimulusController.disableAllStimuli(); // This makes sure we are starting with nothing on
           Get.off(() => const HomeScreen());
           print("success");
         }
