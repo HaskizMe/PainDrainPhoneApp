@@ -84,7 +84,7 @@ class Bluetooth extends GetxController {
       await discoverServices(device);
       print("after discovering services");
       success = true;
-
+      print("test");
       setupListeners(device);
     } catch (e) {
       success = false;
@@ -134,7 +134,6 @@ class Bluetooth extends GetxController {
         for(BluetoothDescriptor descriptor in customCharacteristic.descriptors){
           if(descriptor.uuid.toString() == characteristicConfigurationUUID){
             customConfigurationDescriptor = descriptor;
-            print("Descriptor found");
           }
         }
       }
@@ -355,8 +354,8 @@ class Bluetooth extends GetxController {
 
   setupListeners(BluetoothDevice device) async {
     // This sends a command to the device to enable notifications. So that the below code can read value changes
-    await customConfigurationDescriptor.write([1]);
-    print("subscribing to custom characteristic");
+    // await customConfigurationDescriptor.write([1]);
+    // print("subscribing to custom characteristic");
 
 
     final customCharacteristicSubscription = customCharacteristic.onValueReceived.listen((value) {
@@ -387,7 +386,10 @@ class Bluetooth extends GetxController {
     // This enables notifications
     // Note: If a characteristic supports both **notifications** and **indications**,
     // it will default to **notifications**. This matches how CoreBluetooth works on iOS.
-    await customCharacteristic.setNotifyValue(true);
+    await customCharacteristic.setNotifyValue(true); // This needs to go before writing to the characteristic
+
+    // This sends a command to the device to enable notifications. 
+    await customConfigurationDescriptor.write([1]);
   }
 
   // void sendDisableCommand(){

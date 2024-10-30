@@ -49,8 +49,8 @@ class _TempSliderState extends State<TempSlider> {
         min: _minValue,
         disabled: _bleController.isCharging.value,
         centeredOrigin: true,
-        handlerWidth: 40.0,
-        handlerHeight: 40.0,
+        handlerWidth: 45.0,
+        handlerHeight: 45.0,
         touchSize: 5,
         trackBar: FlutterSliderTrackBar(
             activeTrackBar: BoxDecoration(
