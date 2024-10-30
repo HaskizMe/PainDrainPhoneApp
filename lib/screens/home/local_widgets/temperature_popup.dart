@@ -73,7 +73,6 @@ class _TemperaturePopupState extends State<TemperaturePopup> {
 
                 Column(
                   children: [
-                    // NewTempSlider(currentValue: stimController.getStimulus("temp"),),
                     const SizedBox(height: 20.0,),
 
                     ElevatedButton(
