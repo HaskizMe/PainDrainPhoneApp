@@ -114,6 +114,10 @@ class _TempSliderState extends State<TempSlider> {
         },
         onDragCompleted: (handlerIndex, lowerValue, upperValue) {
           // Send the final value once dragging is completed
+          _stimController.setStimulus("temp", lowerValue);
+          setState(() {
+            widget.currentValue = _stimController.getStimulus("temp");
+          });
           String command = _bleController.getCommand("temperature");
           _bleController.newWriteToDevice(command);
           _lastSentValue = null; // Reset the last sent value for the next drag event
