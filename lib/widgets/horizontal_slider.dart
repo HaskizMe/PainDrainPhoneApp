@@ -92,6 +92,7 @@ class _CustomHorizontalSliderState extends State<CustomHorizontalSlider> {
               disabled: true
           ),
           onDragging: (handlerIndex, lowerValue, upperValue) {
+            print(lowerValue);
             // Throttle updates to avoid sending too many values
             if (_throttleTimer == null || !_throttleTimer!.isActive) {
               // Check if the value is the same as the last sent value to avoid redundancy
@@ -115,7 +116,15 @@ class _CustomHorizontalSliderState extends State<CustomHorizontalSlider> {
               });
             }
           },
-          onDragCompleted: (handlerIndex, lowerValue, upperValue) {
+          onDragCompleted: (handlerIndex, lowerValue, upperValue) async {
+            // Setting the new stim values
+            _stimController.setStimulus(widget.stimulusType, lowerValue);
+
+            // Show new stim percentage on UI
+            setState(() {
+              widget.currentValue = _stimController.getStimulus(widget.stimulusType);
+            });
+
             // Send the final value once dragging is completed
             String command = _bleController.getCommand(widget.stimulus);
             _bleController.newWriteToDevice(command);
