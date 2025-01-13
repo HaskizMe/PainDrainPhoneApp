@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
+import 'package:location/location.dart';
+import 'package:pain_drain_mobile_app/models/bluetooth_new.dart';
 import 'package:pain_drain_mobile_app/utils/app_colors.dart';
 import 'package:pain_drain_mobile_app/models/bluetooth.dart';
 import '../../models/stimulus.dart';
@@ -13,15 +16,15 @@ import '../../widgets/check_mark_animation.dart';
 import '../../widgets/x_mark_animation.dart';
 import '../home/home_screen.dart';
 
-class ConnectDevice extends StatefulWidget {
+class ConnectDevice extends ConsumerStatefulWidget {
   final bool? wasDisconnected;
   const ConnectDevice({Key? key, this.wasDisconnected}) : super(key: key);
 
   @override
-  State<ConnectDevice> createState() => _ConnectDeviceState();
+  ConsumerState<ConnectDevice> createState() => _ConnectDeviceState();
 }
 
-class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProviderStateMixin {
+class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTickerProviderStateMixin {
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
 
   late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
@@ -82,6 +85,33 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
 
 
   Future<void> scanAndConnect() async {
+
+    Location location = new Location();
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData _locationData;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+
+
+
     if(isDebug){
       Get.off(() => const HomeScreen());
       return;
@@ -93,6 +123,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
     });
 
     if(_adapterState == BluetoothAdapterState.on){
+      print("Bluetooth is on");
       await _bleController.scanForDevices();
       List<ScanResult> results = _bleController.scanResults;
       if(results.isNotEmpty){
@@ -183,6 +214,7 @@ class _ConnectDeviceState extends State<ConnectDevice> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       body: Stack(

@@ -10,8 +10,6 @@ import 'package:pain_drain_mobile_app/screens/connect_device/connect_to_device.d
 
 class Bluetooth extends GetxController {
   final Stimulus _stimulusController = Get.find();
-  Function? onDisconnectedCallback;
-  Function? onReconnectedCallback;
   final Queue<List<int>> _queue = Queue<List<int>>();
   String customServiceUUID = "3bf00c21-d291-4688-b8e9-5a379e3d9874";
   String customCharacteristicUUID = "93c836a2-695a-42cc-95ac-1afa0eef6b0a";
