@@ -61,7 +61,6 @@ class Bluetooth extends GetxController {
   }
 
   Future<bool> connectDevice(BluetoothDevice device) async {
-    print("Here");
     bool success = false;
     try {
       myConnectedDevice = device;
@@ -310,6 +309,11 @@ class Bluetooth extends GetxController {
     }
     print(command);
     print("sending");
+
+    /// This is for debugging. REMOVE THIS IN FUTURE
+    //command = "p 1 T 100 1 1 1 180";
+    //command = "p 1 v 85";
+    command = "p 1 t -100";
     return command;
   }
 

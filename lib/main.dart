@@ -8,23 +8,26 @@ import 'package:pain_drain_mobile_app/screens/test/test.dart';
 import 'models/bluetooth.dart';
 import 'package:get/get.dart';
 import 'package:device_preview/device_preview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> main() async {
   // This initializes the Bluetooth controller class so we can use it wherever in the app.
   Get.put(Stimulus());
   Get.put(Bluetooth());
   Get.put(Presets());
-  runApp(DevicePreview(
-    //enabled: true,
-    enabled: false,
+  runApp(ProviderScope(
+    child: DevicePreview(
+      //enabled: true,
+      enabled: false,
 
-    builder: (context) => GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/', // Specify initial route
-      getPages: [
-        GetPage(name: '/', page: () => const ConnectDevice()), // Define route for "/"
-        //GetPage(name: '/', page: () => const HomeScreen()), // Define route for "/"
-      ],
+      builder: (context) => GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/', // Specify initial route
+        getPages: [
+          GetPage(name: '/', page: () => const ConnectDevice()), // Define route for "/"
+          //GetPage(name: '/', page: () => const HomeScreen()), // Define route for "/"
+        ],
+      ),
     ),
   ));
   //FlutterBluePlus.setLogLevel(LogLevel.verbose, color: false);

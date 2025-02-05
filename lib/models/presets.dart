@@ -83,7 +83,7 @@ class Presets{
   void loadPreset(String presetName) {
     if (_prefs.getKeys().contains("preset.$presetName") && _prefs.getStringList("preset.$presetName") != null) {
       List<String> presetValues = _prefs.getStringList("preset.$presetName")!;
-      print("load preset: ${presetValues}");
+      print("load preset: $presetValues");
       _stimController.setStimulus(_stimController.tensIntensity, double.parse(presetValues[0]));
       _stimController.setStimulus(_stimController.tensModeChannel1, double.parse(presetValues[1]));
       _stimController.setStimulus(_stimController.tensModeChannel2, double.parse(presetValues[2]));

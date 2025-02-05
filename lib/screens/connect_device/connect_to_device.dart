@@ -5,7 +5,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:location/location.dart';
-import 'package:pain_drain_mobile_app/models/bluetooth_new.dart';
+import 'package:pain_drain_mobile_app/models/device_state.dart';
 import 'package:pain_drain_mobile_app/utils/app_colors.dart';
 import 'package:pain_drain_mobile_app/models/bluetooth.dart';
 import '../../models/stimulus.dart';
@@ -83,34 +83,35 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  Future<void> _checkPermissions() async {
+
+    // Checking to make sure location services is on
+    Location location = Location();
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+  }
+
 
   Future<void> scanAndConnect() async {
 
-    Location location = new Location();
-
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _locationData = await location.getLocation();
-
-
+    await _checkPermissions();
 
     if(isDebug){
       Get.off(() => const HomeScreen());
