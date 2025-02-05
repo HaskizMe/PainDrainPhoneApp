@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
 import 'package:pain_drain_mobile_app/models/device_state.dart';
+import 'package:pain_drain_mobile_app/providers/bluetooth_notifier.dart';
 import 'package:pain_drain_mobile_app/utils/app_colors.dart';
 import 'package:pain_drain_mobile_app/models/bluetooth.dart';
 import '../../models/stimulus.dart';
@@ -30,7 +32,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
   late StreamSubscription<BluetoothAdapterState> _adapterStateStateSubscription;
   late AnimationController _animationController;
   late Animation<double> _animation;
-  final Bluetooth _bleController = Get.find<Bluetooth>();
+  //final Bluetooth _bleController = Get.find<Bluetooth>();
   final Stimulus _stimulusController = Get.find();
 
   bool showCheckMark = false;
@@ -114,7 +116,8 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
     await _checkPermissions();
 
     if(isDebug){
-      Get.off(() => const HomeScreen());
+      //Get.off(() => const HomeScreen());
+      context.go('/home');
       return;
     }
     String errorMessage;
@@ -125,12 +128,14 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
 
     if(_adapterState == BluetoothAdapterState.on){
       print("Bluetooth is on");
-      await _bleController.scanForDevices();
-      List<ScanResult> results = _bleController.scanResults;
+      await ref.read(bluetoothNotifierProvider.notifier).scanForDevices();
+
+      List<ScanResult> results = ref.read(bluetoothNotifierProvider).scanResults;
+
       if(results.isNotEmpty){
         BluetoothDevice device = results.first.device;
         print(device);
-        bool success = await _bleController.connectDevice(device);
+        bool success = await ref.read(bluetoothNotifierProvider.notifier).connectDevice(device);
         if(success) {
           setState(() {
             isPulsing = false;
@@ -139,7 +144,8 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
           });
           await Future.delayed(const Duration(seconds: 2));
           _stimulusController.disableAllStimuli(); // This makes sure we are starting with nothing on
-          Get.off(() => const HomeScreen());
+          //Get.off(() => const HomeScreen());
+          context.go('/home');
           print("success");
         }
         else {
@@ -179,7 +185,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
         print("Unsuccessful Scan: No results for PainDrain found");
         _showDialog(errorMessage, solution);
       }
-      print("List ${_bleController.scanResults}");
+      print("List ${ref.read(bluetoothNotifierProvider).scanResults}");
     } else{
       errorMessage = "Bluetooth not enabled";
       solution = "Please make sure to enable bluetooth on your device";

@@ -524,6 +524,7 @@ import 'package:pain_drain_mobile_app/widgets/vibration_summary.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../../models/preset.dart';
 import '../../models/presets.dart';
+import '../../providers/bluetooth_notifier.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/temperature_summary.dart';
 
@@ -537,8 +538,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
   final Presets _prefs = Get.find();
-  final Bluetooth _bleController = Get.find();
-  final Stimulus _stimulusController = Get.find();
+  //final Bluetooth _bleController = Get.find();
+  //final Stimulus _stimulusController = Get.find();
   final TextEditingController _textController = TextEditingController();
   late AnimationController _controller;
   bool isAddingItem = false; // Track whether we are in "add" mode
@@ -654,12 +655,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     if(selectedPreset != null){
       String command;
       _prefs.loadPreset(_prefs.getCurrentPreset()!);
-      command = _bleController.getCommand("tens");
-      await _bleController.newWriteToDevice(command);
-      command = _bleController.getCommand("temperature");
-      await _bleController.newWriteToDevice(command);
-      command = _bleController.getCommand("vibration");
-      await _bleController.newWriteToDevice(command);
+      command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+      await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
+      command = ref.read(bluetoothNotifierProvider.notifier).getCommand("temperature");
+      await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
+      command = ref.read(bluetoothNotifierProvider.notifier).getCommand("vibration");
+      await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
     }
     _controller.stop();
     _controller.reset();
@@ -672,10 +673,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final savedPresets = ref.watch(presetListNotifierProvider);
     final tens = ref.watch(tensNotifierProvider);
-    final vibe = ref.watch(vibrationNotifierProvider);
     final temp = ref.watch(temperatureNotifierProvider);
+    final vibe = ref.watch(vibrationNotifierProvider);
+
 
 
     if(batteryLevel > 99){
@@ -846,10 +847,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                       if(_prefs.getDevControls())
                         Column(
                           children: [
-                            Text("Tens: ${_stimulusController.readTens}", style: const TextStyle(fontSize: 18),),
-                            Text("phase: ${_stimulusController.readPhase}", style: const TextStyle(fontSize: 18)),
-                            Text("temperature: ${_stimulusController.readTemp}", style: const TextStyle(fontSize: 18)),
-                            Text("Vibration: ${_stimulusController.readVibe}", style: const TextStyle(fontSize: 18)),
+                            Text("Tens: ${tens.intensity}", style: const TextStyle(fontSize: 18),),
+                            Text("phase: ${tens.phase}", style: const TextStyle(fontSize: 18)),
+                            Text("temperature: ${temp.temperature}", style: const TextStyle(fontSize: 18)),
+                            Text("Vibration: ${vibe.frequency}", style: const TextStyle(fontSize: 18)),
                             const SizedBox(height: 10.0,),
                             ElevatedButton(
                                 onPressed: () {
@@ -860,32 +861,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                             const SizedBox(height: 20.0,),
                             ElevatedButton(
                                 onPressed: () async {
-                                  await _bleController.newWriteToDevice("B 2");
+                                  await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice("B 2");
                                 },
                                 child: const Text("Fully Charged")
                             ),
                             ElevatedButton(
                                 onPressed: () async {
-                                  await _bleController.newWriteToDevice("B 3");
+                                  await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice("B 3");
                                 },
                                 child: const Text("Low Battery")
                             ),
                             ElevatedButton(
                                 onPressed: () async {
-                                  await _bleController.newWriteToDevice("B 4");
+                                  await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice("B 4");
                                 },
                                 child: const Text("Medium Battery")
                             ),
                             ElevatedButton(
                                 onPressed: () async {
-                                  await _bleController.newWriteToDevice("B 5");
+                                  await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice("B 5");
                                 },
                                 child: const Text("Normal Operation")
                             ),
                             const SizedBox(height: 20.0,),
                             ElevatedButton(
                               onPressed: () async {
-                                await _bleController.disconnectDevice();
+                                await ref.read(bluetoothNotifierProvider.notifier).disconnectDevice();
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red
@@ -902,9 +903,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
             ),
           ),
         ),
-        Obx(() => _bleController.showChargingAnimation.value
-            ? ChargingAnimation(batteryLevel: batteryLevel,)
-            : const SizedBox.shrink()),
       ],
     );
   }

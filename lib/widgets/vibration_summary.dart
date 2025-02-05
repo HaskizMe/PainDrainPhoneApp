@@ -16,7 +16,7 @@ class VibrationSummary extends StatefulWidget {
 
 class _VibrationSummaryState extends State<VibrationSummary> {
   Stimulus _stimController = Get.find();
-  final Bluetooth _bleController = Get.find();
+  //final Bluetooth _bleController = Get.find();
 
   //String amp = "vibeIntensity";
   String freq = "vibeFreq";
@@ -30,65 +30,62 @@ class _VibrationSummaryState extends State<VibrationSummary> {
       onTap: () {
         showScrollableSheet(context, const VibrationPopup(), widget.update);
       },
-      child: Obx(() {
-        _bleController.isCharging.value;
-          return Card(
-            elevation: 10.0,
-            child: Container(
-              height: 150,
-              decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(10.0),
-                  gradient: LinearGradient(colors: [Colors.blue, Colors.blue.shade700,Colors.blue.shade800]),
+      child: Card(
+        elevation: 10.0,
+        child: Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(10.0),
+            gradient: LinearGradient(colors: [Colors.blue, Colors.blue.shade700,Colors.blue.shade800]),
 
-            ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // CircularPercentIndicator(
-                  //   animation: true,
-                  //   animateFromLastPercent: true,
-                  //   animationDuration: 2000,
-                  //   radius: 30.0,
-                  //   circularStrokeCap: CircularStrokeCap.round,
-                  //   percent: _stimController.getStimulus(_stimController.vibeIntensity) / 100,
-                  //   arcType: ArcType.FULL,
-                  //   linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                  //   center: Text("${_stimController.getStimulus(_stimController.vibeIntensity).toInt()}%", style: const TextStyle(color: Colors.white),),
-                  //   footer: const Text("Intensity", style: TextStyle(fontSize: 12.0, color: Colors.white),),
-                  // ),
-                  CircularPercentIndicator(
-                    animation: true,
-                    animateFromLastPercent: true,
-                    animationDuration: 2000,
-                    radius: 30.0,
-                    circularStrokeCap: CircularStrokeCap.round,
-                    percent: _stimController.getStimulus(freq) / 100,
-                    linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                    arcType: ArcType.FULL,
-                    center: Text("${_stimController.getStimulus(freq).toInt()}%", style: TextStyle(color: Colors.white)),
-                    footer: const Text("Frequency", style: TextStyle(fontSize: 12.0, color: Colors.white),),
-                  ),
-                  // CircularPercentIndicator(
-                  //   animation: true,
-                  //   animateFromLastPercent: true,
-                  //   animationDuration: 2000,
-                  //   radius: 30.0,
-                  //   circularStrokeCap: CircularStrokeCap.round,
-                  //   backgroundColor: Colors.grey,
-                  //   percent: _stimController.getStimulus(waveform) / 100,
-                  //   linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                  //   arcType: ArcType.FULL,
-                  //   center: Text("${_stimController.getStimulus(waveform).toInt()}%", style: TextStyle(color: Colors.white)),
-                  //   footer: const Text("Waveform", style: TextStyle(fontSize: 12.0, color: Colors.white),),
-                  // ),
-                ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // CircularPercentIndicator(
+              //   animation: true,
+              //   animateFromLastPercent: true,
+              //   animationDuration: 2000,
+              //   radius: 30.0,
+              //   circularStrokeCap: CircularStrokeCap.round,
+              //   percent: _stimController.getStimulus(_stimController.vibeIntensity) / 100,
+              //   arcType: ArcType.FULL,
+              //   linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+              //   center: Text("${_stimController.getStimulus(_stimController.vibeIntensity).toInt()}%", style: const TextStyle(color: Colors.white),),
+              //   footer: const Text("Intensity", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+              // ),
+              CircularPercentIndicator(
+                animation: true,
+                animateFromLastPercent: true,
+                animationDuration: 2000,
+                radius: 30.0,
+                circularStrokeCap: CircularStrokeCap.round,
+                percent: _stimController.getStimulus(freq) / 100,
+                linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+                arcType: ArcType.FULL,
+                center: Text("${_stimController.getStimulus(freq).toInt()}%", style: TextStyle(color: Colors.white)),
+                footer: const Text("Frequency", style: TextStyle(fontSize: 12.0, color: Colors.white),),
               ),
-            ),
-          );
-        }
+              // CircularPercentIndicator(
+              //   animation: true,
+              //   animateFromLastPercent: true,
+              //   animationDuration: 2000,
+              //   radius: 30.0,
+              //   circularStrokeCap: CircularStrokeCap.round,
+              //   backgroundColor: Colors.grey,
+              //   percent: _stimController.getStimulus(waveform) / 100,
+              //   linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
+              //   arcType: ArcType.FULL,
+              //   center: Text("${_stimController.getStimulus(waveform).toInt()}%", style: TextStyle(color: Colors.white)),
+              //   footer: const Text("Waveform", style: TextStyle(fontSize: 12.0, color: Colors.white),),
+              // ),
+            ],
+          ),
+        ),
       ),
+
     );
   }
 }

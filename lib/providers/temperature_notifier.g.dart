@@ -7,7 +7,7 @@ part of 'temperature_notifier.dart';
 // **************************************************************************
 
 String _$temperatureNotifierHash() =>
-    r'bb69acbf86d6b247ecabaa73246ca752f5c74c93';
+    r'b2525f5537e458f97a84d0cfa06de95bd6cbfa3f';
 
 /// See also [TemperatureNotifier].
 @ProviderFor(TemperatureNotifier)

@@ -6,7 +6,7 @@ part of 'vibration_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$vibrationNotifierHash() => r'5bf77394d90e962e006fb9965a8c208960712d11';
+String _$vibrationNotifierHash() => r'afe3ccce9f2f1a90ed362b470489ef8679231e86';
 
 /// See also [VibrationNotifier].
 @ProviderFor(VibrationNotifier)

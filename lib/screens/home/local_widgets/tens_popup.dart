@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
 import 'package:pain_drain_mobile_app/widgets/vertical_slider.dart';
 import 'package:pain_drain_mobile_app/widgets/horizontal_slider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -9,16 +11,17 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
 
 import '../../../models/stimulus.dart';
+import '../../../providers/bluetooth_notifier.dart';
 import '../../../utils/app_colors.dart';
 
-class TensPopup extends StatefulWidget {
+class TensPopup extends ConsumerStatefulWidget {
   const TensPopup({Key? key}) : super(key: key);
 
   @override
-  State<TensPopup> createState() => _TensPopupState();
+  ConsumerState<TensPopup> createState() => _TensPopupState();
 }
 
-class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
+class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateMixin{
   final Stimulus _stimController = Get.find();
   late AnimationController controller1;
   late AnimationController controller2;
@@ -33,7 +36,7 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
   late int playButtonChannel1;
   late int playButtonChannel2;
 
-  final Bluetooth _bleController = Get.find();
+  //final Bluetooth _bleController = Get.find();
   //int tabIndex = 0;
   bool isPlayingChannel1 = false;
   bool isPlayingChannel2 = false;
@@ -89,11 +92,10 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
     String ch1 = _stimController.tensDurCh1;
     String ch2 = _stimController.tensDurCh2;
     String tensPhase = _stimController.tensPhase;
+    final tens = ref.watch(tensNotifierProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
-      child: Obx(() {
-        _bleController.isCharging.value;
-        return Column(
+      child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Grey horizontal line and Tens title
@@ -116,7 +118,29 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
 
             // Intensity Slider
             Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                child: CustomHorizontalSlider(title: "", currentValue: _stimController.getStimulus(amp), stimulusType: amp, stimulus: stimulus)
+                child: // Example usage in a widget:
+                StimulusSlider(
+                  title: "",
+                  minValue: 0.0,
+                  maxValue: 100.0,
+                  isDecimal: false,
+                  measurementType: "%",
+                  initialValue: tens.intensity.toDouble(), // You might obtain this from a tensNotifier or another controller.
+                  onValueChanged: (newValue) {
+                    // Update the TENS stimulus (using your tensNotifier, for example).
+                    ref.read(tensNotifierProvider.notifier).updateTens(intensity: newValue.toInt());
+                  },
+                  onDragCompleted: () {
+                    // Optionally, perform any extra logic once dragging stops.
+                    print("TENS slider drag completed.");
+                  },
+                  getCommand: (value) {
+                    // Generate the command for the TENS stimulus.
+                    // For example, you might use your tensNotifier's getCommand method:
+                    return ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+                  },
+                )
+
             ),
 
             // Phase switch
@@ -151,8 +175,8 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
                         _stimController.setStimulus(_stimController.tensPhase, 180);
                       }
                     });
-                    String command = _bleController.getCommand("tens");
-                    await _bleController.newWriteToDevice(command);
+                    String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+                    await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                   },
                 ),
               ],
@@ -205,8 +229,8 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
                             // Sets the current channel to channel 1
                             _stimController.setStimulus(_stimController.currentChannel, 1);
                           });
-                          String command = _bleController.getCommand("tens");
-                          await _bleController.newWriteToDevice(command);
+                          String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+                          await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                         },
                       ),
 
@@ -234,8 +258,8 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
                               }
                               // Setting current channel to channel 1
                               setState(() => _stimController.setStimulus(_stimController.currentChannel, 1));
-                              String command = _bleController.getCommand("tens");
-                              _bleController.newWriteToDevice(command);
+                              String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+                              ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                             }
                           },
                           icon: AnimatedIcon(
@@ -294,8 +318,8 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
                             // Sets the current channel to channel 2
                             _stimController.setStimulus(_stimController.currentChannel, 2);
                           });
-                          String command = _bleController.getCommand("tens");
-                          _bleController.newWriteToDevice(command);
+                          String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+                          ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                         },
                       ),
 
@@ -322,8 +346,8 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
                               }
                               // Sets the current channel to channel 2
                               setState(() => _stimController.setStimulus(_stimController.currentChannel, 2));
-                              String command = _bleController.getCommand("tens");
-                              _bleController.newWriteToDevice(command);
+                              String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+                              ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                             }
                           },
                           icon: AnimatedIcon(
@@ -341,8 +365,7 @@ class _TensPopupState extends State<TensPopup> with TickerProviderStateMixin{
               ),
             )
           ],
-        );
-      }),
+        )
     );
 
   }

@@ -2,13 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pain_drain_mobile_app/models/bluetooth.dart';
+import 'package:pain_drain_mobile_app/providers/bluetooth_notifier.dart';
 import '../models/stimulus.dart';
 
-class CustomVerticalSlider extends StatefulWidget {
+class CustomVerticalSlider extends ConsumerStatefulWidget {
   final String title;
   final double? minValue;
   final double? maxValue;
@@ -34,18 +36,20 @@ class CustomVerticalSlider extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<CustomVerticalSlider> createState() => _CustomVerticalSliderState();
+  ConsumerState<CustomVerticalSlider> createState() => _CustomVerticalSliderState();
 }
 
-class _CustomVerticalSliderState extends State<CustomVerticalSlider> {
+class _CustomVerticalSliderState extends ConsumerState<CustomVerticalSlider> {
   Timer? _throttleTimer; // Timer to throttle the updates
   double? _lastSentValue; // To keep track of the last sent value
   final Stimulus _stimController = Get.find();
-  final Bluetooth _bleController = Get.find();
+  //final Bluetooth _bleController = Get.find();
 
 
   @override
   Widget build(BuildContext context) {
+    final deviceStatus = ref.watch(bluetoothNotifierProvider);
+
     return Column(
       children: [
         Expanded(
@@ -57,7 +61,7 @@ class _CustomVerticalSliderState extends State<CustomVerticalSlider> {
             max: widget.maxValue ?? 100.0,
             min: widget.minValue ?? 0.0,
             axis: Axis.vertical,
-            disabled: _bleController.isCharging.value,
+            disabled: deviceStatus.isCharging,
             rtl: true,
             //centeredOrigin: true,
             handlerWidth: 40.0,
@@ -108,8 +112,8 @@ class _CustomVerticalSliderState extends State<CustomVerticalSlider> {
                   _lastSentValue = lowerValue;
 
                   // Optional: Send the command if needed in real time
-                  String command = _bleController.getCommand(widget.stimulus);
-                  _bleController.newWriteToDevice(command);
+                  String command = ref.read(bluetoothNotifierProvider.notifier).getCommand(widget.stimulus);
+                  ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                 }
 
                 // Set the throttle timer to delay the next update
@@ -120,8 +124,8 @@ class _CustomVerticalSliderState extends State<CustomVerticalSlider> {
             },
             onDragCompleted: (handlerIndex, lowerValue, upperValue) {
               // Send the final value once dragging is completed
-              String command = _bleController.getCommand(widget.stimulus);
-              _bleController.newWriteToDevice(command);
+              String command = ref.read(bluetoothNotifierProvider.notifier).getCommand(widget.stimulus);
+              ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
               _lastSentValue = null; // Reset the last sent value for the next drag event
             },
           ),

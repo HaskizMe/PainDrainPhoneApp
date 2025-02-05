@@ -7,9 +7,11 @@ import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
 import 'package:pain_drain_mobile_app/providers/vibration_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../utils/go_router.dart';
+
 part 'bluetooth_notifier.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class BluetoothNotifier extends _$BluetoothNotifier {
   // Private variables for internal logic
   final Queue<List<int>> _queue = Queue<List<int>>();
@@ -36,9 +38,12 @@ class BluetoothNotifier extends _$BluetoothNotifier {
   /// Scans for devices and updates the state with scan results.
   Future<void> scanForDevices() async {
     print("Scanning for devices");
-    List<ScanResult> results = [];
+    //List<ScanResult> results = [];
     final scanSubscription = FlutterBluePlus.onScanResults.listen((r) {
-        results = r.toList();
+        // Update state as soon as scan results are received.
+        state = state.copyWith(scanResults: r.toList());
+        print("current state ${state.scanResults}");
+        //results = r.toList();
       },
       onError: (e) => print("Scan error: $e"),
     );
@@ -53,14 +58,14 @@ class BluetoothNotifier extends _$BluetoothNotifier {
     // Wait for scanning to stop
     await FlutterBluePlus.isScanning.where((val) => val == false).first;
 
-    if (results.isNotEmpty) {
+    if (state.scanResults.isNotEmpty) {
       print("Scan results not empty");
     } else {
       print("Scan results empty");
     }
 
     // Update the state with scan results
-    state = state.copyWith(scanResults: results);
+    //state = state.copyWith(scanResults: results);
   }
 
   /// Connects to a Bluetooth device and updates the state.
@@ -77,6 +82,7 @@ class BluetoothNotifier extends _$BluetoothNotifier {
         if (connState == BluetoothConnectionState.disconnected) {
           // Here you might navigate to a disconnection screen or update UI.
           // For example, update the state:
+          routes.go('/');
           state = state.copyWith(isConnected: false, connectedDevice: null);
           print("Device disconnected");
           // (In your old code, you used Get.to(); adjust as needed.)
@@ -233,7 +239,7 @@ class BluetoothNotifier extends _$BluetoothNotifier {
       // Use placeholder values; replace with your actual logic.
         String intensity = ref.read(tensNotifierProvider).intensity.toString();
         String mode = ref.read(tensNotifierProvider).mode.toString();
-        String playButton = ref.read(tensNotifierProvider).isPlaying.toString();
+        String playButton = ref.read(tensNotifierProvider).isPlaying ? '1' : '0';
         String channel = ref.read(tensNotifierProvider).channel.toString();
         String phase = ref.read(tensNotifierProvider).phase.toString();
         command = "T $intensity $mode $playButton $channel $phase";
@@ -255,7 +261,7 @@ class BluetoothNotifier extends _$BluetoothNotifier {
     }
     print("Sending command: $command");
     // For debugging, override command if needed:
-    command = "p 1 t -100";
+    //command = "p 1 t -100";
     return command;
   }
 

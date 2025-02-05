@@ -11,7 +11,7 @@ class TemperatureNotifier extends _$TemperatureNotifier {
     return const Temperature(); // Initial state
   }
 
-  void updateTens({int? temp}) {
+  void updateTemperature({int? temp}) {
     state = state.copyWith(
         temperature: temp ?? state.temperature
     );

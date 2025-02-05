@@ -11,7 +11,7 @@ class VibrationNotifier extends _$VibrationNotifier {
     return const Vibration(); // Initial state
   }
 
-  void updateTens({int? freq}) {
+  void updateVibration({int? freq}) {
     state = state.copyWith(
       frequency: freq ?? state.frequency
     );
