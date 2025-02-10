@@ -12,7 +12,7 @@ _$PresetImpl _$$PresetImplFromJson(Map<String, dynamic> json) => _$PresetImpl(
       vibration: Vibration.fromJson(json['vibration'] as Map<String, dynamic>),
       temperature:
           Temperature.fromJson(json['temperature'] as Map<String, dynamic>),
-      name: json['name'] as String? ?? '',
+      name: json['name'] as String,
     );
 
 Map<String, dynamic> _$$PresetImplToJson(_$PresetImpl instance) =>

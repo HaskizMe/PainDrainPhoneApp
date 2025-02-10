@@ -1,29 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/models/bluetooth.dart';
-import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
 import 'package:pain_drain_mobile_app/screens/home/local_widgets/tens_popup.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'custom_draggable_sheet.dart';
 
-class TensSummary extends StatefulWidget {
+class TensSummary extends ConsumerStatefulWidget {
   final Function update;
   const TensSummary({Key? key, required this.update}) : super(key: key);
 
   @override
-  State<TensSummary> createState() => _TensSummaryState();
+  ConsumerState<TensSummary> createState() => _TensSummaryState();
 }
 
-class _TensSummaryState extends State<TensSummary> {
-  final Stimulus _stimController = Get.find();
-  //final Bluetooth _bleController = Get.find();
-  String amp = "tensAmp";
-  String period = "tensPeriod";
-  String ch1 = "tensDurCh1";
-  String ch2 = "tensDurCh2";
+class _TensSummaryState extends ConsumerState<TensSummary> {
 
   @override
   Widget build(BuildContext context) {
+    final tens = ref.watch(tensNotifierProvider);
+
     return InkWell(
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
@@ -50,10 +45,10 @@ class _TensSummaryState extends State<TensSummary> {
                 animationDuration: 2000,
                 animateFromLastPercent: true,
                 circularStrokeCap: CircularStrokeCap.round,
-                percent: _stimController.getStimulus(amp) / 100,
+                percent: tens.intensity / 100,
                 arcType: ArcType.FULL,
                 linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
-                center: Text("${_stimController.getStimulus(amp).toInt()}%", style: const TextStyle(color: Colors.white),),
+                center: Text("${tens.intensity.toInt()}%", style: const TextStyle(color: Colors.white),),
                 footer: const Text("Intensity", style: TextStyle(fontSize: 12.0, color: Colors.white),),
               ),
               //Text("Mode ${_stimController.getStimulus(_stimController.tensMode).toInt()}", style: TextStyle(fontSize: 16, color: Colors.white),)

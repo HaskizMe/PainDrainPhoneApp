@@ -7,6 +7,7 @@ import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
 import 'package:pain_drain_mobile_app/providers/vibration_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../models/preset.dart';
 import '../utils/go_router.dart';
 
 part 'bluetooth_notifier.g.dart';
@@ -213,6 +214,25 @@ class BluetoothNotifier extends _$BluetoothNotifier {
     }
   }
 
+  Future<void> uploadPresetToDevice(Preset preset) async {
+    int currentChannel = preset.tens.currentChannel;
+    String presetNumber = preset.id.toString();
+    String intensity = preset.tens.intensity.toString();
+    String mode = preset.tens.channels[currentChannel - 1].mode.toString();
+    String playButton = preset.tens.channels[currentChannel - 1].isPlaying ? '1' : '0';
+    String phase = preset.tens.phase.toString();
+    String command = 'p $presetNumber T $intensity $mode $playButton ${currentChannel.toString()} $phase';
+    await newWriteToDevice(command);
+
+    String temp = preset.temperature.temperature.toString();
+    command = "p $presetNumber t $temp";
+    await newWriteToDevice(command);
+
+    String frequency = preset.vibration.frequency.toString();
+    command = "p $presetNumber v $frequency";
+    await newWriteToDevice(command);
+  }
+
   /// Debug print for received string values.
   void devDebugPrint(String readString) {
     if (readString.isEmpty) return;
@@ -237,12 +257,12 @@ class BluetoothNotifier extends _$BluetoothNotifier {
     switch (stimulus) {
       case "tens":
       // Use placeholder values; replace with your actual logic.
+        int currentChannel = ref.read(tensNotifierProvider).currentChannel;
         String intensity = ref.read(tensNotifierProvider).intensity.toString();
-        String mode = ref.read(tensNotifierProvider).mode.toString();
-        String playButton = ref.read(tensNotifierProvider).isPlaying ? '1' : '0';
-        String channel = ref.read(tensNotifierProvider).channel.toString();
+        String mode = ref.read(tensNotifierProvider).channels[currentChannel - 1].mode.toString();
+        String playButton = ref.read(tensNotifierProvider).channels[currentChannel - 1].isPlaying ? '1' : '0';
         String phase = ref.read(tensNotifierProvider).phase.toString();
-        command = "T $intensity $mode $playButton $channel $phase";
+        command = "T $intensity $mode $playButton ${currentChannel.toString()} $phase";
         print("tens command: $command");
         break;
       case "temperature":

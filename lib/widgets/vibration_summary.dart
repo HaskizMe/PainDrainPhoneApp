@@ -1,29 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pain_drain_mobile_app/providers/vibration_notifier.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import '../models/bluetooth.dart';
 import '../screens/home/local_widgets/vibration_popup.dart';
 import 'custom_draggable_sheet.dart';
 
-class VibrationSummary extends StatefulWidget {
+class VibrationSummary extends ConsumerStatefulWidget {
   final Function update;
   const VibrationSummary({Key? key, required this.update}) : super(key: key);
 
   @override
-  State<VibrationSummary> createState() => _VibrationSummaryState();
+  ConsumerState<VibrationSummary> createState() => _VibrationSummaryState();
 }
 
-class _VibrationSummaryState extends State<VibrationSummary> {
-  Stimulus _stimController = Get.find();
-  //final Bluetooth _bleController = Get.find();
-
-  //String amp = "vibeIntensity";
-  String freq = "vibeFreq";
-  String waveform = "vibeWaveform";
+class _VibrationSummaryState extends ConsumerState<VibrationSummary> {
 
   @override
   Widget build(BuildContext context) {
+    final vibe = ref.watch(vibrationNotifierProvider);
+
     return InkWell(
       hoverColor: Colors.black.withOpacity(.1),
       borderRadius: BorderRadius.circular(13.0),
@@ -62,10 +57,10 @@ class _VibrationSummaryState extends State<VibrationSummary> {
                 animationDuration: 2000,
                 radius: 30.0,
                 circularStrokeCap: CircularStrokeCap.round,
-                percent: _stimController.getStimulus(freq) / 100,
+                percent: vibe.frequency / 100,
                 linearGradient: LinearGradient(colors: [Colors.yellow, Colors.yellow.shade700, Colors.yellow.shade900]),
                 arcType: ArcType.FULL,
-                center: Text("${_stimController.getStimulus(freq).toInt()}%", style: TextStyle(color: Colors.white)),
+                center: Text("${vibe.frequency.toInt()}%", style: const TextStyle(color: Colors.white)),
                 footer: const Text("Frequency", style: TextStyle(fontSize: 12.0, color: Colors.white),),
               ),
               // CircularPercentIndicator(

@@ -16,7 +16,7 @@ class Preset with _$Preset {
     required Tens tens,
     required Vibration vibration,
     required Temperature temperature,
-    @Default('') String name,
+    required String name,
   }) = _Preset;
 
   factory Preset.fromJson(Map<String, dynamic> json) => _$PresetFromJson(json);

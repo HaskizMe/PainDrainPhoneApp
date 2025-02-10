@@ -202,7 +202,7 @@ class _$PresetImpl with DiagnosticableTreeMixin implements _Preset {
       required this.tens,
       required this.vibration,
       required this.temperature,
-      this.name = ''});
+      required this.name});
 
   factory _$PresetImpl.fromJson(Map<String, dynamic> json) =>
       _$$PresetImplFromJson(json);
@@ -216,7 +216,6 @@ class _$PresetImpl with DiagnosticableTreeMixin implements _Preset {
   @override
   final Temperature temperature;
   @override
-  @JsonKey()
   final String name;
 
   @override
@@ -277,7 +276,7 @@ abstract class _Preset implements Preset {
       required final Tens tens,
       required final Vibration vibration,
       required final Temperature temperature,
-      final String name}) = _$PresetImpl;
+      required final String name}) = _$PresetImpl;
 
   factory _Preset.fromJson(Map<String, dynamic> json) = _$PresetImpl.fromJson;
 

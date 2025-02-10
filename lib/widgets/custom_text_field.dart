@@ -39,7 +39,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               color: Colors.black,  // Change the focused border color here
             ),
           ),
-          labelText: 'Enter a new preset',
+          labelText: 'Preset Name',
           labelStyle: TextStyle(
             color: Colors.black
           ),

@@ -6,7 +6,7 @@ part of 'bluetooth_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$bluetoothNotifierHash() => r'95fcb7887b40ceb651828c3ac07ce6d0b3a4258c';
+String _$bluetoothNotifierHash() => r'e1a34b386a494aef3a1fec5e01730b7dbbe47dc8';
 
 /// See also [BluetoothNotifier].
 @ProviderFor(BluetoothNotifier)

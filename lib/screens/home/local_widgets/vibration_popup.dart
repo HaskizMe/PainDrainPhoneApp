@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/models/stimulus.dart';
 import 'package:pain_drain_mobile_app/providers/vibration_notifier.dart';
 import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/vertical_slider.dart';
-
-import '../../../models/bluetooth.dart';
 import '../../../providers/bluetooth_notifier.dart';
 import '../../../widgets/horizontal_slider.dart';
 

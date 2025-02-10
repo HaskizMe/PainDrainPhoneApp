@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:pain_drain_mobile_app/models/bluetooth.dart';
 import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
 import 'package:pain_drain_mobile_app/widgets/vertical_slider.dart';
 import 'package:pain_drain_mobile_app/widgets/horizontal_slider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
-
-import '../../../models/stimulus.dart';
 import '../../../providers/bluetooth_notifier.dart';
 import '../../../utils/app_colors.dart';
 
@@ -22,35 +17,18 @@ class TensPopup extends ConsumerStatefulWidget {
 }
 
 class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateMixin{
-  final Stimulus _stimController = Get.find();
+  //final Stimulus _stimController = Get.find();
   late AnimationController controller1;
   late AnimationController controller2;
 
   late Animation<double> animation1;
   late Animation<double> animation2;
 
-
-  late bool _isOn;
-  int selectedIndex = 0;
-  late int _mode;
-  late int playButtonChannel1;
-  late int playButtonChannel2;
-
-  //final Bluetooth _bleController = Get.find();
-  //int tabIndex = 0;
-  bool isPlayingChannel1 = false;
-  bool isPlayingChannel2 = false;
   bool animationComplete = false;
 
   @override
   void initState() {
     super.initState();
-    _isOn = _stimController.isPhaseOn(); // Assign the value of _stimController.isPhaseOn() to _isOn
-    if(_isOn){
-      selectedIndex = 1;
-    } else {
-      selectedIndex = 0;
-    }
     controller1 = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -62,14 +40,13 @@ class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateM
     );
     animation2 = Tween<double>(begin: 0.0, end: 1.0).animate(controller2);
 
-    playButtonChannel1 = _stimController.getStimulus(_stimController.tensPlayButtonChannel1).toInt();
-    playButtonChannel2 = _stimController.getStimulus(_stimController.tensPlayButtonChannel2).toInt();
-    if(playButtonChannel1 == 1){
-      isPlayingChannel1 = true;
+    bool playButtonChannel1 = ref.read(tensNotifierProvider).channels[0].isPlaying;
+    bool playButtonChannel2 = ref.read(tensNotifierProvider).channels[1].isPlaying;
+
+    if(playButtonChannel1){
       controller1.forward();
     }
-    if(playButtonChannel2 == 1){
-      isPlayingChannel2 = true;
+    if(playButtonChannel2){
       controller2.forward();
     }
   }
@@ -87,11 +64,6 @@ class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    String amp = _stimController.tensIntensity;
-    String period = _stimController.tensPeriod;
-    String ch1 = _stimController.tensDurCh1;
-    String ch2 = _stimController.tensDurCh2;
-    String tensPhase = _stimController.tensPhase;
     final tens = ref.watch(tensNotifierProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0),
@@ -164,17 +136,9 @@ class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateM
                       fontWeight: FontWeight.w400
                   ),
                   selectedBackgroundColors: const [Colors.blue],
-                  selectedIndex: selectedIndex,
+                  selectedIndex: tens.phase == 0 ? 0 : 1,
                   selectedLabelIndex:(index) async {
-                    setState(() {
-                      if(selectedIndex == 1){
-                        selectedIndex = 0;
-                        _stimController.setStimulus(_stimController.tensPhase, 0);
-                      } else{
-                        selectedIndex = 1;
-                        _stimController.setStimulus(_stimController.tensPhase, 180);
-                      }
-                    });
+                    ref.read(tensNotifierProvider.notifier).updateTens(phase: (index == 0) ? 0 : 180);
                     String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
                     await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                   },
@@ -221,14 +185,12 @@ class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateM
                         selectedBackgroundColors: const [Colors.blue],
                         labels: const ["Mode 1", "Mode 2"],
                         marginSelected: const EdgeInsets.fromLTRB(2.0, 2.0, 0.0, 2.0),
-                        selectedIndex: _stimController.getStimulus(_stimController.tensModeChannel1).toInt() - 1, // -1 to make number an index
+                        // selectedIndex: _stimController.getStimulus(_stimController.tensModeChannel1).toInt() - 1, // -1 to make number an index
+                        selectedIndex: tens.channels[0].mode - 1,
                         selectedLabelIndex: (index) async {
-                          setState(() {
-                            // Sets the mode for channel 1
-                            _stimController.setStimulus(_stimController.tensModeChannel1, index + 1); // +1 to index to make it a number. index 1 means mode 2
-                            // Sets the current channel to channel 1
-                            _stimController.setStimulus(_stimController.currentChannel, 1);
-                          });
+                          ref.read(tensNotifierProvider.notifier)
+                              .updateTens(channelNumber: 1, mode: index + 1);
+
                           String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
                           await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                         },
@@ -248,16 +210,16 @@ class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateM
                           onPressed: () {
                             if (controller1.isCompleted || controller1.isDismissed) {
                               print("Animation done");
-                              isPlayingChannel1 = !isPlayingChannel1;
-                              if (isPlayingChannel1) {
-                                _stimController.setStimulus(_stimController.tensPlayButtonChannel1, 1); // 1 means its playing
-                                controller1.forward();
-                              } else {
-                                _stimController.setStimulus(_stimController.tensPlayButtonChannel1, 0); // 0 means its paused
+                              //isPlayingChannel1 = !isPlayingChannel1;
+                              if (tens.channels[0].isPlaying) {
+                                // _stimController.setStimulus(_stimController.tensPlayButtonChannel1, 1); // 1 means its playing
+                                ref.read(tensNotifierProvider.notifier).updateTens(channelNumber: 1, isPlaying: false);
                                 controller1.reverse();
+                              } else {
+                                ref.read(tensNotifierProvider.notifier).updateTens(channelNumber: 1, isPlaying: true);
+                                controller1.forward();
                               }
                               // Setting current channel to channel 1
-                              setState(() => _stimController.setStimulus(_stimController.currentChannel, 1));
                               String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
                               ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                             }
@@ -310,16 +272,13 @@ class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateM
                         selectedBackgroundColors: const [Colors.blue],
                         labels: const ["Mode 1", "Mode 2"],
                         marginSelected: const EdgeInsets.fromLTRB(2.0, 2.0, 0.0, 2.0),
-                        selectedIndex: _stimController.getStimulus(_stimController.tensModeChannel2).toInt() - 1, // -1 to make number an index
-                        selectedLabelIndex: (index) {
-                          setState(() {
-                            // Sets the mode for channel 2
-                            _stimController.setStimulus(_stimController.tensModeChannel2, index + 1); // +1 to index to make it a number. index 0 means mode 1
-                            // Sets the current channel to channel 2
-                            _stimController.setStimulus(_stimController.currentChannel, 2);
-                          });
+                        selectedIndex: tens.channels[1].mode - 1,
+                        selectedLabelIndex: (index) async {
+                          ref.read(tensNotifierProvider.notifier)
+                              .updateTens(channelNumber: 2, mode: index + 1);
+
                           String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
-                          ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
+                          await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                         },
                       ),
 
@@ -328,24 +287,21 @@ class _TensPopupState extends ConsumerState<TensPopup> with TickerProviderStateM
                         width: 100,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(20.0)
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(20.0)
                           //shape: BoxShape.circle, // Make the container circular
                         ),
                         child: IconButton(
                           onPressed: () {
-                            if (controller1.isCompleted || controller1.isDismissed) {
+                            if (controller2.isCompleted || controller2.isDismissed) {
                               print("Animation done");
-                              isPlayingChannel2 = !isPlayingChannel2;
-                              if (isPlayingChannel2) {
-                                controller2.forward();
-                                _stimController.setStimulus(_stimController.tensPlayButtonChannel2, 1); // 1 means its playing
-                              } else {
-                                _stimController.setStimulus(_stimController.tensPlayButtonChannel2, 0); // 0 means its paused
+                              if (tens.channels[1].isPlaying) {
+                                ref.read(tensNotifierProvider.notifier).updateTens(channelNumber: 2, isPlaying: false);
                                 controller2.reverse();
+                              } else {
+                                ref.read(tensNotifierProvider.notifier).updateTens(channelNumber: 2, isPlaying: true);
+                                controller2.forward();
                               }
-                              // Sets the current channel to channel 2
-                              setState(() => _stimController.setStimulus(_stimController.currentChannel, 2));
                               String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
                               ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                             }

@@ -3,20 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
-import 'package:pain_drain_mobile_app/models/device_state.dart';
 import 'package:pain_drain_mobile_app/providers/bluetooth_notifier.dart';
+import 'package:pain_drain_mobile_app/providers/temperature_notifier.dart';
+import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
+import 'package:pain_drain_mobile_app/providers/vibration_notifier.dart';
 import 'package:pain_drain_mobile_app/utils/app_colors.dart';
-import 'package:pain_drain_mobile_app/models/bluetooth.dart';
-import '../../models/stimulus.dart';
-import '../../utils/clip_paths.dart';
 import '../../utils/globals.dart';
 import '../../widgets/bluetooth_icon_animation.dart';
 import '../../widgets/check_mark_animation.dart';
 import '../../widgets/x_mark_animation.dart';
-import '../home/home_screen.dart';
 
 class ConnectDevice extends ConsumerStatefulWidget {
   final bool? wasDisconnected;
@@ -33,7 +30,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
   late AnimationController _animationController;
   late Animation<double> _animation;
   //final Bluetooth _bleController = Get.find<Bluetooth>();
-  final Stimulus _stimulusController = Get.find();
+  //final Stimulus _stimulusController = Get.find();
 
   bool showCheckMark = false;
   bool showXMark =  false;
@@ -143,7 +140,11 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
             _animationController.forward();
           });
           await Future.delayed(const Duration(seconds: 2));
-          _stimulusController.disableAllStimuli(); // This makes sure we are starting with nothing on
+          ref.read(tensNotifierProvider.notifier).disableTens();
+          ref.read(vibrationNotifierProvider.notifier).disableVibe();
+          ref.read(temperatureNotifierProvider.notifier).disableTemp();
+
+         // _stimulusController.disableAllStimuli(); // This makes sure we are starting with nothing on
           //Get.off(() => const HomeScreen());
           context.go('/home');
           print("success");
@@ -210,7 +211,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
             actions: [
               MaterialButton(
                 onPressed: () {
-                  Get.back();
+                  Navigator.pop(context);
                 },
                 child: const Text("Ok"),
               ),

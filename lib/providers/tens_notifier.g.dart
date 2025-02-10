@@ -6,7 +6,7 @@ part of 'tens_notifier.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tensNotifierHash() => r'325a0b114b3a55b0b13d1969576b44727b11a095';
+String _$tensNotifierHash() => r'e88b1292286b5c5bf91572cebd7140ec6d870b6d';
 
 /// See also [TensNotifier].
 @ProviderFor(TensNotifier)

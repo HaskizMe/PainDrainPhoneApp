@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/models/bluetooth.dart';
-import 'package:pain_drain_mobile_app/models/stimulus.dart';
 import 'package:pain_drain_mobile_app/providers/bluetooth_notifier.dart';
+import 'package:pain_drain_mobile_app/providers/temperature_notifier.dart';
 import 'package:pain_drain_mobile_app/widgets/temp_slider.dart';
 
 class TemperaturePopup extends ConsumerStatefulWidget {
@@ -15,13 +13,9 @@ class TemperaturePopup extends ConsumerStatefulWidget {
 }
 
 class _TemperaturePopupState extends ConsumerState<TemperaturePopup> {
-  final Stimulus _stimController = Get.find();
-  //final Bluetooth _bleController = Get.find();
-
 
   @override
   Widget build(BuildContext context) {
-    String temp = _stimController.temp;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 40.0),
@@ -54,9 +48,7 @@ class _TemperaturePopupState extends ConsumerState<TemperaturePopup> {
                       color: Colors.blue,
                     ),
                     Expanded(
-                      child: TempSlider(
-                        currentValue: _stimController.getStimulus(temp),
-                      ),
+                      child: TempSlider(),
                     ),
                     const Icon(
                       CupertinoIcons.flame,
@@ -73,7 +65,7 @@ class _TemperaturePopupState extends ConsumerState<TemperaturePopup> {
 
               ElevatedButton(
                   onPressed: () {
-                    _stimController.setStimulus("temp", 0.0);
+                    ref.read(temperatureNotifierProvider.notifier).updateTemperature(temp: 0);
                     String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("temperature");
                     ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
                     setState(() {});
