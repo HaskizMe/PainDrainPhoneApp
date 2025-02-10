@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:pain_drain_mobile_app/screens/home/home_screen.dart';
 
@@ -116,7 +116,7 @@ class OnBoarding extends StatelessWidget {
       skip: const Text("Skip", style: TextStyle(color: Colors.blue),),
       done: const Text("Done", style: TextStyle(color: Colors.blue),),
       onDone: () {
-        Get.to(() => const HomeScreen());
+        context.go("/home");
       },
       skipStyle: TextButton.styleFrom(
           overlayColor: Colors.blue

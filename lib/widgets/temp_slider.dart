@@ -1,26 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
+import 'package:pain_drain_mobile_app/providers/bluetooth_notifier.dart';
+import 'package:pain_drain_mobile_app/providers/temperature_notifier.dart';
 
-import '../models/bluetooth.dart';
-import '../models/stimulus.dart';
+class TempSlider extends ConsumerStatefulWidget {
+  //double currentValue;
 
-class TempSlider extends StatefulWidget {
-  double currentValue;
-
-  TempSlider({Key? key, required this.currentValue}) : super(key: key);
+  TempSlider({Key? key}) : super(key: key);
 
   @override
-  State<TempSlider> createState() => _TempSliderState();
+  ConsumerState<TempSlider> createState() => _TempSliderState();
 }
 
-class _TempSliderState extends State<TempSlider> {
+class _TempSliderState extends ConsumerState<TempSlider> {
   Timer? _throttleTimer; // Timer to throttle the updates
   double? _lastSentValue; // To keep track of the last sent value
-  final Stimulus _stimController = Get.find();
-  final Bluetooth _bleController = Get.find();
+  //final Stimulus _stimController = Get.find();
+  //final Bluetooth _bleController = Get.find();
 
   final double _minValue = -100;
   final double _maxValue = 100;
@@ -29,11 +28,14 @@ class _TempSliderState extends State<TempSlider> {
 
   @override
   Widget build(BuildContext context) {
-    if(widget.currentValue < 0){
+    final temp = ref.watch(temperatureNotifierProvider);
+    final deviceStatus = ref.watch(bluetoothNotifierProvider);
+
+    if(temp.temperature < 0){
       trackBarColor = Colors.blue;
       thumbSlider = Colors.blue;
     }
-    else if(widget.currentValue > 0) {
+    else if(temp.temperature > 0) {
       trackBarColor = Colors.red;
       thumbSlider = Colors.red;
     }
@@ -43,11 +45,11 @@ class _TempSliderState extends State<TempSlider> {
     }
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: Obx(() => FlutterSlider(
-        values: [widget.currentValue],
+      child: FlutterSlider(
+        values: [temp.temperature.toDouble()],
         max: _maxValue,
         min: _minValue,
-        disabled: _bleController.isCharging.value,
+        disabled: deviceStatus.isCharging,
         centeredOrigin: true,
         handlerWidth: 45.0,
         handlerHeight: 45.0,
@@ -66,7 +68,7 @@ class _TempSliderState extends State<TempSlider> {
             inactiveDisabledTrackBarColor: Colors.grey
         ),
         handler: FlutterSliderHandler(
-            child: Text("${widget.currentValue.toInt()}%", style: const TextStyle(color: Colors.white)),
+            child: Text("${temp.temperature.toInt()}%", style: const TextStyle(color: Colors.white)),
             decoration: BoxDecoration(
                 color: thumbSlider,
                 borderRadius: BorderRadius.circular(50.0)
@@ -93,17 +95,18 @@ class _TempSliderState extends State<TempSlider> {
           if (_throttleTimer == null || !_throttleTimer!.isActive) {
             // Check if the value is the same as the last sent value to avoid redundancy
             if (_lastSentValue == null || _lastSentValue != lowerValue) {
-              _stimController.setStimulus("temp", lowerValue);
-              setState(() {
-                widget.currentValue = _stimController.getStimulus("temp");
-              });
+              ref.read(temperatureNotifierProvider.notifier).updateTemperature(temp: lowerValue.toInt());
+              //_stimController.setStimulus("temp", lowerValue);
+              // setState(() {
+              //   widget.currentValue = _stimController.getStimulus("temp");
+              // });
 
               // Set the last sent value
               _lastSentValue = lowerValue;
 
               // Optional: Send the command if needed in real time
-              String command = _bleController.getCommand("temperature");
-              _bleController.newWriteToDevice(command);
+              String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("temperature");
+              ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
             }
 
             // Set the throttle timer to delay the next update
@@ -114,16 +117,16 @@ class _TempSliderState extends State<TempSlider> {
         },
         onDragCompleted: (handlerIndex, lowerValue, upperValue) {
           // Send the final value once dragging is completed
-          _stimController.setStimulus("temp", lowerValue);
-          setState(() {
-            widget.currentValue = _stimController.getStimulus("temp");
-          });
-          String command = _bleController.getCommand("temperature");
-          _bleController.newWriteToDevice(command);
+          ref.read(temperatureNotifierProvider.notifier).updateTemperature(temp: lowerValue.toInt());
+          // _stimController.setStimulus("temp", lowerValue);
+          // setState(() {
+          //   widget.currentValue = _stimController.getStimulus("temp");
+          // });
+          String command = ref.read(bluetoothNotifierProvider.notifier).getCommand("temperature");
+          ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
           _lastSentValue = null; // Reset the last sent value for the next drag event
         },
       )
-      ),
-    );
+      );
   }
 }

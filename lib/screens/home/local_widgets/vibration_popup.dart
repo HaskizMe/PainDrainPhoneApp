@@ -1,34 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:pain_drain_mobile_app/models/stimulus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pain_drain_mobile_app/providers/vibration_notifier.dart';
 import 'package:pain_drain_mobile_app/widgets/drop_down_button.dart';
 import 'package:pain_drain_mobile_app/widgets/vertical_slider.dart';
-
-import '../../../models/bluetooth.dart';
+import '../../../providers/bluetooth_notifier.dart';
 import '../../../widgets/horizontal_slider.dart';
 
-class VibrationPopup extends StatefulWidget {
+class VibrationPopup extends ConsumerStatefulWidget {
   const VibrationPopup({Key? key}) : super(key: key);
 
   @override
-  State<VibrationPopup> createState() => _VibrationPopupState();
+  ConsumerState<VibrationPopup> createState() => _VibrationPopupState();
 }
 
-class _VibrationPopupState extends State<VibrationPopup> {
-  final Stimulus _stimController = Get.find();
-  final Bluetooth _bleController = Get.find();
+class _VibrationPopupState extends ConsumerState<VibrationPopup> {
+  //final Stimulus _stimController = Get.find();
+  //final Bluetooth _bleController = Get.find();
   String stimulus = "vibration";
 
   @override
   Widget build(BuildContext context) {
-    String amp = _stimController.vibeIntensity;
-    String freq = _stimController.vibeFreq;
-    String waveform = _stimController.vibeWaveform;
+    // String amp = _stimController.vibeIntensity;
+    // String freq = _stimController.vibeFreq;
+    // String waveform = _stimController.vibeWaveform;
+    final vibe = ref.watch(vibrationNotifierProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 40.0),
-      child: Obx(() {
-        _bleController.isCharging.value;
-        return Column(
+      child: Column(
           children: [
             // Container and Title at the Top
             Column(
@@ -57,8 +55,24 @@ class _VibrationPopupState extends State<VibrationPopup> {
               alignment: Alignment.center,
               child: Column(
                 children: [
-                  CustomHorizontalSlider(title: "Frequency", currentValue: _stimController.getStimulus(freq), stimulusType: freq, stimulus: stimulus,
-                  ),
+                  StimulusSlider(
+                    title: "Vibration Intensity",
+                    minValue: 0.0,
+                    maxValue: 100.0,
+                    isDecimal: false,
+                    measurementType: "%",
+                    initialValue: vibe.frequency.toDouble(), // initial value for vibration.
+                    onValueChanged: (newValue) {
+                      ref.read(vibrationNotifierProvider.notifier).updateVibration(freq: newValue.toInt());
+                    },
+                    onDragCompleted: () {
+                      print("Vibration slider drag completed.");
+                    },
+                    getCommand: (value) {
+                      return ref.read(bluetoothNotifierProvider.notifier).getCommand("vibration");
+                    },
+                  )
+
                 ],
               ),
             ),
@@ -66,8 +80,7 @@ class _VibrationPopupState extends State<VibrationPopup> {
             // Spacer below slider if needed
             const Spacer(),
           ],
-        );
-      }),
+        )
     );
   }
 }
