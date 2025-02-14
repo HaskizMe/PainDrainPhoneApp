@@ -215,6 +215,7 @@ class BluetoothNotifier extends _$BluetoothNotifier {
   }
 
   Future<void> uploadPresetToDevice(Preset preset) async {
+    print("Uploading");
     int currentChannel = preset.tens.currentChannel;
     String presetNumber = preset.id.toString();
     String intensity = preset.tens.intensity.toString();
@@ -223,11 +224,9 @@ class BluetoothNotifier extends _$BluetoothNotifier {
     String phase = preset.tens.phase.toString();
     String command = 'p $presetNumber T $intensity $mode $playButton ${currentChannel.toString()} $phase';
     await newWriteToDevice(command);
-
     String temp = preset.temperature.temperature.toString();
     command = "p $presetNumber t $temp";
     await newWriteToDevice(command);
-
     String frequency = preset.vibration.frequency.toString();
     command = "p $presetNumber v $frequency";
     await newWriteToDevice(command);
@@ -335,10 +334,17 @@ class BluetoothNotifier extends _$BluetoothNotifier {
     // Cancel the subscription when the device disconnects.
     device.cancelWhenDisconnected(customCharacteristicSubscription);
 
-    // Enable notifications on the characteristic.
-    await _customCharacteristic.setNotifyValue(true);
-
-    // Write to the configuration descriptor to enable notifications.
-    await _customConfigurationDescriptor.write([1]);
+    // // Enable notifications on the characteristic.
+    // ✅ Check if notifications or indications are supported before enabling them
+    if (_customCharacteristic.properties.notify || _customCharacteristic.properties.indicate) {
+      try {
+        await _customCharacteristic.setNotifyValue(true);
+        print("✅ Notifications enabled successfully.");
+      } catch (e) {
+        print("⚠️ Error enabling notifications: $e");
+      }
+    } else {
+      print("⚠️ Characteristic does not support notifications or indications.");
+    }
   }
 }
