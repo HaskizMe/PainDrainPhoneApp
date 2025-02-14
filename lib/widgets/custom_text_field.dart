@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController textController;
-  final void Function(String)? onTextFieldChange;
+  final void Function(String)? onSubmit;
   final void Function() hideTextField;
 
 
   const CustomTextField({
     Key? key,
     required this.textController,
-    required this.onTextFieldChange,
+    this.onSubmit,
     required this.hideTextField
   }) : super(key: key);
 
@@ -46,8 +46,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
           border: OutlineInputBorder(),
         ),
         onSubmitted: (value) {
-          if (value != null && value.isNotEmpty) {
-            widget.onTextFieldChange!(value);
+          if (value.isNotEmpty && widget.onSubmit != null) {
+            widget.onSubmit!(value);
           }
         },
       ),
