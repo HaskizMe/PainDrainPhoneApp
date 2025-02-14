@@ -509,6 +509,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pain_drain_mobile_app/main.dart';
+import 'package:pain_drain_mobile_app/models/temperature.dart';
+import 'package:pain_drain_mobile_app/models/vibration.dart';
 import 'package:pain_drain_mobile_app/providers/preset_list_notifier.dart';
 import 'package:pain_drain_mobile_app/providers/temperature_notifier.dart';
 import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
@@ -520,6 +522,7 @@ import 'package:pain_drain_mobile_app/widgets/tens_summary.dart';
 import 'package:pain_drain_mobile_app/widgets/vibration_summary.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../../models/preset.dart';
+import '../../models/tens.dart';
 import '../../providers/bluetooth_notifier.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/temperature_summary.dart';
@@ -536,9 +539,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
-  //final Presets _prefs = Get.find();
-  //final Bluetooth _bleController = Get.find();
-  //final Stimulus _stimulusController = Get.find();
   final TextEditingController _textController = TextEditingController();
   bool isAddingItem = false; // Track whether we are in "add" mode
   bool isLoading = false;
@@ -548,6 +548,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   Icon batteryIcon = const Icon(Icons.battery_full, color: Colors.green,);
   Color color = Colors.green;
   String currentOption = presetOptions[0];
+  String uploadToDeviceString = "Uploading preset to device...";
+  late AnimationController _controller;
 
   decrementBattery() async {
     for(int i = 0; i < 100; i++){
@@ -562,10 +564,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
       }
     }
   }
+  @override
+  void initState() {
+    //decrementBattery();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2), // Duration for one complete cycle
+    );
+    super.initState();
+  }
 
   @override
   void dispose() {
     _textController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -615,22 +627,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     final currentPreset = ref.read(presetListNotifierProvider).selectedPreset;
     if (currentPreset != null) {
       ref.read(presetListNotifierProvider.notifier).removePreset(currentPreset.id);
+      Preset emptyPreset = Preset(
+          id: currentPreset.id,
+          tens: const Tens(),
+          vibration: const Vibration(),
+          temperature: const Temperature(),
+          name: ""
+      );
+      setState(() {
+        uploadToDeviceString = "Removing preset from device...";
+      });
+      uploadPreset(emptyPreset);
     }
     Navigator.pop(context);
-  }
-
-
-
-
-  void _handleAddButtonPress(String newValue) {
-    // print(newValue);
-    // //newValue = "preset.$newValue";
-    // _prefs.addNewPreset(newValue);
-    // _prefs.setCurrentPreset(newValue);
-    // setState(() {
-    //   _textController.clear();
-    //   isAddingItem = !isAddingItem;
-    // });
   }
 
   void _hideTextField() {
@@ -668,7 +677,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                     // Optionally, include your custom text field widget.
                     CustomTextField(
                       textController: _textController,
-                      onTextFieldChange: _handleAddButtonPress,
                       hideTextField: _hideTextField,
                     ),
                     const SizedBox(height: 16),
@@ -731,15 +739,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                           onPressed: () {
                             // Get preset ID
                             int presetId = presetOptions.indexOf(bottomSheetCurrentOption) + 1;
-                            Preset preset = Preset(
-                                id: presetId,
-                                tens: ref.read(tensNotifierProvider),
-                                vibration: ref.read(vibrationNotifierProvider),
-                                temperature: ref.read(temperatureNotifierProvider),
-                                name: _textController.text
-                            );
+                            _addPreset(presetId);
 
-                            ref.read(presetListNotifierProvider.notifier).savePreset(preset);
                             // Optionally update the parent state here.
                             setState(() {
                               currentOption = bottomSheetCurrentOption;
@@ -760,12 +761,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     );
   }
 
+  void _addPreset(int presetId){
+    // Make Preset object and save it
+    Preset preset = Preset(
+        id: presetId,
+        tens: ref.read(tensNotifierProvider),
+        vibration: ref.read(vibrationNotifierProvider),
+        temperature: ref.read(temperatureNotifierProvider),
+        name: _textController.text
+    );
+
+    ref.read(presetListNotifierProvider.notifier).savePreset(preset);
+    setState(() {
+      uploadToDeviceString = "Uploading preset to device...";
+    });
+    uploadPreset(preset);
+  }
+
+
 
 
   Future<void> _handleLoadPreset() async {
     setState(() {
       isLoading = true;
     });
+
+    _controller.repeat();
     final selectedPreset = ref.read(presetListNotifierProvider).selectedPreset;
 
     if(selectedPreset != null){
@@ -784,20 +805,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     }
 
     await Future.delayed(const Duration(seconds: 2));
+    _controller.stop();
+    _controller.reset();
     setState(() {
       isLoading = false;
     });
   }
 
-  Future<void> uploadPreset() async {
-    final currentPreset = ref.read(presetListNotifierProvider).selectedPreset;
-    if(currentPreset == null) {
-      showErrorDialog("Please select a preset");
-      return;
-    }
-
+  Future<void> uploadPreset(Preset preset) async {
     setState(() => uploadingPreset = true);
-    await ref.read(bluetoothNotifierProvider.notifier).uploadPresetToDevice(currentPreset);
+    await ref.read(bluetoothNotifierProvider.notifier).uploadPresetToDevice(preset);
     await Future.delayed(const Duration(seconds: 3));
     setState(() => uploadingPreset = false);
   }
@@ -819,7 +836,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                 IconButton(
                     onPressed: () {
                       context.push('/onboarding');
-                      //Get.to(() => const OnBoarding());
                     },
                     icon: Icon(Icons.help_outline_rounded, color: Colors.grey.shade400,)
                 ),
@@ -846,69 +862,100 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20,),
-                      DropDownButton(widthSize: MediaQuery.of(context).size.width * .8, items: presets.presets, selectedPreset: presets.selectedPreset,),
-                      const SizedBox(height: 20,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ElevatedButton(
+                          Expanded(child: DropDownButton(widthSize: 0, items: presets.presets, selectedPreset: presets.selectedPreset,)),
+                          const SizedBox(width: 2.0,),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.add,
+                              color: Colors.black, // Change the icon color if needed
+                              size: 25.0,
+                            ),
                             onPressed: () => _showBottomSheet(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[600],
-                              overlayColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10), // Adjust radius as needed
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
-                            ),
-                            child: const Text("Save", style: TextStyle(color: Colors.white),),
                           ),
-                          ElevatedButton(
-                            onPressed: () => uploadPreset(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[600],
-                              overlayColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10), // Adjust radius as needed
+                          IconButton(
+                            icon: RotationTransition(
+                              turns: Tween(begin: 0.0, end: -1.0).animate(_controller),
+                              child: const Icon(
+                                Icons.sync,
+                                color: Colors.black,
+                                size: 25.0,
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
                             ),
-                            child: const Text("Upload", style: TextStyle(color: Colors.white),),
+                            onPressed: () {
+                              if(!isLoading) {
+                                _handleLoadPreset();
+                              }
+                            },
                           ),
-                          ElevatedButton(
-                            onPressed: () => _handleLoadPreset(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[600],
-                              overlayColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10), // Rounded corners
+                          IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red, // Change the icon color if needed
+                                size: 25.0,
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Controls button size
-                            ),
-                            child: isLoading
-                                ? const SizedBox(
-                              width: 24, // Match the button’s height
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 3, // Adjust thickness
-                              ),
-                            )
-                                : const Text("Load", style: TextStyle(color: Colors.white)),
+                              onPressed: () => confirmDelete(),
                           ),
-                          ElevatedButton(
-                            onPressed: () => confirmDelete(),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red[800],
-                              overlayColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10), // Adjust radius as needed
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
-                            ),
-                            child: const Text("Delete", style: TextStyle(color: Colors.white),),
-                          ),
+                          // ElevatedButton(
+                          //   onPressed: () => _showBottomSheet(),
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: Colors.grey[600],
+                          //     overlayColor: Colors.white,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(10), // Adjust radius as needed
+                          //     ),
+                          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
+                          //   ),
+                          //   child: const Text("Save", style: TextStyle(color: Colors.white),),
+                          // ),
+                          // // ElevatedButton(
+                          // //   onPressed: () => uploadPreset(),
+                          // //   style: ElevatedButton.styleFrom(
+                          // //     backgroundColor: Colors.grey[600],
+                          // //     overlayColor: Colors.white,
+                          // //     shape: RoundedRectangleBorder(
+                          // //       borderRadius: BorderRadius.circular(10), // Adjust radius as needed
+                          // //     ),
+                          // //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
+                          // //   ),
+                          // //   child: const Text("Upload", style: TextStyle(color: Colors.white),),
+                          // // ),
+                          // ElevatedButton(
+                          //   onPressed: () => _handleLoadPreset(),
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: Colors.grey[600],
+                          //     overlayColor: Colors.white,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(10), // Rounded corners
+                          //     ),
+                          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Controls button size
+                          //   ),
+                          //   child: isLoading
+                          //       ? const SizedBox(
+                          //     width: 24, // Match the button’s height
+                          //     height: 24,
+                          //     child: CircularProgressIndicator(
+                          //       color: Colors.white,
+                          //       strokeWidth: 3, // Adjust thickness
+                          //     ),
+                          //   )
+                          //       : const Text("Load", style: TextStyle(color: Colors.white)),
+                          // ),
+                          // ElevatedButton(
+                          //   onPressed: () => confirmDelete(),
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: Colors.red[800],
+                          //     overlayColor: Colors.white,
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(10), // Adjust radius as needed
+                          //     ),
+                          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
+                          //   ),
+                          //   child: const Text("Delete", style: TextStyle(color: Colors.white),),
+                          // ),
                         ],
                       ),
 
@@ -1039,7 +1086,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                       const CircularProgressIndicator(color: Colors.blue,), // Loading indicator
                       const SizedBox(height: 20),
                       Text(
-                        "Uploading preset to device...",
+                        uploadToDeviceString,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600, // Slightly bolder for Material feel
                           color: Colors.black87, // Dark text for contrast
