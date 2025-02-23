@@ -180,6 +180,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
           showXMark = true;
           _animationController.forward();
         });
+        await HapticsHelper.vibrate(HapticsType.error);
         await Future.delayed(const Duration(seconds: 1));
         setState(() {
           showXMark = false;
