@@ -223,12 +223,17 @@ class BluetoothNotifier extends _$BluetoothNotifier {
     String playButton = preset.tens.channels[currentChannel - 1].isPlaying ? '1' : '0';
     String phase = preset.tens.phase.toString();
     String command = 'p $presetNumber T $intensity $mode $playButton ${currentChannel.toString()} $phase';
+    print(command);
     await newWriteToDevice(command);
     String temp = preset.temperature.temperature.toString();
     command = "p $presetNumber t $temp";
+    print(command);
+
     await newWriteToDevice(command);
     String frequency = preset.vibration.frequency.toString();
     command = "p $presetNumber v $frequency";
+    print(command);
+
     await newWriteToDevice(command);
   }
 

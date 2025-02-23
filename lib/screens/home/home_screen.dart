@@ -1,10 +1,13 @@
 
+import 'dart:async';
+
 import 'package:animated_icon/animate_icon.dart';
 import 'package:animated_icon/animate_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:pain_drain_mobile_app/main.dart';
 import 'package:pain_drain_mobile_app/models/temperature.dart';
 import 'package:pain_drain_mobile_app/models/vibration.dart';
@@ -22,6 +25,7 @@ import '../../models/preset.dart';
 import '../../models/tens.dart';
 import '../../providers/bluetooth_notifier.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/haptic_feedback.dart';
 import '../../widgets/temperature_summary.dart';
 
 List<String> presetOptions = ['Preset 1', 'Preset 2', 'Preset 3'];
@@ -47,6 +51,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   String currentOption = presetOptions[0];
   String uploadToDeviceString = "Uploading preset to device...";
   late AnimationController _controller;
+  int? _selectedIndex; // Track which button is selected
+  int? _loadingIndex; // Track which button is showing a progress indicator
+  double _progress = 0.0; // Track progress percentage
+  Timer? _timer; // Timer for tracking hold duration
 
   decrementBattery() async {
     for(int i = 0; i < 100; i++){
@@ -63,7 +71,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   }
   @override
   void initState() {
-    //decrementBattery();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2), // Duration for one complete cycle
@@ -75,31 +82,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   void dispose() {
     _textController.dispose();
     _controller.dispose();
+    _timer?.cancel();
     super.dispose();
-  }
-
-  void confirmDelete() {
-    final currentPreset = ref.read(presetListNotifierProvider).selectedPreset;
-    if(currentPreset != null) {
-      showDialog(
-          context: context,
-          builder: (BuildContext context){
-            return AlertDialog(
-              title: Text("Are you sure you want to delete preset '${currentPreset.name}'?"),
-              actions: [
-                ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Cancel", style: TextStyle(color: Colors.black),)
-                ),
-                ElevatedButton(
-                    onPressed: handleDeleteButton,
-                    child: const Text("Delete", style: TextStyle(color: Colors.red),)
-                )
-              ],
-            );
-          }
-      );
-    }
   }
 
   void showErrorDialog(String errorMessage) {
@@ -119,196 +103,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     );
   }
 
-  void handleDeleteButton() {
-    // Read the current preset.
-    final currentPreset = ref.read(presetListNotifierProvider).selectedPreset;
-    if (currentPreset != null) {
-      ref.read(presetListNotifierProvider.notifier).removePreset(currentPreset.id);
-      Preset emptyPreset = Preset(
-          id: currentPreset.id,
-          tens: const Tens(),
-          vibration: const Vibration(),
-          temperature: const Temperature(),
-          name: ""
-      );
-      setState(() {
-        uploadToDeviceString = "Removing preset from device...";
-      });
-      uploadPreset(emptyPreset);
-    }
-    Navigator.pop(context);
-  }
-
-  void _hideTextField() {
-    setState(() => isAddingItem = !isAddingItem);
-  }
-
-  Future<void> _showBottomSheet() async {
-    // Use a local variable to track the radio selection in the bottom sheet.
-    String bottomSheetCurrentOption = currentOption;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true, // Makes the bottom sheet take up more space if needed.
-      builder: (BuildContext context) {
-        // Use StatefulBuilder so that the bottom sheet can rebuild its UI.
-        return StatefulBuilder(
-          builder: (BuildContext context, void Function(void Function()) setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(top: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 30),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 150,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(.8),
-                        borderRadius: BorderRadius.circular(10)
-                      ),
-                    ),
-                    const SizedBox(height: 30,),
-                    const Text("Create Preset", style: TextStyle(fontSize: 24),),
-                    const SizedBox(height: 30,),
-                    // Optionally, include your custom text field widget.
-                    CustomTextField(
-                      textController: _textController,
-                      hideTextField: _hideTextField,
-                    ),
-                    const SizedBox(height: 16),
-                    // Radio button for Preset 1
-                    ListTile(
-                      title: const Text("Preset 1"),
-                      leading: Radio<String>(
-                        activeColor: Colors.blue.shade700,
-                        value: presetOptions[0],
-                        groupValue: bottomSheetCurrentOption,
-                        onChanged: (String? value) {
-                          setModalState(() {
-                            bottomSheetCurrentOption = value!;
-                          });
-                        },
-                      ),
-                    ),
-                    // Radio button for Preset 2
-                    ListTile(
-                      title: const Text("Preset 2"),
-                      leading: Radio<String>(
-                        activeColor: Colors.blue.shade700,
-                        value: presetOptions[1],
-                        groupValue: bottomSheetCurrentOption,
-                        onChanged: (String? value) {
-                          setModalState(() {
-                            bottomSheetCurrentOption = value!;
-                          });
-                        },
-                      ),
-                    ),
-                    // Radio button for Preset 3
-                    ListTile(
-                      title: const Text("Preset 3"),
-                      leading: Radio<String>(
-                        activeColor: Colors.blue.shade700,
-                        value: presetOptions[2],
-                        groupValue: bottomSheetCurrentOption,
-                        onChanged: (String? value) {
-                          setModalState(() {
-                            bottomSheetCurrentOption = value!;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Confirm button that updates the parent widget's state, if necessary.
-                    Center(
-                      child: SizedBox(
-                        width: 200,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade700,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0), // Adjust the radius as needed
-                            ),
-                          ),
-                          onPressed: () {
-                            // Get preset ID
-                            int presetId = presetOptions.indexOf(bottomSheetCurrentOption) + 1;
-                            _addPreset(presetId);
-
-                            // Optionally update the parent state here.
-                            setState(() {
-                              currentOption = bottomSheetCurrentOption;
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: const Text("Save", style: TextStyle(fontSize: 16),),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _addPreset(int presetId){
-    // Make Preset object and save it
-    Preset preset = Preset(
-        id: presetId,
-        tens: ref.read(tensNotifierProvider),
-        vibration: ref.read(vibrationNotifierProvider),
-        temperature: ref.read(temperatureNotifierProvider),
-        name: _textController.text
-    );
-
-    ref.read(presetListNotifierProvider.notifier).savePreset(preset);
-    setState(() {
-      uploadToDeviceString = "Uploading preset to device...";
-    });
-    uploadPreset(preset);
-  }
-
-
-
-
-  Future<void> _handleLoadPreset() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    _controller.repeat();
-    final selectedPreset = ref.read(presetListNotifierProvider).selectedPreset;
-
-    if(selectedPreset != null){
-      String command;
-      ref.read(tensNotifierProvider.notifier).updateFromPreset(selectedPreset);
-      ref.read(vibrationNotifierProvider.notifier).updateFromPreset(selectedPreset);
-      ref.read(temperatureNotifierProvider.notifier).updateFromPreset(selectedPreset);
-
-
-      command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
-      await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
-      command = ref.read(bluetoothNotifierProvider.notifier).getCommand("temperature");
-      await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
-      command = ref.read(bluetoothNotifierProvider.notifier).getCommand("vibration");
-      await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
-    }
-
-    await Future.delayed(const Duration(seconds: 2));
-    _controller.stop();
-    _controller.reset();
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   Future<void> uploadPreset(Preset preset) async {
     print("Uploading Preset to device");
     setState(() => uploadingPreset = true);
@@ -317,13 +111,176 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     setState(() => uploadingPreset = false);
   }
 
+  Future<void> _applyPresetToDevice(Preset preset) async {
+    ref.read(tensNotifierProvider.notifier).updateFromPreset(preset);
+    ref.read(vibrationNotifierProvider.notifier).updateFromPreset(preset);
+    ref.read(temperatureNotifierProvider.notifier).updateFromPreset(preset);
+
+    String command;
+    command = ref.read(bluetoothNotifierProvider.notifier).getCommand("tens");
+    await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
+    command = ref.read(bluetoothNotifierProvider.notifier).getCommand("temperature");
+    await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
+    command = ref.read(bluetoothNotifierProvider.notifier).getCommand("vibration");
+    await ref.read(bluetoothNotifierProvider.notifier).newWriteToDevice(command);
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+
+  Future<void> _onPresetSelected(int index, Preset? preset) async {
+    await HapticsHelper.vibrate(HapticsType.selection);
+    if (preset == null) {
+      print("Preset at index $index is null, using default.");
+      return;
+    }
+
+    if (_selectedIndex == index) {
+      print("Deselecting preset ${index + 1}");
+      preset = Preset(id: index, tens: const Tens(), vibration: const Vibration(), temperature: const Temperature(), name: "");
+      setState(() {
+        _selectedIndex = null; // Deselect
+      });
+
+      _applyPresetToDevice(preset); // Send empty preset
+      return;
+    }
+
+    print("Selected Preset: ${preset.name.isNotEmpty ? preset.name : "Preset ${index + 1}"}");
+
+    setState(() {
+      isLoading = true;
+      _selectedIndex = index; // Select the new preset
+    });
+
+    _applyPresetToDevice(preset); // Load the preset normally
+  }
+
+
+
+
+  void _onLongPressStart(int index) {
+    print("Long press start");
+    setState(() {
+      _loadingIndex = index;
+      _progress = 0.0;
+    });
+
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (_progress >= 1.0) {
+        timer.cancel();
+        _onLongPressComplete(index); // Call the completion function
+      } else {
+        setState(() {
+          _progress += 0.05; // 3% per 100ms, reaching 1.0 in ~3 seconds
+        });
+      }
+    });
+  }
+
+  Future<void> _showPresetDialog(BuildContext context, {String? initialText, required Function(String) onSave}) async {
+    TextEditingController textController = TextEditingController(text: initialText ?? "");
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Enter Preset Name"),
+          content: TextField(
+            maxLength: 20,
+            controller: textController,
+            decoration: const InputDecoration(
+              hintText: "Preset Name",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Cancel action
+              child: const Text("Cancel", style: TextStyle(color: Colors.red)),
+            ),
+            TextButton(
+              onPressed: () {
+                String enteredText = textController.text.trim();
+                if (enteredText.isNotEmpty) {
+                  onSave(enteredText); // Call the callback function with the text
+                  Navigator.pop(context); // Close dialog
+                }
+              },
+              child: const Text("Save", style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  void _onLongPressCancel() {
+    _resetProgress();
+  }
+
+  void _savePreset(int index, String name) {
+    print("Index $index");
+    print("Name $name");
+
+    Preset preset = Preset(
+      id: index + 1,
+      tens: ref.read(tensNotifierProvider),
+      vibration: ref.read(vibrationNotifierProvider),
+      temperature: ref.read(temperatureNotifierProvider),
+      name: name,
+    );
+
+    ref.read(presetListNotifierProvider.notifier).savePreset(preset);
+
+    setState(() {
+      uploadToDeviceString = "Uploading preset to device...";
+    });
+
+    uploadPreset(preset);
+  }
+
+
+  Future<void> _onLongPressComplete(int index) async {
+    await HapticsHelper.vibrate(HapticsType.success);
+    setState(() {
+      _loadingIndex = null;
+      _selectedIndex = index;
+    });
+
+    _showPresetDialog(
+      context,
+      initialText: "Preset ${_selectedIndex! + 1}",
+      onSave: (presetName) {
+        _savePreset(index, presetName);
+        print("Preset saved: $presetName"); // Replace this with your logic to save the preset
+      },
+    );
+
+
+    print("✅ Long press action completed for Preset ${index + 1}");
+  }
+
+
+  void _resetProgress() {
+    _timer?.cancel();
+    setState(() {
+      _progress = 0.0;
+      _loadingIndex = null;
+    });
+  }
 
   void _updateProgress () => setState(() {});
 
   @override
   Widget build(BuildContext context) {
-    final presets = ref.watch(presetListNotifierProvider);
-    // final selectPreset = ref.watch(currentPresetNotifierProvider);
+    final presetNotifier = ref.watch(presetListNotifierProvider);
+    final List<Preset> presets = presetNotifier.presets;
     return Stack(
       children: [
         Scaffold(
@@ -360,103 +317,73 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 20,),
-                      Row(
+                      // Generate buttons dynamically based on available presets
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(child: DropDownButton(widthSize: 0, items: presets.presets, selectedPreset: presets.selectedPreset,)),
-                          const SizedBox(width: 2.0,),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.add,
-                              color: Colors.black, // Change the icon color if needed
-                              size: 25.0,
-                            ),
-                            onPressed: () => _showBottomSheet(),
-                          ),
-                          IconButton(
-                            icon: RotationTransition(
-                              turns: Tween(begin: 0.0, end: -1.0).animate(_controller),
-                              child: const Icon(
-                                Icons.sync,
-                                color: Colors.black,
-                                size: 25.0,
-                              ),
-                            ),
-                            onPressed: () {
-                              if(!isLoading) {
-                                _handleLoadPreset();
-                              }
-                            },
-                          ),
-                          IconButton(
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.red, // Change the icon color if needed
-                                size: 25.0,
-                              ),
-                              onPressed: () => confirmDelete(),
-                          ),
-                          // ElevatedButton(
-                          //   onPressed: () => _showBottomSheet(),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: Colors.grey[600],
-                          //     overlayColor: Colors.white,
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(10), // Adjust radius as needed
-                          //     ),
-                          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
-                          //   ),
-                          //   child: const Text("Save", style: TextStyle(color: Colors.white),),
-                          // ),
-                          // // ElevatedButton(
-                          // //   onPressed: () => uploadPreset(),
-                          // //   style: ElevatedButton.styleFrom(
-                          // //     backgroundColor: Colors.grey[600],
-                          // //     overlayColor: Colors.white,
-                          // //     shape: RoundedRectangleBorder(
-                          // //       borderRadius: BorderRadius.circular(10), // Adjust radius as needed
-                          // //     ),
-                          // //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
-                          // //   ),
-                          // //   child: const Text("Upload", style: TextStyle(color: Colors.white),),
-                          // // ),
-                          // ElevatedButton(
-                          //   onPressed: () => _handleLoadPreset(),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: Colors.grey[600],
-                          //     overlayColor: Colors.white,
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(10), // Rounded corners
-                          //     ),
-                          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Controls button size
-                          //   ),
-                          //   child: isLoading
-                          //       ? const SizedBox(
-                          //     width: 24, // Match the button’s height
-                          //     height: 24,
-                          //     child: CircularProgressIndicator(
-                          //       color: Colors.white,
-                          //       strokeWidth: 3, // Adjust thickness
-                          //     ),
-                          //   )
-                          //       : const Text("Load", style: TextStyle(color: Colors.white)),
-                          // ),
-                          // ElevatedButton(
-                          //   onPressed: () => confirmDelete(),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: Colors.red[800],
-                          //     overlayColor: Colors.white,
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(10), // Adjust radius as needed
-                          //     ),
-                          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Optional: Adjust button size
-                          //   ),
-                          //   child: const Text("Delete", style: TextStyle(color: Colors.white),),
-                          // ),
-                        ],
-                      ),
+                        children: List.generate(3, (index) {
+                          final Preset? preset = index < presets.length ? presets[index] : null;
+                          final String presetName = preset?.name.isNotEmpty == true ? preset!.name : "Preset ${index + 1}";
+                          final bool isSelected = _selectedIndex == index;
+                          final bool isLoading = _loadingIndex == index;
 
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0), // Adds spacing between button
+
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: GestureDetector(
+                                onLongPressStart: (_) => _onLongPressStart(index),
+                                onLongPressUp: _onLongPressCancel,
+                                onLongPressCancel: _onLongPressCancel,
+                                child: ElevatedButton(
+                                  onPressed: () => _onPresetSelected(index, preset),
+                                  style: ElevatedButton.styleFrom(
+                                    overlayColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      side: isSelected ? BorderSide(color: Colors.blue.shade700, width: 2) : BorderSide.none,
+                                    ),
+                                    backgroundColor: Colors.white,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(presetName, style: const TextStyle(color: Colors.black, fontSize: 16)),
+                                        const SizedBox(width: 8),
+                                        if (isLoading)
+                                          SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 3,
+                                              value: _progress,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade700),
+                                            ),
+                                          )
+                                        else if (isSelected)
+                                          Icon(Icons.check, color: Colors.blue.shade700),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 5,),
+                      Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                              children: [
+                                const Icon(Icons.info_outline_rounded, size: 20,),
+                                const SizedBox(width: 5,),
+                                Text("Hold down button to save and upload to device", style: TextStyle(color: Colors.grey[800]),)
+                              ]
+                          )
+                      ),
                       const SizedBox(height: 20.0,),
                       const Align(
                         alignment: Alignment.centerLeft,
