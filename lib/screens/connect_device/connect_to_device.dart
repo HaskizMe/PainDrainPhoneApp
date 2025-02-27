@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
 import 'package:location/location.dart';
 import 'package:pain_drain_mobile_app/providers/bluetooth_notifier.dart';
 import 'package:pain_drain_mobile_app/providers/temperature_notifier.dart';
@@ -11,6 +12,7 @@ import 'package:pain_drain_mobile_app/providers/tens_notifier.dart';
 import 'package:pain_drain_mobile_app/providers/vibration_notifier.dart';
 import 'package:pain_drain_mobile_app/utils/app_colors.dart';
 import '../../utils/globals.dart';
+import '../../utils/haptic_feedback.dart';
 import '../../widgets/bluetooth_icon_animation.dart';
 import '../../widgets/check_mark_animation.dart';
 import '../../widgets/x_mark_animation.dart';
@@ -139,6 +141,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
             showCheckMark = true;
             _animationController.forward();
           });
+          await HapticsHelper.vibrate(HapticsType.success);
           await Future.delayed(const Duration(seconds: 2));
           ref.read(tensNotifierProvider.notifier).disableTens();
           ref.read(vibrationNotifierProvider.notifier).disableVibe();
@@ -158,7 +161,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
             showXMark = true;
             _animationController.forward();
           });
-
+          await HapticsHelper.vibrate(HapticsType.error);
           await Future.delayed(const Duration(seconds: 2));
 
           setState(() {
@@ -177,6 +180,7 @@ class _ConnectDeviceState extends ConsumerState<ConnectDevice> with SingleTicker
           showXMark = true;
           _animationController.forward();
         });
+        await HapticsHelper.vibrate(HapticsType.error);
         await Future.delayed(const Duration(seconds: 1));
         setState(() {
           showXMark = false;
