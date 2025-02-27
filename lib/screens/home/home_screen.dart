@@ -200,7 +200,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context), // Cancel action
+              onPressed: () {
+                setState(() => _selectedIndex = null);
+                Navigator.pop(context);
+              }, // Cancel action
               child: const Text("Cancel", style: TextStyle(color: Colors.red)),
             ),
             TextButton(
@@ -247,6 +250,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
 
 
   Future<void> _onLongPressComplete(int index) async {
+    print("saved index $index");
     await HapticsHelper.vibrate(HapticsType.success);
     setState(() {
       _loadingIndex = null;
@@ -321,10 +325,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: List.generate(3, (index) {
-                          final Preset? preset = index < presets.length ? presets[index] : null;
+
+                          // This sees if the index is in the presets.
+                          // If not we return null which disables on tap and grays button out
+                          // Since id is ordered starting at 1 we have to minus 1 to match with index
+                          final Preset? preset = presets.where((p) => p.id - 1 == index).isNotEmpty
+                              ? presets.firstWhere((p) => p.id - 1 == index)
+                              : null;
+
                           final String presetName = preset?.name.isNotEmpty == true ? preset!.name : "Preset ${index + 1}";
                           final bool isSelected = _selectedIndex == index;
                           final bool isLoading = _loadingIndex == index;
+                          final bool isPresetAvailable = preset != null; // Ensure we check this
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0), // Adds spacing between button
@@ -336,7 +348,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                                 onLongPressUp: _onLongPressCancel,
                                 onLongPressCancel: _onLongPressCancel,
                                 child: ElevatedButton(
-                                  onPressed: () => _onPresetSelected(index, preset),
+                                  onPressed: isPresetAvailable ? () => _onPresetSelected(index, preset) : null,
                                   style: ElevatedButton.styleFrom(
                                     overlayColor: Colors.black,
                                     shape: RoundedRectangleBorder(
@@ -350,7 +362,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(presetName, style: const TextStyle(color: Colors.black, fontSize: 16)),
+                                        Text(presetName,
+                                            style: TextStyle(
+                                                color: isPresetAvailable ? Colors.black : Colors.grey[800],
+                                                fontSize: 16
+                                            )
+                                        ),
                                         const SizedBox(width: 8),
                                         if (isLoading)
                                           SizedBox(
@@ -406,7 +423,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                       ),
                       const SizedBox(height: 5.0,),
                       VibrationSummary(update: _updateProgress,),
-                      const SizedBox(height: 10.0,),
+                      const SizedBox(height: 60.0,),
                       // if(showDebugTools)
                       //   Row(
                       //     mainAxisAlignment: MainAxisAlignment.end,

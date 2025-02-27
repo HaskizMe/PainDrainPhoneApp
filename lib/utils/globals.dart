@@ -1,2 +1,2 @@
-bool isDebug = false;
+bool isDebug = true;
 bool showDebugTools = false;

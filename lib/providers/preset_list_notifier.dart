@@ -22,9 +22,14 @@ class PresetListNotifier extends _$PresetListNotifier {
     final jsonString = prefs.getString(_presetsKey);
     if (jsonString != null) {
       final List<dynamic> jsonList = json.decode(jsonString);
-      print(jsonList);
+      //print(jsonList);
       state = state.copyWith(presets: jsonList.map((json) => Preset.fromJson(json)).toList());
     }
+  }
+
+  Future<void> deletePrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 
   Future<void> _savePresets() async {
