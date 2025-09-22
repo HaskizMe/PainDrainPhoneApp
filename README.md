@@ -4,12 +4,7 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Follow this guide to get started with setting up flutter on your local machine. [Flutter Setup Guide](https://docs.flutter.dev/get-started/install)
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
@@ -63,7 +58,7 @@ main.dart
 ### Required
 - Flutter SDK
 - Android Studio
-- Xcode
+- Xcode (for iOS)
 
 For development I use Android Studio and Xcode (for iOS). You can also use VSCode which is also very common.
 
@@ -105,4 +100,28 @@ flutter pub run build_runner watch --delete-conflicting-outputs
 
 Flutter has pretty good documentation so please follow it for more information. 
 
+
+## Running the App
+
+Follow these steps to run the project on your local machine:
+
+### 1. Install Dependencies
+Fetch all Dart and Flutter packages:  
+```bash
+flutter pub get
+```
+
+### 2. iOS Setup (macOS only)
+If you are building for iOS, install CocoaPods inside the ios directory:
+
+```bash
+cd ios
+pod install
+cd ..
+```
+
+### 3. Run the App
+```bash
+flutter run
+```
 
